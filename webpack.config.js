@@ -1,30 +1,25 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-//const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-//const ESLintPlugin = require('eslint-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');                  // build ts
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');         // remove build directory
+const CopyWebpackPlugin = require('copy-webpack-plugin');               // copy non minimized files
+
+//const HtmlWebpackPlugin = require('html-webpack-plugin');  // minimize html
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // minimize css
+//const ESLintPlugin = require('eslint-webpack-plugin'); // code linter
 
 module.exports = {
-  entry: './src/main/js/openfasttrace_view.js', // Main entry point for your JavaScript files
+  mode: 'production',                                   // Production mode enables minification
+
+  // Javascript and ts minimization source trees
+  entry: './src/main/js/openfasttrace.js',              // Main entry point for minimization
   output: {
-    filename: 'openfasttrace.min.js',   // Output bundle
-    path: path.resolve(__dirname, 'build/dist'), // Output directory
-    clean: true, // Automatically clean the output directory
+    filename: 'js/openfasttrace.js',                    // Output bundle
+    path: path.resolve(__dirname, 'build/dist'),        // Output directory
+    clean: true,                                        // Automatically clean build directory
   },
-  externals: {
-    jquery: 'jQuery',
-  },
-  mode: 'development', // Production mode enables minification
-  devtool: 'inline-source-map', // Enable source maps
-  watch: true, // Enable watch mode
-  watchOptions: {
-    ignored: /node_modules/, // Ignore node_modules for performance
-    aggregateTimeout: 300, // Delay rebuild after the first change (ms)
-    poll: 1000, // Use polling (useful for network filesystems)
-  },
+  devtool: 'source-map',                                // separate source map file to deminimize code for debugger
+
+  // Minimization source file compiler
   module: {
     rules: [
       {
@@ -42,14 +37,6 @@ module.exports = {
         },
         exclude: /node_modules/,
       },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'], // Extract and load CSS
-      },
-      {
-        test: /\.html$/,
-        use: 'html-loader', // Load and minify HTML files
-      },
     ],
   },
   resolve: {
@@ -57,42 +44,28 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(), // Clean the output directory before each build
-    new HtmlWebpackPlugin({
-      template: './src/main/html/openfasttrace_view.html', // Input HTML file
-      inject: 'body',
-      scriptLoading: 'defer',
-      minify: {
-        collapseWhitespace: true,
-        removeComments: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        //minifyCSS: true,
-        //minifyURLs: true,
-      },
-    }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'libs', to: 'libs' }, // Copy all libraries to the dist/libs folder
+        { from: 'src/main/libs', to: 'libs' }, // Copy all libraries to the dist/libs folder
+        { from: 'src/main/html', to: './html' }, // Copy all libraries to the dist/libs folder
+        { from: 'src/main/css', to: './css' }, // Copy all libraries to the dist/libs folder
+        { from: 'src/main/resources', to: './resources' }, // Copy all libraries to the dist/libs folder
       ],
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].css', // Extracted CSS filename
-    }),
-/*
-    new ESLintPlugin({
-      extensions: ['ts', 'js'], // Run ESLint on TypeScript and JavaScript files
-    }),
-*/
   ],
   optimization: {
     minimize: true,
     minimizer: [
-      new TerserPlugin(), // Minify JavaScript
-      //new CssMinimizerPlugin(), // Minify CSS
+      new TerserPlugin(),                                         // Minify Typescript
+      new CssMinimizerPlugin(), // Minify CSS
     ],
+  },
+
+  // Enable watch mode
+  watch: true,
+  watchOptions: {
+    ignored: /node_modules/, // Ignore node_modules for performance
+    aggregateTimeout: 300, // Delay rebuild after the first change (ms)
+    poll: 1000, // Use polling (useful for network filesystems)
   },
 };

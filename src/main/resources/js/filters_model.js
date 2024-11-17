@@ -1,5 +1,5 @@
 (function (window, undefined) {
-    filter_config = {
+    filterModel = {
         type: [
             {
                 name: "Feature",
