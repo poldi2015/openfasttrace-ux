@@ -6,7 +6,26 @@
 //
 // Public API
 
-export let filterSelection = new Set();
+/**
+ * ids of selected filters.
+ */
+export const filterSelection: Set<string> = new Set();
+
+/**
+ * Provided definition of filters in the generated js file filter_model.js
+ */
+declare global {
+    interface Window {
+        filterModel: any;
+    }
+}
+
+interface FilterModel {
+    name: string,
+    tooltip: string,
+    color: string,
+    item_count: number,
+}
 
 
 /**
@@ -14,8 +33,8 @@ export let filterSelection = new Set();
  */
 export function init() {
     $(".widget-filter").each(function () {
-        const selectElement = $(this);
-        const id = selectElement.parent().parent().attr('id');
+        const selectElement: JQuery = $(this);
+        const id: string = selectElement.parent().parent().attr('id')!;
 
         selectElement.on('change', () => selectionChanged(selectElement));
         addAllNoneSelector(selectElement);
@@ -23,8 +42,9 @@ export function init() {
         selectAll(selectElement);
         selectionChanged(selectElement);
 
-        if (filterModel[id]) {
-            const total = filterModel[id].reduce((sum, item) => item.item_count ? sum + item.item_count : 0, 0);
+        const filters: Array<FilterModel> = window.filterModel[id] as Array<FilterModel>;
+        if (filters) {
+            const total = filters.reduce((sum: number, item: FilterModel) => item.item_count ? sum + item.item_count : 0, 0);
             if (total > 0) {
                 selectElement.parent().parent().find("._expandable-widget-header span").append(`&nbsp;&nbsp;(${total})`);
             }
@@ -40,11 +60,11 @@ export function init() {
  * Imports option elements for a filter widget from the global filter_config variable.
  *
  * @param {String} id of the expanded widget
- * @param {*} selectElement the select element within the widget
+ * @param {JQuery} selectElement the select element within the widget
  */
-function appendFilterValues(id, selectElement) {
-    const items = filterModel[id];
-    items && items.forEach((item, index) => {
+function appendFilterValues(id: string, selectElement: JQuery): void {
+    const filters: Array<FilterModel> = window.filterModel[id] as Array<FilterModel>;
+    filters && filters.forEach((item: FilterModel, index: number) => {
         const color = item.color ? `style="color:${item.color}"` : '';
         const count = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
         selectElement.append(`<option id="${id}_${index}" ${color}>${item.name}${count}</option>`);
@@ -54,9 +74,9 @@ function appendFilterValues(id, selectElement) {
 /**
  * Adds a listener to the select element that updates the list of selected entries.
  *
- * @param {*} selectElement th select element
+ * @param {JQuery} selectElement th select element
  */
-function selectionChanged(selectElement) {
+function selectionChanged(selectElement: JQuery): void {
     selectElement.find('option:selected').each(function () {
         filterSelection.add(this.id);
     });
@@ -68,13 +88,13 @@ function selectionChanged(selectElement) {
 /**
  * Add a select all and a select none button above a select element.
  *
- * @param {*} selectElement The select element
+ * @param {JQuery} selectElement The select element
  */
-function addAllNoneSelector(selectElement) {
-    $(selectElement).parent().parent().find("._expandable-widget-header").append(`
+function addAllNoneSelector(selectElement: JQuery): void {
+    selectElement.parent().parent().find("._expandable-widget-header").append(`
         <div class="widget-filter-buttons">
-            <a href="#" onclick="FilterWidgets.selectAllOrNone(this.parentNode.parentNode.parentNode,true)">All</a>
-            <a href="#" onclick="FilterWidgets.selectAllOrNone(this.parentNode.parentNode.parentNode,false)">None</a>
+            <a href="#" onclick="window.Filters.selectAllOrNone(this.parentNode.parentNode.parentNode,true)">All</a>
+            <a href="#" onclick="window.Filters.selectAllOrNone(this.parentNode.parentNode.parentNode,false)">None</a>
         </div>
     `);
 }
@@ -84,9 +104,9 @@ function addAllNoneSelector(selectElement) {
  *
  * @param {Object} selectElement The select element
  */
-function selectAll(selectElement) {
-    $(selectElement).attr('multiple', "true");
-    $(selectElement).children("option").each(function () {
+function selectAll(selectElement: JQuery): void {
+    selectElement.attr('multiple', "true");
+    selectElement.children("option").each(function () {
         $(this).prop("selected", "true");
     });
 }
@@ -95,8 +115,8 @@ function selectAll(selectElement) {
 //
 // Event listeners
 
-window.FilterWidgets = {
-    selectAllOrNone : selectAllOrNone
+(window as any).Filters = {
+    selectAllOrNone: selectAllOrNone
 }
 
 /**
@@ -105,7 +125,7 @@ window.FilterWidgets = {
  * @param {*} widget the widget toplevel element
  * @param {boolean} select true to select option false to deselect
  */
-function selectAllOrNone(widget, select) {
+function selectAllOrNone(widget: Node, select: boolean): void {
     const selectElement = $(widget).find("select");
     selectElement.children("option").each(function () {
         $(this).prop("selected", select);

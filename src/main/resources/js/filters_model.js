@@ -1,5 +1,5 @@
 (function (window, undefined) {
-    filterModel = {
+    window.filterModel = {
         type: [
             {
                 name: "Feature",
