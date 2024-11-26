@@ -3,7 +3,6 @@ import * as FilterWidgets from "./elements/filters.ts";
 import * as Migrate from "./migrate.js";
 import {SpecItemsElement} from "./elements/spec_items_element";
 import * as OftState from "./oft_state";
-import {SpecItem} from "./models";
 
 function _init() {
     const oftState = new OftState.OftState();

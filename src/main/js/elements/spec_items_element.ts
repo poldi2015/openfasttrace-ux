@@ -32,7 +32,7 @@ export class SpecItemsElement {
     }
 
     private insertSpecItemAt(specItem: SpecItemElement, index: number = -1): void {
-        specItem.insertToAt($(SPECITEMS_ELEMENT_ID));
+        specItem.insertToAt($(SPECITEMS_ELEMENT_ID), index);
         this.SpecItemElements.push(specItem);
     }
 
