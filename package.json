@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {    
-    "watch": "webpack --watch",
-    "build": "webpack --mode production",
+  "scripts": {
+    "watch": "webpack --config webpack/application/webpack.dev.js --color --watch",
+    "build": "webpack --config webpack/application/webpack.dev.js --color --no-watch",
+    "release": "webpack --config webpack/application/webpack.prod.js --color --no-watch",
+    "tools": "webpack --config webpack/tools/webpack.tools.js --color --no-watch",
+    "clean": "rm -rf build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,8 +17,10 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
+    "@types/jquery": "^3.5.32",
     "babel-loader": "^9.2.1",
     "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "eslint": "^9.15.0",
@@ -30,8 +35,13 @@
     "typescript-eslint": "^8.14.0",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0",
-    "webpack-stream": "^7.0.0",
-    "copy-webpack-plugin": "^12.0.2"
+    "webpack-merge": "^6.0.1",
+    "webpack-stream": "^7.0.0"
+  },
+  "dependencies": {
+    "@types/node": "^22.9.4",
+    "@types/yargs": "^17.0.33",
+    "lorem-ipsum": "^2.0.8",
+    "yargs": "^17.7.2"
   }
 }
