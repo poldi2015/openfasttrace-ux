@@ -12,8 +12,6 @@ const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 const COVERAGE_LABELS: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest"];
 
 export class SpecItemElement {
-    private readonly covered: Array<number>;
-    private readonly needs: Array<number>;
     private readonly element;
     private parentElement: JQuery | null = null;
     private readonly elementId: string;
@@ -23,14 +21,11 @@ export class SpecItemElement {
         readonly index: number,
         readonly name: string,
         private readonly content: string,
-        covered: Array<number>,
-        needs: Array<number>,
+        private covered: Array<number>,
         private readonly status: Status,
         private path: Array<string> = [],
         private oftState: OftState
     ) {
-        this.covered = covered.sort((a: number, b: number): number => a - b);
-        this.needs = needs.sort((a: number, b: number): number => a - b);
         this.elementId = SpecItemElement.toElementId(index);
         this.element = this.createTemplate();
     }
@@ -139,9 +134,11 @@ export class SpecItemElement {
 
     private createCoverageTemplate(): string {
         return COVERAGE_LABELS.map((label: string, index: number): string => {
-            const divClass: string = this.covered.includes(index) ? '_specitem-covered' :
-                !this.needs.includes(index) ? '_specitem-none' : '_specitem-uncovered';
-            return `<div id="${this.elementId}_cov${index}" class="${divClass}">${label}</div>`;
+            switch( this.covered[index] ) {
+                case 2: return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${label}</div>`;
+                case 1: return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${label}</div>`;
+                default: return `<div id="${this.elementId}_cov${index}" class="_specitem-none">${label}</div>`;
+            }
         }).join('');
     }
 

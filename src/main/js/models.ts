@@ -9,7 +9,6 @@ export interface SpecItem {
     name:string,
     content:string,
     covered:[number],
-    needs:[number],
     status:number,
     path:Array<string>,
 }

@@ -119,14 +119,11 @@
     display: block;
     margin: 10px;
     padding: 5px 8px 5px 10px;
-    border: 1px dotted;
-    border-radius: 8px;
 }
 
 ._specitem-header {
     height: 20px;
     padding: 3px;
-    //border-bottom: 1px dotted;
 }
 
 ._specitem-name {
@@ -143,6 +140,7 @@
 }
 
 ._specitem-body {
+    font-size: 14px;
     margin: 5px 3px 3px 3px;
     padding: 2px 4px 2px 4px;
     //background-color: #eeeeee;
@@ -190,7 +188,7 @@
 }
 
 ._specitem-mouse-enter {
-    background-color: #e5eded;
+    background-color: #ebf1f1;
 }
 
 ._specitem-mouse-leave {

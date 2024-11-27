@@ -24,7 +24,6 @@ export class SpecItemsElement {
             specItem.name,
             specItem.content,
             specItem.covered,
-            specItem.needs,
             specItem.status,
             specItem.path,
             this.oftState
