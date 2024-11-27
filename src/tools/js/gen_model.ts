@@ -77,7 +77,7 @@ class SpecItem {
 } // SpecItem
 
 const argv: any = yargs
-    .usage("Usage: $0 [--size <number of items per type>] [--output <output file>]")
+    .usage("Usage: $0 [--size <number of items per type>] [--output <outputfile>]")
     .option('size', {
         alias: 's',
         describe: 'The size of spec item',
