@@ -1,43 +1,56 @@
-(function (window, undefined) {
-    window.filterModel = {
-        type: [
+(function (window) {
+    window.metadata = {
+        types: [
             {
+                label: "feat",
                 name: "Feature",
                 tooltip: "A feature is a distinct functionality of the software.",
                 item_count: 30,
             },
             {
+                label: "name",
                 name: "Requirement",
                 tooltip: "A customer requirement.",
                 item_count: 50,
             },
             {
+                label: "arch",
                 name: "Architecture",
                 tooltip: "A requirement within an architecture document.",
                 item_count: 100,
             },
             {
+                label: "dsn",
                 name: "Detailed Design",
                 tooltip: "A requirement within an design document.",
                 item_count: 100,
             },
             {
-                name: "Unit Test",
-                tooltip: "An Unit Test implementation.",
-                item_count: 50,
-            },
-            {
+                label: "impl",
                 name: "Implementation",
                 tooltip: "Tracing to source code.",
                 item_count: 20,
             },
             {
+                label: "utest",
+                name: "Unit Test",
+                tooltip: "An Unit Test implementation.",
+                item_count: 50,
+            },
+            {
+                label: "itest",
                 name: "Integration Test",
                 tooltip: "An Integration Test implementation.",
                 item_count: 50,
+            },
+            {
+                label: "stest",
+                name: "System test",
+                tooltip: "Tests based on customer requirements.",
+                item_count: 50,
             }
         ],
-        coverage: [
+        coverages: [
             {
                 name: "Covered",
                 tooltip: "Requirement is fully covered",
@@ -74,6 +87,20 @@
                 color: "red",
                 item_count: 40,
             }
+        ],
+        status: [
+            {
+                name: "Accepted",
+                tooltip: "Item is an accepted traceable element.",
+                color: "green",
+                item_count: 50,
+            },
+            {
+                name: "Draft",
+                tooltip: "Item is not part of tracing.",
+                color: "red",
+                item_count: 2,
+            },
         ]
     };
 })(window);
