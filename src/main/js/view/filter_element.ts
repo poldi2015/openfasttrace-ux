@@ -57,6 +57,7 @@ export class FilterElement {
      */
     private appendFilterValues(id: string, selectElement: JQuery): void {
         const filters: Array<FilterModel> = window.metadata[id] as Array<FilterModel>;
+        selectElement.prop("size",filters.length);
         filters && filters.forEach((item: FilterModel, index: number) => {
             const color = item.color ? `style="color:${item.color}"` : '';
             const count = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
