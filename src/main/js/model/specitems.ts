@@ -6,7 +6,9 @@ declare global {
 
 export interface SpecItem {
     index:number,
+    type:string,
     name:string,
+    version:number,
     content:string,
     covered:[number],
     status:number,

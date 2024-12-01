@@ -1,20 +1,20 @@
-import * as ExpandableWidget from "./elements/expandables.ts";
-import * as FilterWidgets from "./elements/filters.ts";
+import * as ExpandableWidget from "./view/expandables.ts";
 import * as Migrate from "./migrate.js";
-import {SpecItemsElement} from "./elements/spec_items_element";
-import * as OftState from "./oft_state";
+import {SpecItemsElement} from "./view/spec_items_element";
+import {FilterElement} from "./view/filter_element.ts";
+import {OftStateController} from "./controller/oft_state_controller";
 
 function _init() {
-    const oftState = new OftState.OftState();
+    const oftStateController = new OftStateController();
     const specItems = window.specitem.specitems;
 
     ExpandableWidget.init();
-    FilterWidgets.init();
+    FilterElement.init();
 
     Migrate.init_searchform();
     Migrate.init_tabs();
 
-    const specItemsElement = new SpecItemsElement(oftState);
+    const specItemsElement = new SpecItemsElement(oftStateController);
     specItemsElement.init(specItems);
 }
 

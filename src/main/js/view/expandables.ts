@@ -11,7 +11,7 @@
 // API
 
 /**
- * Adds title and tooltip and the expand collapse functionality to expandable elements.
+ * Adds title and tooltip and the expand collapse functionality to expandable view.
  */
 export function init(): void {
     $('.expandable-widget').each(function () {

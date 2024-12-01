@@ -1,4 +1,5 @@
-import {OftState, SelectionChangeEvent} from "../oft_state";
+import {OftStateController, SelectionChangeEvent} from "../controller/oft_state_controller";
+import {FilterModel} from "../../resources/js/meta_data";
 
 export enum Status {
     Accepted = 0,
@@ -9,8 +10,6 @@ const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
 const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 
-const COVERAGE_LABELS: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest"];
-
 export class SpecItemElement {
     private readonly element;
     private parentElement: JQuery | null = null;
@@ -19,12 +18,14 @@ export class SpecItemElement {
 
     public constructor(
         readonly index: number,
+        readonly type: string,
         readonly name: string,
+        readonly version: number,
         private readonly content: string,
-        private covered: Array<number>,
+        private readonly covered: Array<number>,
         private readonly status: Status,
-        private path: Array<string> = [],
-        private oftState: OftState
+        private readonly path: Array<string> = [],
+        private readonly oftStateController: OftStateController
     ) {
         this.elementId = SpecItemElement.toElementId(index);
         this.element = this.createTemplate();
@@ -46,7 +47,9 @@ export class SpecItemElement {
             parentElement.find(`div:eq(${index})`).after(this.element);
         }
         this.parentElement = parentElement;
-        this.oftState.addSelectionChangedListener((event) => this.selectionChangeListener(event));
+        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, (event) => {
+            this.selectionChangeListener(event as SelectionChangeEvent);
+        });
     }
 
     /**
@@ -54,28 +57,18 @@ export class SpecItemElement {
      */
     public remove(): void {
         if (this.parentElement == null) throw Error('No parentElement');
-        this.oftState.removeSelectionChangedListener(this.selectionChangeListener);
+        this.oftStateController.removeChangeListener(this.selectionChangeListener);
         this.parentElement.remove(`#${this.elementId}`);
     }
 
     /**
-     * Show the element as selected or unselected element and communicate selection change to OftState.
+     * Dispatches a selection of this element to the OftStateController.
      *
-     * @param selected true to select element
      * @return true if element is attached to a parent and can be selected
      */
-    public select(selected: boolean = false): boolean {
+    public select(): boolean {
         if (this.parentElement == null) return false;
-        if (this.selected == selected) return true;
-        this.selected = selected;
-        if (selected) {
-            this.element.addClass(SELECT_CLASS);
-            this.element.removeClass(MOUSE_ENTER_CLASS);
-            this.element.removeClass(MOUSE_LEAVE_CLASS);
-            this.oftState.selectObject(this.index, this.path);
-        } else {
-            this.element.removeClass(SELECT_CLASS);
-        }
+        this.oftStateController.selectItem(this.index, this.path);
         return true;
     }
 
@@ -91,22 +84,29 @@ export class SpecItemElement {
     // private members
 
     private mouseEntered(): void {
-        if(!this.selected) {
+        if (!this.selected) {
             this.element.addClass(MOUSE_ENTER_CLASS);
             this.element.removeClass(MOUSE_LEAVE_CLASS);
         }
     }
 
     private mouseLeave(): void {
-        if(!this.selected) {
+        if (!this.selected) {
             this.element.addClass(MOUSE_LEAVE_CLASS);
             this.element.removeClass(MOUSE_ENTER_CLASS);
         }
     }
 
     private selectionChangeListener(event: SelectionChangeEvent): void {
-        // TODO: Move event listener to parent element
-        this.select(this.index === event.index);
+        if (this.parentElement == null) return;
+        this.selected = this.index === event.index;
+        if (this.selected) {
+            this.element.addClass(SELECT_CLASS);
+            this.element.removeClass(MOUSE_ENTER_CLASS);
+            this.element.removeClass(MOUSE_LEAVE_CLASS);
+        } else {
+            this.element.removeClass(SELECT_CLASS);
+        }
     }
 
     private createTemplate(): JQuery {
@@ -116,7 +116,7 @@ export class SpecItemElement {
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.name}]</div>${draft}
+                    <div class="_specitem-name">[${this.type}:${this.name}${this.version > 1 ? ":" + this.version : ""}]</div>${draft}
                     <div class="_specitem-status">${coverageTemplate}</div>
                 </div>
                 <div class="_specitem-body">
@@ -125,7 +125,7 @@ export class SpecItemElement {
             </div>             
         `);
         template.on({
-            click: () => this.select(true),
+            click: () => this.select(),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
@@ -133,11 +133,15 @@ export class SpecItemElement {
     }
 
     private createCoverageTemplate(): string {
-        return COVERAGE_LABELS.map((label: string, index: number): string => {
-            switch( this.covered[index] ) {
-                case 2: return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${label}</div>`;
-                case 1: return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${label}</div>`;
-                default: return `<div id="${this.elementId}_cov${index}" class="_specitem-none">${label}</div>`;
+        const types = window.metadata.types as Array<FilterModel>;
+        return types.map((type:FilterModel, index: number): string => {
+            switch (this.covered[index]) {
+                case 2:
+                    return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
+                case 1:
+                    return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${type.label}</div>`;
+                default:
+                    return `<div id="${this.elementId}_cov${index}" class="_specitem-none">${type.label}</div>`;
             }
         }).join('');
     }
