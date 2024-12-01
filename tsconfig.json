@@ -6,6 +6,8 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": false,
     "types": ["jquery","node"],            // Include jQuery types
     "typeRoots": ["node_modules/@types"], // Specify where to find type definitions
     "outDir": "build/dist"
