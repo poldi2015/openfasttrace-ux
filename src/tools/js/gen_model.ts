@@ -2,7 +2,9 @@ import {LoremIpsum} from "lorem-ipsum";
 import * as fs from "node:fs";
 import yargs from "yargs";
 
-const TYPES: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest"];
+import {metadata} from "../resources/meta_data";
+
+const TYPES: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest", "stest"];
 
 function random(min: number = 0, max: number = 1): number {
     return Math.round(Math.random() * (max - min)) + min;
@@ -12,7 +14,9 @@ function splitString(str: string, chunkSize: number): string {
     let newStr = "";
     for (let i = 0; i < str.length; i += chunkSize) {
         newStr += `"${str.slice(i, i + chunkSize)}"`;
-        if(i+chunkSize < str.length) {newStr+= "\n                   + "}
+        if (i + chunkSize < str.length) {
+            newStr += "\n                   + "
+        }
     }
     return newStr;
 }
@@ -27,17 +31,18 @@ class SpecItem {
         public path: Array<string> = ['project', 'spec', 'content'],
     ) {
         this.covered = Array.from({length: 7}, (_, index) => {
-            return index <= type ? 0 : random( 1,2 );
+            return index <= type ? 0 : random(1, 2);
         });
     }
 
     public readonly covered: Array<number>;
 
     public generateCode() {
+        console.log("XXX::: ", metadata.types[this.type], " idx", this.type);
         return `
         {
             index: ${this.index},
-            types: "${TYPES[this.type]}",
+            type: "${metadata.types[this.type].label}",
             name: "${this.name}",
             version: ${this.version},
             content: ${this.generateContent()},
@@ -70,8 +75,8 @@ class SpecItem {
                 "plain",
                 "\n")
                 .generateParagraphs(2)
-                .replace(/["'\n\r]+/g,"")
-            ,80);
+                .replace(/["'\n\r]+/g, "")
+            , 80);
     }
 
 } // SpecItem
@@ -82,6 +87,7 @@ const argv: any = yargs
         alias: 's',
         describe: 'The size of spec item',
         type: 'number',
+        default: 10,
     })
     .option('output', {
             alias: 'o',
