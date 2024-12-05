@@ -1,7 +1,6 @@
 import * as ExpandableWidget from "./view/expandables.ts";
 import * as Migrate from "./migrate.js";
 import {SpecItemsController} from "./controller/spec_items_controller";
-import {FilterElement} from "./view/filter_element.ts";
 import {OftStateController} from "./controller/oft_state_controller";
 import {FiltersElement} from "./view/filters_element";
 import {VolatileOftState} from "./controller/volatile_oft_state";

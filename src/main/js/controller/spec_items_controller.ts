@@ -2,7 +2,7 @@ import {SpecItemElement} from '../view/spec_item_element';
 import {getValuesByFilterName, SpecItem} from "../model/specitems";
 import {ChangeEvent, ChangeListener, FilterChangeEvent, OftStateController} from "./oft_state_controller";
 import {SelectedFilterIndexes} from "../model/oft_state";
-import {Log, log} from "../utils/log";
+import {Log} from "../utils/log";
 
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
 
