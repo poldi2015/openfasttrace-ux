@@ -45,45 +45,51 @@
             },
             {
                 label: "stest",
-                name: "System test",
+                name: "System Test",
                 tooltip: "Tests based on customer requirements.",
                 item_count: 50,
             }
         ],
         coverages: [
             {
-                name: "No Requirement",
-                tooltip: "Feature is not covered by a Requirement.",
+                name: "Requirement",
+                tooltip: "Missing requirements.",
                 color: "red",
                 item_count: 2,
             },
             {
-                name: "No Architecture",
-                tooltip: "Requirement is not covered by an architecture.",
+                name: "Architecture",
+                tooltip: "Missing architecture.",
                 color: "red",
                 item_count: 2,
             },
             {
-                name: "No Detailed Design",
-                tooltip: "Requirement is not covered by a detailed design.",
+                name: "Detailed Design",
+                tooltip: "Missing detailed design.",
                 color: "red",
                 item_count: 20,
             },
             {
-                name: "No Implementation",
-                tooltip: "Requirement is not implemented.",
+                name: "Implementation",
+                tooltip: "Missing implementation.",
                 color: "red",
                 item_count: 34,
             },
             {
-                name: "No Unit Tests",
-                tooltip: "Requirement is not tested by unit tests.",
+                name: "Unit Tests",
+                tooltip: "Missing unit tests.",
                 color: "red",
                 item_count: 8,
             },
             {
-                name: "No Integration Tests",
-                tooltip: "Requirement is not tested by integration tests.",
+                name: "Integration Tests",
+                tooltip: "Missing integration tests.",
+                color: "red",
+                item_count: 40,
+            },
+            {
+                name: "System Tests",
+                tooltip: "Missing system tests.",
                 color: "red",
                 item_count: 40,
             }
@@ -100,6 +106,26 @@
                 tooltip: "Item is not part of tracing.",
                 color: "red",
                 item_count: 2,
+            },
+        ],
+        tags: [
+            {
+                name: "v0.1",
+                tooltip: "Version 0.1",
+                color: "green",
+                item_count: 50,
+            },
+            {
+                name: "v1.0",
+                tooltip: "Version 1.0",
+                color: "green",
+                item_count: 50,
+            },
+            {
+                name: "v2.0",
+                tooltip: "Version 2.0",
+                color: "green",
+                item_count: 50,
             },
         ]
     };

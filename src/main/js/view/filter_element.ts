@@ -2,7 +2,7 @@
  *  FilterWidgets provide the filters in the left drawer.
  */
 import {FilterModel} from "../../resources/js/meta_data";
-import {logger} from "../utils/logger";
+import {Log} from "../utils/log";
 import {FilterName, SelectedFilterIndexes} from "../model/oft_state";
 import {OftStateController} from "../controller/oft_state_controller";
 
@@ -13,7 +13,7 @@ export class FilterElement {
     public constructor(
         public readonly id: string,
         selectElement: HTMLElement,
-        private oftState:OftStateController,
+        private oftState: OftStateController,
     ) {
         this.selectElement = $(selectElement);
     }
@@ -21,11 +21,14 @@ export class FilterElement {
     public selectionIndexes: Array<number> = [];
 
     private readonly selectElement: JQuery;
+    private readonly log:Log = new Log("FilterElement");
+
 
     public init(selectedIndexes: Array<number>): void {
         this.addAllNoneSelector(this.selectElement);
         this.appendFilterValues(this.id, this.selectElement);
         this.initSelections(selectedIndexes, this.selectElement);
+        this.deactivate();
 
         // TODO: Replace
         const filters: Array<FilterModel> = window.metadata[this.id] as Array<FilterModel>;
@@ -43,11 +46,16 @@ export class FilterElement {
     public activate(): void {
         this.selectElement.removeAttr("disabled");
         this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
+        this.selectElement.trigger("change");
     }
 
     public deactivate(): void {
         this.selectElement.attr("disabled", "disabled");
         this.selectElement.off('change');
+    }
+
+    public isDisabled(): boolean {
+        return this.selectElement.attr("disabled") != undefined;
     }
 
 
@@ -81,12 +89,12 @@ export class FilterElement {
         buttonBar.append(`
             <div class="widget-filter-buttons">
                 <a href="#">All</a>
-                <a href="#"">None</a>
+                <a href="#"">Off</a>
             </div>
         `);
         const buttons: JQuery = buttonBar.find('div.widget-filter-buttons > a');
-        buttons.first().on("click", () => this.selectAllOrNone(true));
-        buttons.eq(1).on("click", () => this.selectAllOrNone(false));
+        buttons.first().on("click", () => this.selectAll());
+        buttons.eq(1).on("click", () => this.selectOff());
     }
 
     /**
@@ -97,21 +105,45 @@ export class FilterElement {
      */
     private initSelections(selectedIndexes: Array<number>, selectElement: JQuery): void {
         selectElement.attr('multiple', "true");
-        selectElement.children("option").each((index: number,element:HTMLElement) => {
-            $(element).prop("selected", selectedIndexes.includes(index) ? "true" : "false");
+        this.log.info("initSlection ", this.id, " ", selectedIndexes);
+        selectElement.children("option").each((index: number, element: HTMLElement) => {
+            $(element).prop("selected", selectedIndexes.includes(index));
         });
     }
 
     /**
      * Select or deselect all options within a widget.
-     *
-     * @param {boolean} select true to select option false to deselect
      */
-    private selectAllOrNone(select: boolean): void {
-        this.selectElement.children("option").each((_,element:HTMLElement) => {
-            $(element).prop("selected", select);
+    private selectAll(): void {
+        this.selectElement.children("option").each((_, element: HTMLElement) => {
+            $(element).prop("selected", true);
         });
-        this.selectElement.trigger("change")
+        this.selectElement.trigger("change");
+    }
+
+    /**
+     * Sets all items unselected and shows the items of disabled.
+     */
+    private selectOff(): void {
+        this.selectElement.children("option").each((_, element: HTMLElement) => {
+            $(element).prop("selected", false);
+        });
+        this.selectElement.trigger("change");
+    }
+
+    /**
+     * Toggles of the items are shown as being off or not.
+     *
+     * @param off true to set the items off
+     */
+    private toggleOff(off: boolean): void {
+        this.selectElement.children("option").each((_, element: HTMLElement) => {
+            if (off) {
+                $(element).addClass("filter-item-off");
+            } else {
+                $(element).removeClass("filter-item-off");
+            }
+        });
     }
 
     /**
@@ -120,8 +152,9 @@ export class FilterElement {
      * @param {JQuery} selectElement th select element
      */
     private selectionChanged(selectElement: JQuery): void {
-        logger.info("selectionChanged ", selectElement);
+        this.log.info("selectionChanged ", this.id, " ", this.selectionIndexes);
         this.selectionIndexes = this.toSelectionIndexes(selectElement);
+        this.toggleOff(this.selectionIndexes.length == 0);
         const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[this.id, this.selectionIndexes]]);
         this.oftState.selectFilters(filters);
     }

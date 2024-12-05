@@ -4,9 +4,15 @@ import {SpecItemsController} from "./controller/spec_items_controller";
 import {FilterElement} from "./view/filter_element.ts";
 import {OftStateController} from "./controller/oft_state_controller";
 import {FiltersElement} from "./view/filters_element";
+import {VolatileOftState} from "./controller/volatile_oft_state";
 
 function _init() {
-    const oftStateController = new OftStateController();
+    const oftState = new VolatileOftState(
+        null,
+        [],
+        new Map([["tags",[]]]),
+    );
+    const oftStateController = new OftStateController(oftState);
     const specItems = window.specitem.specitems;
 
     ExpandableWidget.init();
@@ -15,8 +21,9 @@ function _init() {
     Migrate.init_searchform();
     Migrate.init_tabs();
 
-    const specItemsElement = new SpecItemsController(oftStateController);
-    specItemsElement.init(specItems);
+    new SpecItemsController(oftStateController).init(specItems);
+
+    oftStateController.init();
 }
 
 $(_init);
