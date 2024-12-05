@@ -25,7 +25,7 @@ export const metadata : FilterModels = {
             item_count: 30,
         },
         {
-            label: "name",
+            label: "req",
             name: "Requirement",
             tooltip: "A customer requirement.",
             item_count: 50,

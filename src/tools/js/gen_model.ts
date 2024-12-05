@@ -2,10 +2,6 @@ import {LoremIpsum} from "lorem-ipsum";
 import * as fs from "node:fs";
 import yargs from "yargs";
 
-import {metadata} from "../resources/meta_data";
-
-const TYPES: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest", "stest"];
-
 function random(min: number = 0, max: number = 1): number {
     return Math.round(Math.random() * (max - min)) + min;
 }
@@ -33,20 +29,24 @@ class SpecItem {
         this.covered = Array.from({length: 7}, (_, index) => {
             return index <= type ? 0 : random(1, 2);
         });
+        this.uncovered = this.covered
+            .map((value:number,index:number):number => value == 1 ? index-1: -1)
+            .filter((value:number):boolean => value != -1);
     }
 
     public readonly covered: Array<number>;
+    public readonly uncovered: Array<number>;
 
     public generateCode() {
-        console.log("XXX::: ", metadata.types[this.type], " idx", this.type);
         return `
         {
             index: ${this.index},
-            type: "${metadata.types[this.type].label}",
+            type: ${this.type},
             name: "${this.name}",
             version: ${this.version},
             content: ${this.generateContent()},
             covered: [${this.covered.join(',')}],
+            uncovered: [${this.uncovered.join(',')}],
             status: ${this.status},
             path: ["${this.path.join('","')}"],            
         },`
@@ -100,7 +100,7 @@ const argv: any = yargs
     .argv;
 
 let items: Array<SpecItem> = [];
-for (let i: number = 0; i < 5; i++) {
+for (let i: number = 0; i < 8; i++) {
     items = items.concat(SpecItem.generateSpecItems(i, i * argv.size, argv.size));
 }
 

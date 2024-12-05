@@ -1,3 +1,5 @@
+import {FILTER_NAMES} from "./filter";
+
 declare global {
     interface Window {
         specitem: any;
@@ -5,12 +7,26 @@ declare global {
 }
 
 export interface SpecItem {
-    index:number,
-    type:string,
-    name:string,
-    version:number,
-    content:string,
-    covered:[number],
-    status:number,
-    path:Array<string>,
+    index: number,
+    type: number,
+    name: string,
+    version: number,
+    content: string,
+    covered: [number],
+    uncovered: [number],
+    status: number,
+    path: Array<string>,
+}
+
+export function getValuesByFilterName(specItem: SpecItem, filterName: string): Array<number> {
+    switch (filterName) {
+        case FILTER_NAMES[0]:
+            return [specItem.type];
+        case FILTER_NAMES[1]:
+            return specItem.uncovered;
+        case FILTER_NAMES[2]:
+            return [specItem.status];
+        default:
+            return [];
+    }
 }

@@ -1,4 +1,5 @@
-import {Filter, FilterName, OftState} from "../model/oft_state";
+import {SelectedFilterIndexes, FilterName, OftState} from "../model/oft_state";
+import {VolatileOftState} from "./volatile_oft_state";
 
 export class ChangeEvent {
     constructor(
@@ -22,20 +23,19 @@ export class FilterChangeEvent extends ChangeEvent {
     public static readonly TYPE: string = "filterChange";
 
     constructor(
-        public selectedFilters: Map<FilterName, Filter>,
+        public selectedFilters: Map<FilterName, SelectedFilterIndexes>,
     ) {
         super(FilterChangeEvent.TYPE);
     }
 } // FilterChangeEvent
 
-type ChangeListener = (change: ChangeEvent) => void;
-type SelectionChangeListener = (change: SelectionChangeEvent) => void;
+export type ChangeListener = (change: ChangeEvent) => void;
 
 export class OftStateController {
     private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
 
     public constructor(
-        private oftState: OftState = new OftState(),
+        private oftState: OftState = new VolatileOftState(),
     ) {
     }
 
@@ -67,11 +67,14 @@ export class OftStateController {
     //
     // Filters
 
-    public selectFilters(filters: Map<FilterName, Filter>): void {
-        filters.forEach((value, key) => this.oftState.selectedFilters.set(key, value));
+    public selectFilters(filters: Map<FilterName, SelectedFilterIndexes>): void {
+        filters.forEach((value:SelectedFilterIndexes, key:FilterName) => {
+            this.oftState.selectedFilters.set(key, value)
+        });
+        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
     }
 
-    public getSelectedFilters(): Map<FilterName, Filter> {
+    public getSelectedFilters(): Map<FilterName, SelectedFilterIndexes> {
         return this.oftState.selectedFilters;
     }
 
@@ -80,15 +83,13 @@ export class OftStateController {
     // Listeners
 
     public addChangeListener(eventType: string, listener: ChangeListener): void {
-        console.log(`Adding listener ${listener} for eventType: ${eventType}`);
         const listeners: Array<ChangeListener>|undefined = this.changeListeners.has(eventType) ?
             this.changeListeners.get(eventType) : new Array<ChangeListener>();
         listeners!.push(listener);
         this.changeListeners.set(eventType, listeners!);
     }
 
-    public removeChangeListener(listener: Function): void {
-        console.log(`Removing listener ${listener}`);
+    public removeChangeListener(listener: ChangeListener): void {
         const changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
         this.changeListeners.forEach((listeners,eventType,_) => {
             changeListeners.set( eventType, listeners.filter((item) => item != listener));
