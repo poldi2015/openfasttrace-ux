@@ -39,6 +39,10 @@ export class OftStateController {
     ) {
     }
 
+    public init() : void {
+        this.selectFilters();
+    }
+
     //
     // selected SpecItem
 
@@ -67,7 +71,7 @@ export class OftStateController {
     //
     // Filters
 
-    public selectFilters(filters: Map<FilterName, SelectedFilterIndexes>): void {
+    public selectFilters(filters: Map<FilterName, SelectedFilterIndexes> = new Map()): void {
         filters.forEach((value:SelectedFilterIndexes, key:FilterName) => {
             this.oftState.selectedFilters.set(key, value)
         });
