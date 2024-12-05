@@ -1,5 +1,11 @@
-import {OftStateController, SelectionChangeEvent} from "../controller/oft_state_controller";
+import {
+    ChangeEvent,
+    ChangeListener,
+    OftStateController,
+    SelectionChangeEvent,
+} from "../controller/oft_state_controller";
 import {FilterModel} from "../../resources/js/meta_data";
+import {typeIndexToLabel} from "../model/filter";
 
 export enum Status {
     Accepted = 0,
@@ -11,14 +17,9 @@ const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
 const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 
 export class SpecItemElement {
-    private readonly element;
-    private parentElement: JQuery | null = null;
-    private readonly elementId: string;
-    private selected: boolean = false;
-
     public constructor(
         readonly index: number,
-        readonly type: string,
+        readonly type: number,
         readonly name: string,
         readonly version: number,
         private readonly content: string,
@@ -29,6 +30,16 @@ export class SpecItemElement {
     ) {
         this.elementId = SpecItemElement.toElementId(index);
         this.element = this.createTemplate();
+    }
+
+    private readonly typeLabel: string = typeIndexToLabel(this.type);
+    private readonly element;
+    private parentElement: JQuery | null = null;
+    private readonly elementId: string;
+    private selected: boolean = false;
+
+    private changeListener: ChangeListener = (event: ChangeEvent): void => {
+        this.selectionChangeListener(event as SelectionChangeEvent);
     }
 
     /**
@@ -47,9 +58,19 @@ export class SpecItemElement {
             parentElement.find(`div:eq(${index})`).after(this.element);
         }
         this.parentElement = parentElement;
-        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, (event) => {
-            this.selectionChangeListener(event as SelectionChangeEvent);
-        });
+        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
+    }
+
+    public deactivate(): void {
+        if (this.parentElement == null) throw Error('No parentElement');
+        this.oftStateController.removeChangeListener(this.changeListener);
+        this.element.hide();
+    }
+
+    public activate(): void {
+        if (this.parentElement == null) throw Error('No parentElement');
+        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
+        this.element.show();
     }
 
     /**
@@ -57,7 +78,7 @@ export class SpecItemElement {
      */
     public remove(): void {
         if (this.parentElement == null) throw Error('No parentElement');
-        this.oftStateController.removeChangeListener(this.selectionChangeListener);
+        this.oftStateController.removeChangeListener(this.changeListener);
         this.parentElement.remove(`#${this.elementId}`);
     }
 
@@ -116,7 +137,7 @@ export class SpecItemElement {
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.type}:${this.name}${this.version > 1 ? ":" + this.version : ""}]</div>${draft}
+                    <div class="_specitem-name">[${this.typeLabel}:${this.name}${this.version > 1 ? ":" + this.version : ""}]</div>${draft}
                     <div class="_specitem-status">${coverageTemplate}</div>
                 </div>
                 <div class="_specitem-body">
@@ -134,7 +155,7 @@ export class SpecItemElement {
 
     private createCoverageTemplate(): string {
         const types = window.metadata.types as Array<FilterModel>;
-        return types.map((type:FilterModel, index: number): string => {
+        return types.map((type: FilterModel, index: number): string => {
             switch (this.covered[index]) {
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;

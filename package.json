@@ -8,6 +8,7 @@
     "build": "webpack --config webpack/application/webpack.dev.js --color --no-watch",
     "release": "webpack --config webpack/application/webpack.prod.js --color --no-watch",
     "tools": "webpack --config webpack/tools/webpack.tools.js --color --no-watch",
+    "samples": "node build/tools/gen_model/js/gen_model.js -s 100 -o specitem_data.js",
     "clean": "rm -rf build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

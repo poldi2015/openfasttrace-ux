@@ -8,7 +8,7 @@
                 item_count: 30,
             },
             {
-                label: "name",
+                label: "req",
                 name: "Requirement",
                 tooltip: "A customer requirement.",
                 item_count: 50,
@@ -52,10 +52,10 @@
         ],
         coverages: [
             {
-                name: "Covered",
-                tooltip: "Requirement is fully covered",
-                color: "green",
-                item_count: 50,
+                name: "No Requirement",
+                tooltip: "Feature is not covered by a Requirement.",
+                color: "red",
+                item_count: 2,
             },
             {
                 name: "No Architecture",

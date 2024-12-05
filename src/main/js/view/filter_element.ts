@@ -2,52 +2,57 @@
  *  FilterWidgets provide the filters in the left drawer.
  */
 import {FilterModel} from "../../resources/js/meta_data";
+import {logger} from "../utils/logger";
+import {FilterName, SelectedFilterIndexes} from "../model/oft_state";
+import {OftStateController} from "../controller/oft_state_controller";
 
 //
 // Public API
 
 export class FilterElement {
-    private constructor(
+    public constructor(
         public readonly id: string,
-        widget: HTMLElement,
+        selectElement: HTMLElement,
+        private oftState:OftStateController,
     ) {
-        this.widget = $(widget);
+        this.selectElement = $(selectElement);
     }
 
-    private readonly widget: JQuery;
+    public selectionIndexes: Array<number> = [];
 
-    /**
-     * Initialize all filter widget marked with class .widget-filter.
-     */
-    public static init() {
-        let filterElements: Array<FilterElement> = [];
-        $(".widget-filter").each(function (_, element) {
-            let id: string | undefined = element?.parentElement?.parentElement?.id
-            const filterElement: FilterElement = new FilterElement(id ? id : "", this);
-            filterElement.initFilter();
-            filterElements.push(filterElement);
-        });
-        return filterElements;
-    }
+    private readonly selectElement: JQuery;
 
-    //
-    // Private members
+    public init(selectedIndexes: Array<number>): void {
+        this.addAllNoneSelector(this.selectElement);
+        this.appendFilterValues(this.id, this.selectElement);
+        this.initSelections(selectedIndexes, this.selectElement);
 
-    private initFilter() {
-        this.widget.on('change', () => this.selectionChanged(this.widget));
-        this.addAllNoneSelector(this.widget);
-        this.appendFilterValues(this.id, this.widget);
-        this.selectAll(this.widget);
-        this.selectionChanged(this.widget);
-
+        // TODO: Replace
         const filters: Array<FilterModel> = window.metadata[this.id] as Array<FilterModel>;
         if (filters) {
             const total = filters.reduce((sum: number, item: FilterModel) => item.item_count ? sum + item.item_count : 0, 0);
             if (total > 0) {
-                this.widget.parent().parent().find("._expandable-widget-header span").append(`&nbsp;&nbsp;(${total})`);
+                this.selectElement.parent().parent().find("._expandable-widget-header span").append(`&nbsp;&nbsp;(${total})`);
             }
         }
     }
+
+    /**
+     * Activates the
+     */
+    public activate(): void {
+        this.selectElement.removeAttr("disabled");
+        this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
+    }
+
+    public deactivate(): void {
+        this.selectElement.attr("disabled", "disabled");
+        this.selectElement.off('change');
+    }
+
+
+    //
+    // Private members
 
     /**
      * Imports option view for a filter widget from the global filter_config variable.
@@ -56,26 +61,13 @@ export class FilterElement {
      * @param {JQuery} selectElement the select element within the widget
      */
     private appendFilterValues(id: string, selectElement: JQuery): void {
-        const filters: Array<FilterModel> = window.metadata[id] as Array<FilterModel>;
-        selectElement.prop("size",filters.length);
+        const filters: Array<FilterModel> = window.metadata[id] ? window.metadata[id] as Array<FilterModel> : [];
+        selectElement.prop("size", filters.length);
         filters && filters.forEach((item: FilterModel, index: number) => {
-            const color = item.color ? `style="color:${item.color}"` : '';
-            const count = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
-            selectElement.append(`<option id="${id}_${index}" ${color}>${item.name}${count}</option>`);
-        });
-    }
-
-    /**
-     * Adds a listener to the select element that updates the list of selected entries.
-     *
-     * @param {JQuery} selectElement th select element
-     */
-    private selectionChanged(selectElement: JQuery): void {
-        this.widget.find('option:selected').each(function (_, option) {
-            //filterSelection.add(option.id);
-        });
-        this.widget.find('option:not(:selected)').each(function (_, option) {
-            //filterSelection.delete(option.id);
+            const color: string = item.color ? `style="color:${item.color}"` : '';
+            const count: string = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
+            const id: string = FilterElement.toSelectionId(this.id, index);
+            selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
         });
     }
 
@@ -100,12 +92,13 @@ export class FilterElement {
     /**
      * Selects all options of a select element.
      *
-     * @param {Object} selectElement The select element
+     * @param {Array<number>} selectedIndexes List of selected entry indexes
+     * @param {JQuery} selectElement The select element
      */
-    private selectAll(selectElement: JQuery): void {
+    private initSelections(selectedIndexes: Array<number>, selectElement: JQuery): void {
         selectElement.attr('multiple', "true");
-        selectElement.children("option").each(function () {
-            $(this).prop("selected", "true");
+        selectElement.children("option").each((index: number,element:HTMLElement) => {
+            $(element).prop("selected", selectedIndexes.includes(index) ? "true" : "false");
         });
     }
 
@@ -115,10 +108,37 @@ export class FilterElement {
      * @param {boolean} select true to select option false to deselect
      */
     private selectAllOrNone(select: boolean): void {
-        this.widget.children("option").each(function () {
-            $(this).prop("selected", select);
+        this.selectElement.children("option").each((_,element:HTMLElement) => {
+            $(element).prop("selected", select);
         });
-        this.selectionChanged(this.widget);
+        this.selectElement.trigger("change")
+    }
+
+    /**
+     * Listener that reports changed selection to oftState.
+     *
+     * @param {JQuery} selectElement th select element
+     */
+    private selectionChanged(selectElement: JQuery): void {
+        logger.info("selectionChanged ", selectElement);
+        this.selectionIndexes = this.toSelectionIndexes(selectElement);
+        const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[this.id, this.selectionIndexes]]);
+        this.oftState.selectFilters(filters);
+    }
+
+    private toSelectionIndexes(selectElement: JQuery): Array<number> {
+        return selectElement
+            .find('option:selected')
+            .map((_, option: HTMLElement): number => FilterElement.toSelectionIndex(option)
+            ).toArray();
+    }
+
+    private static toSelectionId(id: string, index: number): string {
+        return `${id}_${index}`;
+    }
+
+    private static toSelectionIndex(element: HTMLElement): number {
+        return parseInt(element.id.replace(/^[A-Za-z0-9]+_/, ''));
     }
 
 } // FilterElement
