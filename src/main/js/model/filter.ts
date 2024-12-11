@@ -5,6 +5,7 @@
 
 declare global {
     interface Window {
+        $: any;
         metadata: any;
     }
 }

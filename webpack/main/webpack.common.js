@@ -29,7 +29,7 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.m?js$/, // Use Babel loader for modern JS syntax
+                test: /\.js$/, // Use Babel loader for modern JS syntax
                 use: {
                     loader: 'babel-loader',
                     options: {
