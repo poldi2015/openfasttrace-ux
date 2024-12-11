@@ -7,8 +7,7 @@ export class Log {
      */
     constructor(public tag: string = "") {
         if (tag != "") {
-            console.log("New Log Tag: ", tag);
-            _allLogTags = _allLogTags.concat(tag);
+            _allLogTags = _allLogTags.add(tag);
             hideLogTags(tag);
         }
     }
@@ -22,7 +21,7 @@ export class Log {
      */
     public info(...message: any[]): void {
         if (process.env.NODE_ENV === 'development') {
-            if (!_hiddenLogTags || !_hiddenLogTags.includes(this.tag)) {
+            if (this.tag == "" || ( _allLogTags.has(this.tag) &&  !_hiddenLogTags.has(this.tag))) {
                 if (this.tag) {
                     console.log(...["|", this.tag, "|"].concat(message));
                 } else {
@@ -31,15 +30,16 @@ export class Log {
             }
         }
     }
-}
+
+} // Log
 
 /**
  * Default logger without a tag
  */
 export const log = new Log();
 
-let _hiddenLogTags: string[];
-let _allLogTags: string[] = [];
+let _hiddenLogTags: Set<string> = new Set();
+let _allLogTags: Set<string> = new Set();
 
 /**
  * Allows to filter log messages by tags.
@@ -50,7 +50,7 @@ export function hideLogTags(...tags: string[]): void {
     if (tags.length == 0) {
         _hiddenLogTags = _allLogTags;
     } else {
-        _hiddenLogTags = (_hiddenLogTags ?? []).concat(tags);
+        tags.forEach((tag:string):any => _hiddenLogTags.add(tag));
     }
 }
 
@@ -61,9 +61,9 @@ export function hideLogTags(...tags: string[]): void {
  */
 export function showLogTags(...tags: string[]): void {
     if (tags.length == 0) {
-        _hiddenLogTags = [];
+        _hiddenLogTags.clear();
     } else {
-        _hiddenLogTags = _hiddenLogTags?.filter((tag: string) => !tags.includes(tag));
+        tags.forEach((tag:string) : any => _hiddenLogTags.delete(tag));
     }
 }
 
@@ -71,31 +71,38 @@ export function showLogTags(...tags: string[]): void {
  * Show tags of messages that are suppressed.
  */
 export function hiddenLogTags(): Array<string> {
-    return _hiddenLogTags;
+    return Array.from(_hiddenLogTags).sort();
 }
 
 /**
  * Show all known tags.
  */
-export function knownLogTags() {
-    return _allLogTags;
+export function knownLogTags():Array<string> {
+    return Array.from(_allLogTags).sort();
+}
+
+export function resetLogTags():void {
+    _allLogTags.clear();
+    _hiddenLogTags.clear();
 }
 
 declare global {
     interface Window {
-        log: any;
+        capturedLogs: any;
     }
 }
 
+/* Coverage ignore start */
 if (process.env.NODE_ENV === 'development') {
     /**
      * Provide the logger commands to the console.
      */
     (function (window) {
-        window.log = {};
-        window.log.show = showLogTags;
-        window.log.hide = hideLogTags;
-        window.log.hidden = hiddenLogTags;
-        window.log.all = knownLogTags;
+        window.capturedLogs = {};
+        window.capturedLogs.show = showLogTags;
+        window.capturedLogs.hide = hideLogTags;
+        window.capturedLogs.hidden = hiddenLogTags;
+        window.capturedLogs.all = knownLogTags;
     })(window);
 }
+/* Coverage ignore end */
