@@ -10,7 +10,15 @@
     "checkJs": false,
     "types": ["jquery","node"],            // Include jQuery types
     "typeRoots": ["node_modules/@types"], // Specify where to find type definitions
-    "outDir": "build/dist"
+    "outDir": "build/dist",
+    "baseUrl": ".",
+    "paths": {
+      "@main/*": ["src/main/js/*"],
+      "@tools/*": ["src/tools/js/*"]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "node_modules/vitest/globals.d.ts"
+  ]
 }
