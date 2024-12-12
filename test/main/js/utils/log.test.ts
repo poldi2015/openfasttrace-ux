@@ -1,6 +1,6 @@
 import {describe, expect} from "vitest";
-import {hiddenLogTags, hideLogTags, knownLogTags, Log, log, resetLogTags, showLogTags} from "@main/utils/log";
-import {test} from "../fixtures/fixtures";
+import {hiddenLogTags, hideLogTags, knownLogTags, Log, log, showLogTags} from "@main/utils/log";
+import {test} from "@test/fixtures/fixtures";
 
 describe("Tests of the Logger API", () => {
     test("Write a single log message", ({logs}) => {

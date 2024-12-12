@@ -1,9 +1,9 @@
 import {describe, expect} from "vitest";
-import {test} from "../fixtures/fixtures";
-import {OftStateBuilder} from "../../../../src/main/js/controller/oft_state_builder";
-import {FilterModel, FilterModels} from "../../../../src/main/js/model/filter";
-import {OftState} from "../../../../src/main/js/model/oft_state";
-import {SpecItem} from "../../../../src/main/js/model/specitems";
+import {test} from "@test/fixtures/fixtures";
+import {OftStateBuilder} from "@main/controller/oft_state_builder";
+import {FilterModel, FilterModels} from "@main/model/filter";
+import {OftState} from "@main/model/oft_state";
+import {SpecItem} from "@main/model/specitems";
 
 const SAMPLE_METADATA: FilterModels = {
     types: [
@@ -46,7 +46,7 @@ const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, Array<number>> = new Map(
         .map(([key, _value]: [string, Array<FilterModel>]): [string, never[]] => [key, []])
 );
 
-const SAMPLE_SPECTITEMS: Array<SpecItem> = [
+const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
     {
         index: 0,
         type: 0,
@@ -63,7 +63,7 @@ const SAMPLE_SPECTITEMS: Array<SpecItem> = [
 describe("Tests of the Logger API", () => {
 
     test("create oft state initialized from metadata with a simple specitem", () => {
-        const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, SAMPLE_SPECTITEMS).build();
+        const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS).build();
         expect(oftState.selectedIndex).toBe(0);
         expect(oftState.selectedPath).toStrictEqual(["project", "spec", "content"]);
         expect(oftState.selectedFilters).toStrictEqual(GOLDEN_MASTER_FILTER_WITHOUT_VALUES);
@@ -80,7 +80,7 @@ describe("Tests of the Logger API", () => {
         const changedFilters: Map<string, Array<number>> = GOLDEN_MASTER_FILTER_WITHOUT_VALUES;
         changedFilters.set("types", [1]);
         const oftState: OftState = new OftStateBuilder()
-            .fromModel(SAMPLE_METADATA, SAMPLE_SPECTITEMS)
+            .fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS)
             .setSelectedFilters(changedFilters)
             .build();
         expect(oftState.selectedIndex).toBe(0);

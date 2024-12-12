@@ -4,9 +4,9 @@ import path from 'path';
 
 export default defineConfig({
     test: {
-        environment: 'jsdom', // Use jsdom to simulate the DOM
+        environment: 'jsdom',
         globals: true, // Enables global variables like describe, test, etc.
-        include: ['test/main/js/**/*.test.ts'], // Specify the path where test files are located
+        include: ['test/main/js/**/*.test.ts'],
         exclude: ['node_modules', 'build'],
         coverage: {
             exclude: ['node_modules/**', 'build/**'],
@@ -15,8 +15,12 @@ export default defineConfig({
     resolve: {
         extensions: ['.ts', '.js'],
         alias: {
-            '@main': path.resolve(__dirname, '../../src/main/js'),
-            '@fixtures': path.resolve(__dirname, '../../src/fixtures'),
+            "@main": path.resolve(__dirname, '../../src/main/js'),
+            "@html": path.resolve(__dirname, '../../src/main/html'),
+            "@css": path.resolve(__dirname, '../../src/main/css'),
+            "@libs": path.resolve(__dirname, '../../src/main/libs'),
+            "@resources": path.resolve(__dirname, '../../src/main/resources'),
+            "@test": path.resolve(__dirname, '../../test/main/js'),
         },
     },
 });

@@ -1,7 +1,7 @@
 import {describe, expect} from "vitest";
-import {test} from "../fixtures/fixtures";
-import {init} from "../../../../src/main/js/view/expandables";
-import {$} from "../fixtures/dom";
+import {test} from "@test/fixtures/fixtures";
+import {init} from "@main/view/expandables";
+import {$} from "@test/fixtures/dom";
 
 const SAMPLE_DOCUMENT_SINGLE_EXPANDABLE = '<div class="expandable-widget" data-title="Title"></div>';
 const GOLDEN_SAMPLE_SINGLE_EXPANDABLE = `
