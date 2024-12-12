@@ -10,11 +10,18 @@ declare global {
     }
 }
 
+export type FilterModels = {
+    types: Array<FilterModel>;
+    coverages: Array<FilterModel>;
+    status: Array<FilterModel>;
+    tags : Array<FilterModel>;
+}
+
 export interface FilterModel {
-    label: string;
+    label?: string;
     name: string,
     tooltip: string,
-    color: string,
+    color?: string,
     item_count: number,
 }
 
