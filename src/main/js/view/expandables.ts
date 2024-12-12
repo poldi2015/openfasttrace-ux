@@ -16,7 +16,7 @@
 export function init(): void {
     $('.expandable-widget').each(function () {
         const title: string = $(this).data('title');
-        $(this).wrapInner('<div class="_expandable-widget-content"@main/div>');
+        $(this).wrapInner('<div class="_expandable-widget-content"></div>');
         $(this).prepend(`
             <div class="_expandable-widget-header collapsed">
                 <span onclick="window.Expandables.toggleExpansion(this.parentNode)">${title}</span>
