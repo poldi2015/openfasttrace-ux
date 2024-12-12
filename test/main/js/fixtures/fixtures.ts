@@ -1,8 +1,5 @@
 import {test as base, vi} from 'vitest'
-import jQuery from "jquery";
 import {resetLogTags} from "../../../../src/main/js/utils/log";
-
-export const $:JQueryStatic = jQuery;
 
 /**
  * Fixture collecting logged messages into capture logs available via the logs fixture.
