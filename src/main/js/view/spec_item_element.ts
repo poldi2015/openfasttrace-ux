@@ -3,9 +3,9 @@ import {
     ChangeListener,
     OftStateController,
     SelectionChangeEvent,
-} from "../controller/oft_state_controller";
-import {FilterModel} from "../../resources/js/meta_data";
-import {typeIndexToLabel} from "../model/filter";
+} from "@main/controller/oft_state_controller";
+import {FilterModel} from "@resources/js/meta_data";
+import {typeIndexToLabel} from "@main/model/filter";
 
 export enum Status {
     Accepted = 0,

@@ -1,8 +1,8 @@
-import {SpecItemElement} from '../view/spec_item_element';
-import {getValuesByFilterName, SpecItem} from "../model/specitems";
+import {SpecItemElement} from '@main/view/spec_item_element';
+import {getValuesByFilterName, SpecItem} from "@main/model/specitems";
 import {ChangeEvent, ChangeListener, FilterChangeEvent, OftStateController} from "./oft_state_controller";
-import {SelectedFilterIndexes} from "../model/oft_state";
-import {Log} from "../utils/log";
+import {SelectedFilterIndexes} from "@main/model/oft_state";
+import {Log} from "@main/utils/log";
 
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
 
@@ -20,6 +20,7 @@ export class SpecItemsController {
     }
 
     public init(specItems: Array<SpecItem>): void {
+        this.log.info("XX ",specItems);
         specItems.forEach((specItem: SpecItem) => {
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
             this.insertSpecItemAt(specItemElement);

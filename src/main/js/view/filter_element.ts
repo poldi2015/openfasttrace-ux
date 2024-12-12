@@ -1,10 +1,10 @@
 /**
  *  FilterWidgets provide the filters in the left drawer.
  */
-import {FilterModel} from "../../resources/js/meta_data";
-import {Log} from "../utils/log";
-import {FilterName, SelectedFilterIndexes} from "../model/oft_state";
-import {OftStateController} from "../controller/oft_state_controller";
+import {Log} from "@main/utils/log";
+import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
+import {OftStateController} from "@main/controller/oft_state_controller";
+import {FilterModel} from "@resources/js/meta_data";
 
 //
 // Public API

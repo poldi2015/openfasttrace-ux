@@ -14,7 +14,10 @@
     "baseUrl": ".",
     "paths": {
       "@main/*": ["src/main/js/*"],
-      "@tools/*": ["src/tools/js/*"]
+      "@html/*": ["src/main/html/*"],
+      "@css/*": ["src/main/css/*"],
+      "@libs/*": ["src/main/libs/*"],
+      "@resources/*": ["src/main/resources/*"]
     }
   },
   "include": [

@@ -1,6 +1,6 @@
 import {FilterElement} from "./filter_element";
-import {OftStateController} from "../controller/oft_state_controller";
-import {SelectedFilterIndexes} from "../model/oft_state";
+import {OftStateController} from "@main/controller/oft_state_controller";
+import {SelectedFilterIndexes} from "@main/model/oft_state";
 
 export class FiltersElement {
     constructor(private oftState: OftStateController) {
