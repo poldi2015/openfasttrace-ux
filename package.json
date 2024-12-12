@@ -1,7 +1,7 @@
 {
-  "name": "webpack",
+  "name": "openfasttrace-ux",
   "version": "1.0.0",
-  "description": "",
+  "description": "HTMP user interface for openfasttrace",
   "main": "openfasttrace.js",
   "scripts": {
     "watch": "webpack --config webpack/main/webpack.dev.js --color --watch",
@@ -37,14 +37,14 @@
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.1",
-    "typescript-eslint": "^8.17.0",
+    "typescript-eslint": "^8.18.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^6.0.1",
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "@types/yargs": "^17.0.33",
     "@vitest/coverage-v8": "^2.1.8",
     "lorem-ipsum": "^2.0.8",
