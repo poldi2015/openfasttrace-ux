@@ -1,7 +1,6 @@
 import {FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
-import {FilterModel, FilterModels} from "@main/model/filter";
+import {FilterModels} from "@main/model/filter";
 import {SpecItem} from "@main/model/specitems";
-import {log} from "@main/utils/log";
 
 export class OftStateBuilder {
     public constructor(private oftState: OftState = new OftState() ) {}
