@@ -105,7 +105,7 @@ export class FilterElement {
      */
     private initSelections(selectedIndexes: Array<number>, selectElement: JQuery): void {
         selectElement.attr('multiple', "true");
-        this.log.info("initSlection ", this.id, " ", selectedIndexes);
+        this.log.info("initSelection ", this.id, " ", selectedIndexes);
         selectElement.children("option").each((index: number, element: HTMLElement) => {
             $(element).prop("selected", selectedIndexes.includes(index));
         });
