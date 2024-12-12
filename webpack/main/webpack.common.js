@@ -42,6 +42,13 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js'], // Resolve these file extensions
+        alias: {
+            "@main": path.resolve(__src, "js"),
+            "@html": path.resolve(__src, "html"),
+            "@css": path.resolve(__src, "css"),
+            "@libs": path.resolve(__src, "libs"),
+            "@resources": path.resolve(__src, "resources"),
+        },
     },
     plugins: [
         new CleanWebpackPlugin(), // Clean the output directory before each build
