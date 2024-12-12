@@ -1,4 +1,4 @@
-name: OpenFastTrace Browser Webpack
+name: Openfasttrace-UX Webpack
 
 on:
   push:
