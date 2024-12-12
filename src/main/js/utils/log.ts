@@ -8,7 +8,6 @@ export class Log {
     constructor(public tag: string = "") {
         if (tag != "") {
             _allLogTags = _allLogTags.add(tag);
-            hideLogTags(tag);
         }
     }
 
@@ -48,7 +47,7 @@ let _allLogTags: Set<string> = new Set();
  */
 export function hideLogTags(...tags: string[]): void {
     if (tags.length == 0) {
-        _hiddenLogTags = _allLogTags;
+        _hiddenLogTags = new Set(_allLogTags);
     } else {
         tags.forEach((tag:string):any => _hiddenLogTags.add(tag));
     }
@@ -88,7 +87,7 @@ export function resetLogTags():void {
 
 declare global {
     interface Window {
-        capturedLogs: any;
+        log: any;
     }
 }
 
@@ -98,11 +97,11 @@ if (process.env.NODE_ENV === 'development') {
      * Provide the logger commands to the console.
      */
     (function (window) {
-        window.capturedLogs = {};
-        window.capturedLogs.show = showLogTags;
-        window.capturedLogs.hide = hideLogTags;
-        window.capturedLogs.hidden = hiddenLogTags;
-        window.capturedLogs.all = knownLogTags;
+        window.log = {};
+        window.log.show = showLogTags;
+        window.log.hide = hideLogTags;
+        window.log.hidden = hiddenLogTags;
+        window.log.all = knownLogTags;
     })(window);
 }
 /* Coverage ignore end */
