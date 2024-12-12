@@ -1,6 +1,6 @@
 import {pushTo} from "@main/utils/collections";
 import {describe, expect} from "vitest";
-import {test} from "../fixtures/fixtures";
+import {test} from "@test/fixtures/fixtures";
 
 describe("Test pushTo API", () => {
     test('pushTo() existing array', () => {

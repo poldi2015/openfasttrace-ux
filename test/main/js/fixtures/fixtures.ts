@@ -1,5 +1,5 @@
 import {test as base, vi} from 'vitest'
-import {resetLogTags} from "../../../../src/main/js/utils/log";
+import {resetLogTags} from "@main/utils/log";
 
 /**
  * Fixture collecting logged messages into capture logs available via the logs fixture.

@@ -17,7 +17,8 @@
       "@html/*": ["src/main/html/*"],
       "@css/*": ["src/main/css/*"],
       "@libs/*": ["src/main/libs/*"],
-      "@resources/*": ["src/main/resources/*"]
+      "@resources/*": ["src/main/resources/*"],
+      "@test/*": ["test/main/js/*"]
     }
   },
   "include": [
