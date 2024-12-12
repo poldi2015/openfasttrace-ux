@@ -1,5 +1,5 @@
-import {SelectedFilterIndexes, FilterName, OftState} from "../model/oft_state";
-import {VolatileOftState} from "./volatile_oft_state";
+import {SelectedFilterIndexes, FilterName, OftState} from "@main/model/oft_state";
+import {OftStateBuilder} from "./oft_state_builder";
 
 export class ChangeEvent {
     constructor(
@@ -35,7 +35,7 @@ export class OftStateController {
     private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
 
     public constructor(
-        private oftState: OftState = new VolatileOftState(),
+        private oftState: OftState = new OftStateBuilder().build(),
     ) {
     }
 

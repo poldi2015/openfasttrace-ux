@@ -1,8 +1,8 @@
 export type FilterName = string;
 export type SelectedFilterIndexes = Array<number>;
 
-export abstract class OftState {
-    protected constructor(
+export class OftState {
+    public constructor(
         private _selectedIndex: number | null = null,
         private _selectedPath: Array<string> = [],
         private _selectedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),

@@ -12,8 +12,8 @@ export interface SpecItem {
     name: string,
     version: number,
     content: string,
-    covered: [number],
-    uncovered: [number],
+    covered: Array<number>,
+    uncovered: Array<number>,
     status: number,
     path: Array<string>,
 }
