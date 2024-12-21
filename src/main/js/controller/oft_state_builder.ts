@@ -1,4 +1,4 @@
-import {FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
+import {CoverType, FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
 import {FilterModels} from "@main/model/filter";
 import {SpecItem} from "@main/model/specitems";
 
@@ -25,6 +25,10 @@ export class OftStateBuilder {
         return this;
     }
 
+    public setPosition(value: number):void {
+        this.oftState.scrollPosition = value;
+    }
+
     public setSelectedPath(selectedPath: Array<string>): OftStateBuilder {
         this.oftState.selectedPath = selectedPath;
         return this;
@@ -35,8 +39,16 @@ export class OftStateBuilder {
         return this;
     }
 
+    public setFocusIndex(value: number | null):void {
+        this.oftState.focusIndex = value;
+    }
+
+    public setFocusType(value: CoverType):void {
+        this.oftState.coverType = value;
+    }
+
     public build(): OftState {
-        return this.oftState;
+        return this.oftState.clone();
     }
 
 } // VolatileOftState

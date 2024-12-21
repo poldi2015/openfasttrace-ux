@@ -6,6 +6,8 @@ import {
 } from "@main/controller/oft_state_controller";
 import {FilterModel} from "@resources/js/meta_data";
 import {typeIndexToLabel} from "@main/model/filter";
+import {Log} from "@main/utils/log";
+import {CoverType} from "@main/model/oft_state";
 
 export enum Status {
     Accepted = 0,
@@ -22,21 +24,23 @@ export class SpecItemElement {
         readonly type: number,
         readonly name: string,
         readonly version: number,
-        private readonly content: string,
-        private readonly covered: Array<number>,
-        private readonly status: Status,
-        private readonly path: Array<string> = [],
-        private readonly oftStateController: OftStateController
+        protected readonly content: string,
+        protected readonly covered: Array<number>,
+        protected readonly status: Status,
+        protected readonly path: Array<string> = [],
+        protected readonly oftStateController: OftStateController
     ) {
         this.elementId = SpecItemElement.toElementId(index);
         this.element = this.createTemplate();
     }
 
-    private readonly typeLabel: string = typeIndexToLabel(this.type);
-    private readonly element;
-    private parentElement: JQuery | null = null;
-    private readonly elementId: string;
-    private selected: boolean = false;
+    protected readonly typeLabel: string = typeIndexToLabel(this.type);
+    protected readonly element;
+    protected parentElement: JQuery | null = null;
+    protected readonly elementId: string;
+    protected selected: boolean = false;
+
+    private log: Log = new Log("SpecItemElement");
 
     private changeListener: ChangeListener = (event: ChangeEvent): void => {
         this.selectionChangeListener(event as SelectionChangeEvent);
@@ -50,9 +54,10 @@ export class SpecItemElement {
      */
     public insertToAt(parentElement: JQuery, index: number = -1): void {
         if (this.parentElement !== null) throw Error('Already attached to parentElement');
-        if (index === -1) {
+        if (index === -1||parentElement.is(':empty') )  {
             parentElement.append(this.element);
         } else if (index === 0) {
+            this.log.info(`Add ${this.name} as first element`);
             parentElement.find('div:eq(1)').before(this.element);
         } else {
             parentElement.find(`div:eq(${index})`).after(this.element);
@@ -79,7 +84,8 @@ export class SpecItemElement {
     public remove(): void {
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.removeChangeListener(this.changeListener);
-        this.parentElement.remove(`#${this.elementId}`);
+        this.parentElement.children(`#${this.elementId}`).remove();
+        this.oftStateController.removeChangeListener(this.changeListener);
     }
 
     /**
@@ -88,9 +94,18 @@ export class SpecItemElement {
      * @return true if element is attached to a parent and can be selected
      */
     public select(): boolean {
+        this.log.info("select ", this.index, " ", this.path);
         if (this.parentElement == null) return false;
         this.oftStateController.selectItem(this.index, this.path);
         return true;
+    }
+
+    /**
+     * Set this element as the focus element.
+     */
+    public focus():void {
+        if (this.parentElement == null) return;
+        this.oftStateController.focusItem(this.index, this.path, CoverType.covering);
     }
 
     private static toElementId(index: number): string {
@@ -118,7 +133,7 @@ export class SpecItemElement {
         }
     }
 
-    private selectionChangeListener(event: SelectionChangeEvent): void {
+    protected selectionChangeListener(event: SelectionChangeEvent): void {
         if (this.parentElement == null) return;
         this.selected = this.index === event.index;
         if (this.selected) {
@@ -130,10 +145,9 @@ export class SpecItemElement {
         }
     }
 
-    private createTemplate(): JQuery {
+    protected createTemplate(): JQuery {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
-
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div class="_specitem-header">
@@ -145,15 +159,11 @@ export class SpecItemElement {
                 </div>                
             </div>             
         `);
-        template.on({
-            click: () => this.select(),
-            mouseenter: () => this.mouseEntered(),
-            mouseleave: () => this.mouseLeave()
-        });
-        return template;
+
+        return this.addListenersToTemplate(template);
     }
 
-    private createCoverageTemplate(): string {
+    protected createCoverageTemplate(): string {
         const types = window.metadata.types as Array<FilterModel>;
         return types.map((type: FilterModel, index: number): string => {
             switch (this.covered[index]) {
@@ -167,8 +177,18 @@ export class SpecItemElement {
         }).join('');
     }
 
-    private createDraftTemplate(): string {
+    protected createDraftTemplate(): string {
         return this.status === Status.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
+    }
+
+    protected addListenersToTemplate(template:JQuery) : JQuery {
+        template.on({
+            click: () => this.select(),
+            dblclick: () => this.focus(),
+            mouseenter: () => this.mouseEntered(),
+            mouseleave: () => this.mouseLeave()
+        });
+        return template;
     }
 
 } // TObject

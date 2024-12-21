@@ -1,9 +1,17 @@
 import {SpecItemElement} from '@main/view/spec_item_element';
 import {getValuesByFilterName, SpecItem} from "@main/model/specitems";
-import {ChangeEvent, ChangeListener, FilterChangeEvent, OftStateController} from "./oft_state_controller";
-import {SelectedFilterIndexes} from "@main/model/oft_state";
+import {
+    ChangeEvent,
+    ChangeListener,
+    FilterChangeEvent,
+    FocusChangeEvent,
+    OftStateController
+} from "./oft_state_controller";
+import {CoverType, SelectedFilterIndexes} from "@main/model/oft_state";
 import {Log} from "@main/utils/log";
+import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
 
+const FOCUS_SPECITEM_ELEMENT_ID: string = "#focusitem";
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
 
 export class SpecItemsController {
@@ -12,22 +20,34 @@ export class SpecItemsController {
 
     private log: Log = new Log("SpecItemsController");
 
+    private focusSpecItemElement: SpecItemElement | null = null;
+    private specItems: Array<SpecItem> = [];
     private specItemElements: Array<SpecItemElement> = [];
     private specItemToElement: Array<[SpecItem, SpecItemElement]> = new Array<[SpecItem, SpecItemElement]>();
 
-    private changeListener: ChangeListener = (event: ChangeEvent): void => {
+    private filterChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
         this.filterChangeListener(event as FilterChangeEvent);
     }
 
-    public init(specItems: Array<SpecItem>): void {
-        this.log.info("XX ",specItems);
+    private focusChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
+        this.focusChangeListener(event as FocusChangeEvent);
+    }
+
+    public init(specItems: Array<SpecItem>,
+                focusSpecItem: SpecItem | null = null,
+                focusCoverPath: Array<string> = [],
+                focusCoverType: CoverType = CoverType.covering): void {
+        this.specItems = specItems;
+        this.setFocusSpecItem(focusSpecItem, focusCoverPath, focusCoverType);
         specItems.forEach((specItem: SpecItem) => {
+            if (specItem === focusSpecItem) return;
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
             this.insertSpecItemAt(specItemElement);
             this.specItemToElement.push([specItem, specItemElement]);
             if (this.specItemToElement.length === 1) specItemElement.select();
         });
-        this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.changeListener);
+        this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
+        this.oftStateController.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
     }
 
     // Initialize Elements
@@ -46,13 +66,56 @@ export class SpecItemsController {
         );
     }
 
+    private createFocusSpecItemElement(specItem: SpecItem, coverType: CoverType): FocusSpecItemElement {
+        return new FocusSpecItemElement(
+            specItem.index,
+            specItem.type,
+            specItem.name,
+            specItem.version,
+            specItem.content,
+            specItem.covered,
+            specItem.status,
+            coverType,
+            specItem.path,
+            this.oftStateController
+        );
+    }
+
     private insertSpecItemAt(specItem: SpecItemElement, index: number = -1): void {
         specItem.insertToAt($(SPECITEMS_ELEMENT_ID), index);
         this.specItemElements.push(specItem);
     }
 
+    private setFocusSpecItem(specItem: SpecItem | null, path: Array<string>, coverType: CoverType): void {
+        if (specItem === null) {
+            $(FOCUS_SPECITEM_ELEMENT_ID).hide();
+        } else {
+            this.removeFocusSpecItem();
+            $(FOCUS_SPECITEM_ELEMENT_ID).show();
+            this.focusSpecItemElement = this.createFocusSpecItemElement(specItem, coverType);
+            this.focusSpecItemElement.insertToAt($(FOCUS_SPECITEM_ELEMENT_ID), 0);
+        }
+    }
+
+    private removeFocusSpecItem() {
+        if (this.focusSpecItemElement != null) {
+            this.focusSpecItemElement.remove();
+            this.focusSpecItemElement = null;
+        }
+    }
+
 
     // Change listener
+
+    private focusChangeListener(focusChangeEvent: FocusChangeEvent): void {
+        this.log.info("focusChangeListener ", focusChangeEvent);
+        if (focusChangeEvent.index === null) {
+            this.removeFocusSpecItem();
+        } else {
+            const specItem: SpecItem = this.specItems[focusChangeEvent.index];
+            this.setFocusSpecItem(specItem, focusChangeEvent.path, focusChangeEvent.coverType);
+        }
+    }
 
     /**
      * Called when the filters changed their selection.
@@ -96,7 +159,7 @@ export class SpecItemsController {
     private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, SelectedFilterIndexes]>): boolean {
         return selectedFilters.every(([filterName, filterIndexes]: [string, SelectedFilterIndexes]): boolean => {
             const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
-            if(filterIndexes.length === 0) return true;
+            if (filterIndexes.length === 0) return true;
             return itemIndexes.some((itemIndex: number) => filterIndexes.includes(itemIndex));
         });
     }

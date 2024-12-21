@@ -2,6 +2,8 @@ import {LoremIpsum} from "lorem-ipsum";
 import * as fs from "node:fs";
 import yargs from "yargs";
 
+const NUMBER_OF_TYPES: number = 8;
+
 function random(min: number = 0, max: number = 1): number {
     return Math.round(Math.random() * (max - min)) + min;
 }
@@ -21,21 +23,24 @@ class SpecItem {
     constructor(
         public index: number,
         public type: number,
+        public typeStart : number,
+        public typeLength : number,
+        public numberOfTypes : number,
         public name: string = this.generateName(),
         public version: number = random(1, 3),
         public status: number = random(),
         public path: Array<string> = ['project', 'spec', 'content'],
     ) {
-        this.covered = Array.from({length: 7}, (_, index) => {
-            return index <= type ? 0 : random(1, 2);
-        });
-        this.uncovered = this.covered
-            .map((value:number,index:number):number => value == 1 ? index-1: -1)
-            .filter((value:number):boolean => value != -1);
+        this.covered = this.generateCovered(type);
+        this.uncovered = this.generateUncovered(this.covered);
+        this.covering = this.generateCovering(typeStart,typeLength);
+        this.coveredBy = this.generateCoveredBy(typeStart,typeLength,numberOfTypes);
     }
 
     public readonly covered: Array<number>;
     public readonly uncovered: Array<number>;
+    public readonly covering: Array<number>;
+    public readonly coveredBy: Array<number>;
 
     public generateCode() {
         return `
@@ -47,6 +52,8 @@ class SpecItem {
             content: ${this.generateContent()},
             covered: [${this.covered.join(',')}],
             uncovered: [${this.uncovered.join(',')}],
+            covering: [${this.covering.join(',')}],
+            coveredBy: [${this.coveredBy.join(',')}],            
             status: ${this.status},
             path: ["${this.path.join('","')}"],            
         },`
@@ -55,7 +62,10 @@ class SpecItem {
     public static generateSpecItems(type: number, startIndex: number, size: number): Array<SpecItem> {
         return Array.from({length: random(1, size)}, (_, index) => new SpecItem(
             index + startIndex,
-            type
+            type,
+            startIndex,
+            size,
+            NUMBER_OF_TYPES
         ));
     }
 
@@ -79,6 +89,38 @@ class SpecItem {
             , 80);
     }
 
+    private generateCovered(type: number): Array<number> {
+        return Array.from({length: 7}, (_, index) => {
+            return index <= type ? 0 : random(1, 2);
+        });
+    }
+
+    private generateUncovered(covered: Array<number>): Array<number> {
+        return covered
+            .map((value: number, index: number): number => value == 1 ? index - 1 : -1)
+            .filter((value: number): boolean => value != -1);
+    }
+
+    private generateCovering(typeStart: number, typeLength: number): Array<number> {
+        if (typeStart < typeLength) return [];
+
+        const previousTypeStart: number = typeStart - typeLength;
+        const previousTypeEnd: number = typeStart - 1;
+        return Array.from({length: random(1, 4)})
+            .map(() => random(previousTypeStart, previousTypeEnd))
+            .filter((value: number, _, values: Array<number>) => values.includes(value));
+    }
+
+    private generateCoveredBy(typeStart:number, typeLength:number,numberOfTypes:number): Array<number> {
+        if( (typeStart/ typeLength) >=(numberOfTypes-1) ) return [];
+
+        const nextTypeStart : number = typeStart + typeLength;
+        const nextTypeEnd: number = nextTypeStart + typeLength - 1;
+        return Array.from({length: random(1, 10)})
+            .map(() => random(nextTypeStart, nextTypeEnd))
+            .filter((value: number, _, values: Array<number>) => values.includes(value));
+    }
+
 } // SpecItem
 
 const argv: any = yargs
@@ -100,7 +142,7 @@ const argv: any = yargs
     .argv;
 
 let items: Array<SpecItem> = [];
-for (let i: number = 0; i < 8; i++) {
+for (let i: number = 0; i < NUMBER_OF_TYPES; i++) {
     items = items.concat(SpecItem.generateSpecItems(i, i * argv.size, argv.size));
 }
 

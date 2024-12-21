@@ -34,6 +34,8 @@
     "jquery": "^3.7.1",
     "jsdom": "^25.0.1",
     "mini-css-extract-plugin": "^2.9.2",
+    "sass": "^1.83.0",
+    "sass-loader": "^16.0.4",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.1",
