@@ -2,6 +2,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');                  // build ts
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');         // remove build directory
 const CopyWebpackPlugin = require('copy-webpack-plugin');               // copy non minimized files
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 //const HtmlWebpackPlugin = require('html-webpack-plugin');  // minimize html
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // minimize css
@@ -38,6 +39,15 @@ module.exports = {
                 },
                 exclude: /node_modules/,
             },
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader, // Extracts CSS into separate files
+                    'css-loader',               // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
+                    'sass-loader',              // Compiles Sass to CSS
+                ],
+                exclude: /node_modules/,
+            },
         ],
     },
     resolve: {
@@ -56,9 +66,12 @@ module.exports = {
             patterns: [
                 { from: 'src/main/libs', to: 'libs' }, // Copy all libraries to the dist/libs folder
                 { from: 'src/main/html', to: './html' }, // Copy all libraries to the dist/libs folder
-                { from: 'src/main/css', to: './css' }, // Copy all libraries to the dist/libs folder
+                //{ from: 'src/main/css', to: './css' }, // Copy all libraries to the dist/libs folder
                 { from: 'src/main/resources', to: './resources' }, // Copy all libraries to the dist/libs folder
             ],
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'css/openfasttrace_view.css', // Output CSS file
         }),
     ],
     optimization: {

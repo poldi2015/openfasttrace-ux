@@ -1,0 +1,59 @@
+/*
+    Expandable widgets
+ */
+
+.expandable-widget {
+  border: none;
+  width: 100%;
+  margin: 8px 5px 20px 5px;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 12px;
+}
+
+._expandable-widget-header {
+  display: block;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px dotted;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 14px;
+}
+
+._expandable-widget-header span {
+  margin-left: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+._expandable-widget-header span::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-right: 8px;
+  border-style: solid;
+  border-width: 8px 5px 0 5px;
+  border-color: #606060 transparent transparent transparent;
+  transition: transform 0.3s;
+}
+
+._expandable-widget-header.collapsed span::before {
+  transform: rotate(-90deg);
+}
+
+._expandable-widget-content {
+  font-size: 12px;
+  display: none;
+  padding: 0 8px 0 -2px;
+}
+
+._expandable-widget-content.visible {
+  display: block;
+}
+
+._expandable-widget-content select option {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 5px;
+  padding-right: 15px;
+}

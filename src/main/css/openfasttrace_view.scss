@@ -1,0 +1,152 @@
+/* Page Layouts */
+
+@import "expandable_widget";
+@import "filters";
+@import "specitems";
+@import "colors";
+
+.ui-widget {
+    font-size: 12px;
+}
+
+#viewport {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    padding: 5px 5px 0 0;
+}
+
+/*
+     Columns
+*/
+
+#left {
+    vertical-align: top;
+    width: 15vw;
+}
+
+#right {
+    vertical-align: top;
+    height: 97vh;
+    min-height: 500px;
+    max-height: 90%;
+    width: 77vw;
+    max-width: 77vw;
+    overflow: hidden;
+}
+
+
+
+
+
+/* Other */
+
+#tabs {
+    position: relative;
+    display: block;
+    height: 90vh;
+    min-height: 500px;
+    max-height: 90%;
+    overflow: hidden;
+}
+
+#searchform {
+    position: absolute;
+    top: 12px;
+    right: 50px;
+}
+
+#testcases {
+    min-height: 500px;
+    max-height: 90%;
+    overflow: auto;
+}
+
+#details {
+    min-height: 500px;
+    max-height: 90%;
+    overflow: auto;
+}
+
+#details_header {
+    position: relative;
+    display: block;
+    width: 100%;
+    border-bottom: 1px dotted;
+}
+
+#details_log {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.ui-expandable .ui-widget-header {
+    margin: 3px;
+    font-weight: bold;
+    font-size: 12px;
+    background: none;
+    border: none;
+    border-bottom: 1px dotted;
+}
+
+.ui-expandable-title {
+    margin-left: 5px;
+    margin-bottom: 10px;
+}
+
+
+.ui-expandable .ui-widget-content {
+    border: none;
+    padding: 0 0 5px 18px;
+    background: transparent;
+}
+
+.testcase {
+    width: 95%;
+    height: 20px;
+    display: block;
+    margin: 10px;
+    padding: 5px 8px 5px 10px;
+    background-color: #eeeeee;
+    border: 1px dotted;
+}
+
+.testcase .testcase_name {
+    float: left;
+    height: 15px;
+    padding: 3px 5px;
+    font-weight: bold;
+}
+
+.testcase .testcase_status {
+    float: right;
+}
+
+.testcase_status .testcase_success {
+    float: left;
+    height: 15px;
+    margin-left: 5px;
+    padding: 2px 4px 2px 4px;
+    background-color: #70ff70;
+    border: 1px solid;
+}
+
+.testcase_status .testcase_failure {
+    float: left;
+    height: 15px;
+    margin-left: 5px;
+    padding: 2px 4px 2px 4px;
+    background-color: #ff7070;
+    border: 1px solid;
+}
+
+.testcase_status .testcase_none {
+    float: left;
+    height: 15px;
+    margin-left: 5px;
+    padding: 2px 4px 2px 4px;
+    background-color: #f2f2f2;
+    border: 1px solid;
+    color: #d0d0d0;
+}
