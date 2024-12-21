@@ -4,6 +4,7 @@ import {SpecItemsController} from "./controller/spec_items_controller";
 import {OftStateController} from "./controller/oft_state_controller";
 import {FiltersElement} from "./view/filters_element";
 import {OftStateBuilder} from "./controller/oft_state_builder";
+import '@css/openfasttrace_view.scss'
 
 function _init() {
     const metaModel = window.metadata;

@@ -1,0 +1,116 @@
+/*
+     specitems
+ */
+
+#specitems-tab {
+  height: 95%;
+  overflow: hidden;
+}
+
+#specitems {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.specitem {
+  display: block;
+  cursor: default;
+}
+
+._specitem-header {
+  height: 20px;
+  padding: 8px 8px 5px 10px;
+}
+
+._specitem-name {
+  font-weight: bold;
+  float: left;
+  height: 15px;
+  margin-left: 5px;
+  padding: 2px 4px 2px 4px;
+}
+
+._specitem-status {
+  float: right;
+  margin: 3px 3px 3px 3px;
+}
+
+._specitem-body {
+  font-size: 14px;
+  margin: 5px 3px 3px 3px;
+  //padding: 2px 4px 2px 4px;
+  padding: 7px 12px 7px 14px;
+  //background-color: #eeeeee;
+}
+
+._specitem-none {
+  float: left;
+  height: 15px;
+  margin-left: 5px;
+  padding: 2px 4px 2px 4px;
+  background-color: #f4f4f4;
+  border: 1px solid;
+  border-radius: 3px;
+}
+
+._specitem-covered {
+  float: left;
+  height: 15px;
+  margin-left: 5px;
+  padding: 2px 4px 2px 4px;
+  background-color: #b7f3b7;
+  border: 1px solid;
+  border-radius: 3px;
+}
+
+._specitem-uncovered {
+  float: left;
+  height: 15px;
+  margin-left: 5px;
+  padding: 2px 4px 2px 4px;
+  background-color: #f3c5c5;
+  border: 1px solid;
+  border-radius: 3px;
+}
+
+._specitem-draft {
+  float: left;
+  color: #605454;
+  font-weight: bold;
+  padding: 2px 4px 2px 4px;
+}
+
+._specitem-selected {
+  background-color: #ccd6d6 !important;
+}
+
+._specitem-mouse-enter {
+  background-color: #ebf1f1 !important;
+}
+
+._specitem-mouse-leave {
+  background-color: #ffffff;
+}
+
+#focusitem {
+  margin: 0 0 5px;
+  padding: 0;
+}
+
+._focuspecitem {
+  margin: 0;
+  padding: 0;
+  border: solid 1px #505050;
+  border-radius: 8px;
+  background-color: #eff3ef;
+}
+
+._specitem-cover-type {
+  text-align: center;
+  color: #ffffff;
+  display: block;
+  font-size: 14px;
+  padding: 5px 4px 5px 4px;
+  background-color: #505050;
+}
