@@ -1,13 +1,12 @@
 /**
  *  FilterWidgets provide the filters in the left drawer.
+ *
+ *  TODO: React to changed filter selection by focus item activated.
  */
 import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {FilterModel} from "@resources/js/meta_data";
-
-//
-// Public API
 
 export class FilterElement {
     public constructor(
