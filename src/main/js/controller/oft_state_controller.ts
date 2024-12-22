@@ -1,6 +1,7 @@
-import {SelectedFilterIndexes, FilterName, OftState, CoverType} from "@main/model/oft_state";
+import {CoverType, FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
 import {OftStateBuilder} from "./oft_state_builder";
-import {log} from "@main/utils/log";
+import {Log} from "@main/utils/log";
+import {INDEX_FILTER} from "@main/model/specitems";
 
 export class ChangeEvent {
     constructor(
@@ -15,6 +16,7 @@ export class SelectionChangeEvent extends ChangeEvent {
     constructor(
         public readonly index: number | null,
         public readonly path: Array<string> = [],
+        public readonly isFocusItem: boolean = false,
     ) {
         super(SelectionChangeEvent.TYPE);
     }
@@ -25,8 +27,8 @@ export class FocusChangeEvent extends ChangeEvent {
 
     constructor(
         public readonly index: number | null,
-        public readonly path: Array<string> = [],
         public readonly coverType: CoverType = CoverType.covering,
+        public readonly selectedFilters: Map<FilterName, SelectedFilterIndexes>,
     ) {
         super(FocusChangeEvent.TYPE);
     }
@@ -36,7 +38,7 @@ export class FilterChangeEvent extends ChangeEvent {
     public static readonly TYPE: string = "filterChange";
 
     constructor(
-        public selectedFilters: Map<FilterName, SelectedFilterIndexes>,
+        public readonly selectedFilters: Map<FilterName, SelectedFilterIndexes>,
     ) {
         super(FilterChangeEvent.TYPE);
     }
@@ -52,6 +54,8 @@ export class OftStateController {
     ) {
     }
 
+    private log: Log = new Log("OftStateController");
+
     public init() : void {
         this.selectFilters();
     }
@@ -60,6 +64,7 @@ export class OftStateController {
     // selected SpecItem
 
     public selectItem(index: number, path: Array<string>): void {
+        this.log.info("Selecting item with index: " + index);
         this.oftState.selectedIndex = index;
         this.oftState.selectedPath = path;
         this.notifyChange(new SelectionChangeEvent(index, path));
@@ -80,7 +85,10 @@ export class OftStateController {
         return this.oftState.selectedPath;
     }
 
-    public focusItem(index:number, path: Array<string>, coverType: CoverType): void {
+    //
+    // FocusItem
+
+    public focusItem(index: number, path: Array<string>, coverType: CoverType, filters: Map<FilterName, SelectedFilterIndexes> | null = null): void {
         if(this.oftState.focusIndex == index) return;
 
         this.oftState.focusIndex = index;
@@ -88,8 +96,12 @@ export class OftStateController {
         this.oftState.coverType = coverType;
         this.oftState.selectedIndex = null;
         this.oftState.selectedPath = [];
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.focusPath, this.oftState.coverType));
-        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath));
+        this.oftState.unfocusedFilters = this.oftState.selectedFilters;
+        this.oftState.unfocusedFilters.delete(INDEX_FILTER);
+        if (filters != null) this.oftState.selectedFilters = filters;
+        this.log.info("focusItem", this.oftState);
+        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+        this.notifyChange(new SelectionChangeEvent(index, path, true));
     }
 
     public unFocusItem(index:number, path: Array<string>): void {
@@ -101,8 +113,10 @@ export class OftStateController {
         this.oftState.focusIndex = null;
         this.oftState.focusPath = [];
         this.oftState.coverType = CoverType.covering;
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.focusPath, this.oftState.coverType));
-        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath));
+        this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
+        this.oftState.selectedFilters = this.oftState.unfocusedFilters;
+        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath, false));
     }
 
 

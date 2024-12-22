@@ -19,7 +19,7 @@ function _init() {
     Migrate.init_searchform();
     Migrate.init_tabs();
 
-    new SpecItemsController(oftStateController).init(specItems,specItems[0]);
+    new SpecItemsController(oftStateController).init(specItems);
 
     oftStateController.init();
 }

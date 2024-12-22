@@ -1,29 +1,23 @@
-import {SpecItemElement, Status} from "@main/view/spec_item_element";
+import {SpecItemElement} from "@main/view/spec_item_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
-import {log} from "@main/utils/log";
+import {SpecItem} from "@main/model/specitems";
 
 export class FocusSpecItemElement extends SpecItemElement {
     public constructor(
-        index: number,
-        type: number,
-        name: string,
-        version: number,
-        content: string,
-        covered: Array<number>,
-        status: Status,
+        specItem: SpecItem,
         public readonly coverType: CoverType,
-        path: Array<string> = [],
         oftStateController: OftStateController
     ) {
-        super(index,type,name,version,content,covered,status,path,oftStateController);
+        super(specItem, oftStateController);
     }
 
     /**
      * UnFocus this item and with that hide focus item.
      */
     public unFocus(): void {
-        this.oftStateController.unFocusItem(this.index,this.path);
+        this.log.info("Unfocusing item");
+        this.oftStateController.unFocusItem(this.specItem.index, this.specItem.path);
     }
 
     protected override createTemplate(): JQuery {
@@ -33,11 +27,11 @@ export class FocusSpecItemElement extends SpecItemElement {
         const template: JQuery = $(`
             <div class="specitem _focuspecitem" id="${this.elementId}">
                 <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.typeLabel}:${this.name}${this.version > 1 ? ":" + this.version : ""}]</div>${draft}
+                    <div class="_specitem-name">[${this.typeLabel}:${this.specItem.name}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
                     <div class="_specitem-status">${coverageTemplate}&nbsp;&nbsp;Close</div>                    
                 </div>
                 <div class="_specitem-body">
-                    ${this.content}                
+                    ${this.specItem.content}                
                 </div>
                 ${coverType}                
             </div>             

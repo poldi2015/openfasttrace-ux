@@ -1,5 +1,7 @@
 import {FILTER_NAMES} from "./filter";
 
+export const INDEX_FILTER: string = "%index%";
+
 declare global {
     interface Window {
         specitem: any;
@@ -28,6 +30,8 @@ export function getValuesByFilterName(specItem: SpecItem, filterName: string): A
             return specItem.uncovered;
         case FILTER_NAMES[2]:
             return [specItem.status];
+        case INDEX_FILTER:
+            return [specItem.index];
         default:
             return [];
     }

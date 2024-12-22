@@ -43,6 +43,12 @@ export class OftStateBuilder {
         this.oftState.focusIndex = value;
     }
 
+    public setUnfocusedFilters(unfocusedFilters: Map<FilterName, SelectedFilterIndexes>): OftStateBuilder {
+        this.oftState.unfocusedFilters = unfocusedFilters;
+        return this;
+    }
+
+
     public setFocusType(value: CoverType):void {
         this.oftState.coverType = value;
     }

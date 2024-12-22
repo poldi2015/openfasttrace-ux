@@ -7,7 +7,8 @@ import {
 import {FilterModel} from "@resources/js/meta_data";
 import {typeIndexToLabel} from "@main/model/filter";
 import {Log} from "@main/utils/log";
-import {CoverType} from "@main/model/oft_state";
+import {CoverType, FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
+import {INDEX_FILTER, SpecItem} from "@main/model/specitems";
 
 export enum Status {
     Accepted = 0,
@@ -20,27 +21,20 @@ const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 
 export class SpecItemElement {
     public constructor(
-        readonly index: number,
-        readonly type: number,
-        readonly name: string,
-        readonly version: number,
-        protected readonly content: string,
-        protected readonly covered: Array<number>,
-        protected readonly status: Status,
-        protected readonly path: Array<string> = [],
+        readonly specItem: SpecItem,
         protected readonly oftStateController: OftStateController
     ) {
-        this.elementId = SpecItemElement.toElementId(index);
+        this.elementId = SpecItemElement.toElementId(specItem.index);
         this.element = this.createTemplate();
     }
 
-    protected readonly typeLabel: string = typeIndexToLabel(this.type);
+    protected readonly typeLabel: string = typeIndexToLabel(this.specItem.type);
     protected readonly element;
     protected parentElement: JQuery | null = null;
     protected readonly elementId: string;
     protected selected: boolean = false;
 
-    private log: Log = new Log("SpecItemElement");
+    protected log: Log = new Log("SpecItemElement");
 
     private changeListener: ChangeListener = (event: ChangeEvent): void => {
         this.selectionChangeListener(event as SelectionChangeEvent);
@@ -57,7 +51,7 @@ export class SpecItemElement {
         if (index === -1||parentElement.is(':empty') )  {
             parentElement.append(this.element);
         } else if (index === 0) {
-            this.log.info(`Add ${this.name} as first element`);
+            this.log.info(`Add ${this.specItem.name} as first element`);
             parentElement.find('div:eq(1)').before(this.element);
         } else {
             parentElement.find(`div:eq(${index})`).after(this.element);
@@ -94,9 +88,9 @@ export class SpecItemElement {
      * @return true if element is attached to a parent and can be selected
      */
     public select(): boolean {
-        this.log.info("select ", this.index, " ", this.path);
+        this.log.info("select ", this.specItem.index, " ", this.specItem.path);
         if (this.parentElement == null) return false;
-        this.oftStateController.selectItem(this.index, this.path);
+        this.oftStateController.selectItem(this.specItem.index, this.specItem.path);
         return true;
     }
 
@@ -105,7 +99,11 @@ export class SpecItemElement {
      */
     public focus():void {
         if (this.parentElement == null) return;
-        this.oftStateController.focusItem(this.index, this.path, CoverType.covering);
+        this.log.info("Focus filters ", this.specItem);
+        const acceptedIndexes: Array<number> = this.specItem.coveredBy.length > 0 ? this.specItem.coveredBy : [-1];
+        // indexes need to have at least on entry to filter out all other indexes. -1 will never match
+        const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[INDEX_FILTER, acceptedIndexes]]);
+        this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.covering, filters);
     }
 
     private static toElementId(index: number): string {
@@ -135,7 +133,7 @@ export class SpecItemElement {
 
     protected selectionChangeListener(event: SelectionChangeEvent): void {
         if (this.parentElement == null) return;
-        this.selected = this.index === event.index;
+        this.selected = this.specItem.index === event.index;
         if (this.selected) {
             this.element.addClass(SELECT_CLASS);
             this.element.removeClass(MOUSE_ENTER_CLASS);
@@ -151,11 +149,11 @@ export class SpecItemElement {
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.typeLabel}:${this.name}${this.version > 1 ? ":" + this.version : ""}]</div>${draft}
+                    <div class="_specitem-name">[${this.typeLabel}:${this.specItem.name}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
                     <div class="_specitem-status">${coverageTemplate}</div>
                 </div>
                 <div class="_specitem-body">
-                    ${this.content}                
+                    ${this.specItem.content}                
                 </div>                
             </div>             
         `);
@@ -166,7 +164,7 @@ export class SpecItemElement {
     protected createCoverageTemplate(): string {
         const types = window.metadata.types as Array<FilterModel>;
         return types.map((type: FilterModel, index: number): string => {
-            switch (this.covered[index]) {
+            switch (this.specItem.covered[index]) {
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
                 case 1:
@@ -178,7 +176,7 @@ export class SpecItemElement {
     }
 
     protected createDraftTemplate(): string {
-        return this.status === Status.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
+        return this.specItem.status === Status.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
     }
 
     protected addListenersToTemplate(template:JQuery) : JQuery {
