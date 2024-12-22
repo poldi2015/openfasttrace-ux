@@ -73,7 +73,7 @@ export class SpecItemsController {
         this.log.info("setFocusSpecItem ", specItem);
         if (specItem == null) {
             $(FOCUS_SPECITEM_ELEMENT_ID).hide();
-        } else {
+        } else if (this.focusSpecItemElement?.specItem.index != specItem?.index) {
             this.removeFocusSpecItem();
             $(FOCUS_SPECITEM_ELEMENT_ID).show();
             this.focusSpecItemElement = this.createFocusSpecItemElement(specItem, coverType);
@@ -89,6 +89,7 @@ export class SpecItemsController {
     }
 
 
+    //
     // Change listener
 
     private focusChangeListener(focusChangeEvent: FocusChangeEvent): void {
@@ -109,6 +110,10 @@ export class SpecItemsController {
 
         this.showOnlySelectedSpecItemElements(filteredSpecItems);
     }
+
+
+    //
+    // Show items based on filters
 
     /**
      * Called when the filters changed their selection.
@@ -150,7 +155,6 @@ export class SpecItemsController {
      * @private
      */
     private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, SelectedFilterIndexes]>): boolean {
-        //log.info("isMatchingAllFilters ", selectedFilters);
         return selectedFilters.every(([filterName, filterIndexes]: [string, SelectedFilterIndexes]): boolean => {
             const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
             if (filterIndexes.length === 0) return true;
