@@ -48,7 +48,7 @@ export class SpecItemElement {
      */
     public insertToAt(parentElement: JQuery, index: number = -1): void {
         if (this.parentElement !== null) throw Error('Already attached to parentElement');
-        if (index === -1||parentElement.is(':empty') )  {
+        if (index === -1 || parentElement.is(':empty')) {
             parentElement.append(this.element);
         } else if (index === 0) {
             this.log.info(`Add ${this.specItem.name} as first element`);
@@ -97,13 +97,30 @@ export class SpecItemElement {
     /**
      * Set this element as the focus element.
      */
-    public focus():void {
+    public focus(coverType: CoverType = CoverType.coveredBy): void {
         if (this.parentElement == null) return;
         this.log.info("Focus filters ", this.specItem);
-        const acceptedIndexes: Array<number> = this.specItem.coveredBy.length > 0 ? this.specItem.coveredBy : [-1];
-        // indexes need to have at least on entry to filter out all other indexes. -1 will never match
+
+        // Filter by covering or coveredBy
+        const acceptedIndexes: Array<number> = (() => {
+            switch (coverType) {
+                case CoverType.covering:
+                    // indexes need to have at least on entry to filter out all other indexes. -1 will never match
+                    this.log.info("covering ", this.specItem.covering);
+                    return this.specItem.covering.length > 0 ? this.specItem.covering : [-1];
+                case CoverType.coveredBy:
+                    // indexes need to have at least on entry to filter out all other indexes. -1 will never match
+                    this.log.info("coveredBy ", this.specItem.coveredBy);
+                    return this.specItem.coveredBy.length > 0 ? this.specItem.coveredBy : [-1];
+                default:
+                    // Default means any: return all items
+                    this.log.info("any");
+                    return [];
+            }
+        })();
+
         const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[INDEX_FILTER, acceptedIndexes]]);
-        this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.covering, filters);
+        this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.coveredBy, filters);
     }
 
     private static toElementId(index: number): string {
@@ -133,7 +150,7 @@ export class SpecItemElement {
 
     protected selectionChangeListener(event: SelectionChangeEvent): void {
         if (this.parentElement == null) return;
-        this.selected = this.specItem.index === event.index;
+        this.selected = this.specItem.index == event.index;
         if (this.selected) {
             this.element.addClass(SELECT_CLASS);
             this.element.removeClass(MOUSE_ENTER_CLASS);
@@ -179,9 +196,16 @@ export class SpecItemElement {
         return this.specItem.status === Status.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
     }
 
-    protected addListenersToTemplate(template:JQuery) : JQuery {
+    protected addListenersToTemplate(template: JQuery): JQuery {
         template.on({
-            click: () => this.select(),
+            click: () => {
+                if (!this.selected) {
+                    this.log.info("Selecting");
+                    this.select();
+                } else {
+                    this.log.info("Already selected");
+                }
+            },
             dblclick: () => this.focus(),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()

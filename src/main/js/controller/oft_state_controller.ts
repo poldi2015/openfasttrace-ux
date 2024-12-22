@@ -89,8 +89,6 @@ export class OftStateController {
     // FocusItem
 
     public focusItem(index: number, path: Array<string>, coverType: CoverType, filters: Map<FilterName, SelectedFilterIndexes> | null = null): void {
-        if(this.oftState.focusIndex == index) return;
-
         this.oftState.focusIndex = index;
         this.oftState.focusPath = path;
         this.oftState.coverType = coverType;
