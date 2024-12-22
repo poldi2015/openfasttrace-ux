@@ -21,7 +21,7 @@ export class SpecItemsController {
     private log: Log = new Log("SpecItemsController");
 
     private focusSpecItemElement: SpecItemElement | null = null;
-    private specItems: Array<SpecItem> = [];
+    private specItems: Map<number, SpecItem> = new Map<number, SpecItem>();
     private specItemElements: Array<SpecItemElement> = [];
     private specItemToElement: Array<[SpecItem, SpecItemElement]> = new Array<[SpecItem, SpecItemElement]>();
 
@@ -33,17 +33,13 @@ export class SpecItemsController {
         this.focusChangeListener(event as FocusChangeEvent);
     }
 
-    public init(specItems: Array<SpecItem>,
-                focusSpecItem: SpecItem | null = null,
-                focusCoverPath: Array<string> = [],
-                focusCoverType: CoverType = CoverType.covering): void {
-        this.specItems = specItems;
-        this.setFocusSpecItem(focusSpecItem, focusCoverPath, focusCoverType);
+    public init(specItems: Array<SpecItem>): void {
+        this.log.info("init ", specItems.map((specItem: SpecItem) => specItem.index).join(", "));
         specItems.forEach((specItem: SpecItem) => {
-            if (specItem === focusSpecItem) return;
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
             this.insertSpecItemAt(specItemElement);
             this.specItemToElement.push([specItem, specItemElement]);
+            this.specItems.set(specItem.index, specItem);
             if (this.specItemToElement.length === 1) specItemElement.select();
         });
         this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
@@ -54,29 +50,16 @@ export class SpecItemsController {
 
     private createSpecItemElement(specItem: SpecItem): SpecItemElement {
         return new SpecItemElement(
-            specItem.index,
-            specItem.type,
-            specItem.name,
-            specItem.version,
-            specItem.content,
-            specItem.covered,
-            specItem.status,
-            specItem.path,
+            specItem,
             this.oftStateController
         );
     }
 
     private createFocusSpecItemElement(specItem: SpecItem, coverType: CoverType): FocusSpecItemElement {
+        if (specItem == null) this.log.info("SPECITEM MUST NOT BE NULL")
         return new FocusSpecItemElement(
-            specItem.index,
-            specItem.type,
-            specItem.name,
-            specItem.version,
-            specItem.content,
-            specItem.covered,
-            specItem.status,
+            specItem,
             coverType,
-            specItem.path,
             this.oftStateController
         );
     }
@@ -86,8 +69,9 @@ export class SpecItemsController {
         this.specItemElements.push(specItem);
     }
 
-    private setFocusSpecItem(specItem: SpecItem | null, path: Array<string>, coverType: CoverType): void {
-        if (specItem === null) {
+    private setFocusSpecItem(specItem: SpecItem | null, coverType: CoverType): void {
+        this.log.info("setFocusSpecItem ", specItem);
+        if (specItem == null) {
             $(FOCUS_SPECITEM_ELEMENT_ID).hide();
         } else {
             this.removeFocusSpecItem();
@@ -109,12 +93,21 @@ export class SpecItemsController {
 
     private focusChangeListener(focusChangeEvent: FocusChangeEvent): void {
         this.log.info("focusChangeListener ", focusChangeEvent);
-        if (focusChangeEvent.index === null) {
+
+        // Update focus element
+        if (focusChangeEvent.index == null) {
             this.removeFocusSpecItem();
         } else {
-            const specItem: SpecItem = this.specItems[focusChangeEvent.index];
-            this.setFocusSpecItem(specItem, focusChangeEvent.path, focusChangeEvent.coverType);
+            const focusedSpecItem: SpecItem = this.specItems.get(focusChangeEvent.index) as SpecItem;
+            this.setFocusSpecItem(focusedSpecItem, focusChangeEvent.coverType);
         }
+
+        // Update filtered items
+        const selectedFilters: Array<[string, SelectedFilterIndexes]> = Array.from(focusChangeEvent.selectedFilters);
+        const filteredSpecItems: Array<SpecItemElement> =
+            SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
+
+        this.showOnlySelectedSpecItemElements(filteredSpecItems);
     }
 
     /**
@@ -126,8 +119,9 @@ export class SpecItemsController {
      */
     private filterChangeListener(filterChangeEvent: FilterChangeEvent): void {
         this.log.info("filterChangeListener ", filterChangeEvent);
+        const selectedFilters: Array<[string, SelectedFilterIndexes]> = Array.from(filterChangeEvent.selectedFilters);
         const filteredSpecItems: Array<SpecItemElement> =
-            SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, filterChangeEvent);
+            SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
         this.showOnlySelectedSpecItemElements(filteredSpecItems);
     }
@@ -137,12 +131,11 @@ export class SpecItemsController {
      * Filters SpecItem from the list of all SpecItems that match all filters.
      *
      * @param specItemToElement 1:1 mapping of SpecItem to SpecItemElement
-     * @param filterChangeEvent event with current filter selection
+     * @param selectedFilters active filters
      */
     private static getSpecItemsMatchingFilters(specItemToElement: Array<[SpecItem, SpecItemElement]>,
-                                               filterChangeEvent: FilterChangeEvent): Array<SpecItemElement> {
+                                               selectedFilters: Array<[string, SelectedFilterIndexes]>): Array<SpecItemElement> {
 
-        const selectedFilters: Array<[string, SelectedFilterIndexes]> = Array.from(filterChangeEvent.selectedFilters);
         return specItemToElement
             .filter(([specItem, _]: [SpecItem, any]) => {
                 return SpecItemsController.isMatchingAllFilters(specItem, selectedFilters);
@@ -157,6 +150,7 @@ export class SpecItemsController {
      * @private
      */
     private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, SelectedFilterIndexes]>): boolean {
+        //log.info("isMatchingAllFilters ", selectedFilters);
         return selectedFilters.every(([filterName, filterIndexes]: [string, SelectedFilterIndexes]): boolean => {
             const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
             if (filterIndexes.length === 0) return true;

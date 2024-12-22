@@ -2,8 +2,8 @@ export type FilterName = string;
 export type SelectedFilterIndexes = Array<number>;
 
 export enum CoverType {
-    covering=0,
-    coveredBy=1
+    covering = 0,
+    coveredBy = 1
 }
 
 export class OftState {
@@ -14,11 +14,12 @@ export class OftState {
         private _selectedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),
         private _focusIndex: number | null = null,
         private _focusPath: Array<string> = [],
+        private _unfocusedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),
         private _coverType: CoverType = CoverType.covering,
     ) {
     }
 
-    public clone() : OftState {
+    public clone(): OftState {
         return new OftState(
             this._selectedIndex,
             this._scrollPosition,
@@ -26,6 +27,7 @@ export class OftState {
             this._selectedFilters,
             this._focusIndex,
             this._focusPath,
+            this._unfocusedFilters,
             this._coverType
         );
     }
@@ -76,6 +78,14 @@ export class OftState {
 
     set focusPath(value: Array<string>) {
         this._focusPath = value;
+    }
+
+    get unfocusedFilters(): Map<string, Array<number>> {
+        return this._unfocusedFilters;
+    }
+
+    set unfocusedFilters(value: Map<FilterName, SelectedFilterIndexes>) {
+        this._unfocusedFilters = value;
     }
 
     get coverType(): CoverType {
