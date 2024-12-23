@@ -97,8 +97,12 @@ export class SpecItemsController {
 
         // Update focus element
         if (focusChangeEvent.index == null) {
+            // Hide focus item
+
             this.removeFocusSpecItem();
         } else {
+            // show Focus item
+
             const focusedSpecItem: SpecItem = this.specItems.get(focusChangeEvent.index) as SpecItem;
             this.setFocusSpecItem(focusedSpecItem, focusChangeEvent.coverType);
         }
@@ -109,6 +113,12 @@ export class SpecItemsController {
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
         this.showOnlySelectedSpecItemElements(filteredSpecItems);
+
+        // scroll to last position before focusing
+        if (focusChangeEvent.scrollPosition != undefined) {
+            this.log.info("Scroll to ", focusChangeEvent.scrollPosition);
+            $(SPECITEMS_ELEMENT_ID).scrollTop(focusChangeEvent.scrollPosition);
+        }
     }
 
 
