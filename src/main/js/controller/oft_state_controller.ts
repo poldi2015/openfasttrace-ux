@@ -29,6 +29,7 @@ export class FocusChangeEvent extends ChangeEvent {
         public readonly index: number | null,
         public readonly coverType: CoverType = CoverType.covering,
         public readonly selectedFilters: Map<FilterName, SelectedFilterIndexes>,
+        public readonly scrollPosition: number | undefined = undefined,
     ) {
         super(FocusChangeEvent.TYPE);
     }
@@ -56,17 +57,18 @@ export class OftStateController {
 
     private log: Log = new Log("OftStateController");
 
-    public init() : void {
+    public init(): void {
         this.selectFilters();
     }
 
     //
     // selected SpecItem
 
-    public selectItem(index: number, path: Array<string>): void {
+    public selectItem(index: number, path: Array<string>, scrollPosition: number | undefined = undefined): void {
         this.log.info("Selecting item with index: " + index);
         this.oftState.selectedIndex = index;
         this.oftState.selectedPath = path;
+        if (scrollPosition != undefined) this.oftState.scrollPosition = scrollPosition;
         this.notifyChange(new SelectionChangeEvent(index, path));
 
     }
@@ -88,7 +90,24 @@ export class OftStateController {
     //
     // FocusItem
 
-    public focusItem(index: number, path: Array<string>, coverType: CoverType, filters: Map<FilterName, SelectedFilterIndexes> | null = null): void {
+    public focusItem(index: number,
+                     path: Array<string>,
+                     coverType: CoverType,
+                     filters: Map<FilterName, SelectedFilterIndexes> | null = null,
+                     scrollPosition: number): void {
+        if (this.createFocus(index, path, coverType, filters, scrollPosition) ||
+            this.adjustFocus(index, coverType, filters)) {
+            this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters, undefined));
+            this.notifyChange(new SelectionChangeEvent(index, path, true));
+        }
+    }
+
+    private createFocus(index: number,
+                        path: Array<string>,
+                        coverType: CoverType,
+                        filters: Map<FilterName, SelectedFilterIndexes> | null = null,
+                        scrollPosition: number): boolean {
+        if (this.oftState.focusIndex == index) return false;
         this.oftState.focusIndex = index;
         this.oftState.focusPath = path;
         this.oftState.coverType = coverType;
@@ -97,14 +116,24 @@ export class OftStateController {
         this.oftState.unfocusedFilters = this.oftState.selectedFilters;
         this.oftState.unfocusedFilters.delete(INDEX_FILTER);
         if (filters != null) this.oftState.selectedFilters = filters;
-        this.log.info("focusItem", this.oftState);
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
-        this.notifyChange(new SelectionChangeEvent(index, path, true));
+        this.oftState.scrollPosition = scrollPosition;
+        this.log.info("focusing item", this.oftState);
+        return true;
     }
 
-    public unFocusItem(index:number, path: Array<string>): void {
-        if(this.oftState.focusIndex != index) return;
-        if( this.oftState.focusIndex == null) return;
+    private adjustFocus(index: number,
+                        coverType: CoverType,
+                        filters: Map<FilterName, SelectedFilterIndexes> | null = null): boolean {
+        if (this.oftState.focusIndex != index) return false;
+        this.oftState.coverType = coverType;
+        if (filters != null) this.oftState.selectedFilters = filters;
+        this.log.info("adjust focus", this.oftState);
+        return true;
+    }
+
+    public unFocusItem(index: number, path: Array<string>): void {
+        if (this.oftState.focusIndex != index) return;
+        if (this.oftState.focusIndex == null) return;
 
         this.oftState.selectedIndex = index;
         this.oftState.selectedPath = path;
@@ -113,8 +142,9 @@ export class OftStateController {
         this.oftState.coverType = CoverType.covering;
         this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
         this.oftState.selectedFilters = this.oftState.unfocusedFilters;
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters, this.oftState.scrollPosition));
         this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath, false));
+        this.oftState.scrollPosition = undefined;
     }
 
 
@@ -122,7 +152,7 @@ export class OftStateController {
     // Filters
 
     public selectFilters(filters: Map<FilterName, SelectedFilterIndexes> = new Map()): void {
-        filters.forEach((value:SelectedFilterIndexes, key:FilterName) => {
+        filters.forEach((value: SelectedFilterIndexes, key: FilterName) => {
             this.oftState.selectedFilters.set(key, value)
         });
         this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
@@ -137,7 +167,7 @@ export class OftStateController {
     // Listeners
 
     public addChangeListener(eventType: string, listener: ChangeListener): void {
-        const listeners: Array<ChangeListener>|undefined = this.changeListeners.has(eventType) ?
+        const listeners: Array<ChangeListener> | undefined = this.changeListeners.has(eventType) ?
             this.changeListeners.get(eventType) : new Array<ChangeListener>();
         listeners!.push(listener);
         this.changeListeners.set(eventType, listeners!);
@@ -145,8 +175,8 @@ export class OftStateController {
 
     public removeChangeListener(listener: ChangeListener): void {
         const changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
-        this.changeListeners.forEach((listeners,eventType,_) => {
-            changeListeners.set( eventType, listeners.filter((item) => item != listener));
+        this.changeListeners.forEach((listeners, eventType, _) => {
+            changeListeners.set(eventType, listeners.filter((item) => item != listener));
         });
         this.changeListeners = changeListeners;
     }

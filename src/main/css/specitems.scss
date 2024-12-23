@@ -103,7 +103,7 @@
   padding: 0;
   border: solid 1px #505050;
   border-radius: 8px;
-  background-color: #eff3ef;
+  background-color: #daecda;
 }
 
 ._specitem-cover-type {
@@ -113,4 +113,12 @@
   font-size: 14px;
   padding: 5px 4px 5px 4px;
   background-color: #505050;
+}
+
+._specitem-selected._focuspecitem {
+  background-color: #a2cfc6 !important;
+}
+
+._specitem-mouse-enter._focuspecitem {
+  background-color: #c9e8c9 !important;
 }

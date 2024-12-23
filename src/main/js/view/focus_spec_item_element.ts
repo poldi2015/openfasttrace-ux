@@ -3,6 +3,9 @@ import {OftStateController, SelectionChangeEvent} from "@main/controller/oft_sta
 import {CoverType} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
 
+const COVERING_TEXT: string = "<<<<  is covering    <<<<";
+const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
+
 export class FocusSpecItemElement extends SpecItemElement {
     public constructor(
         specItem: SpecItem,
@@ -18,6 +21,7 @@ export class FocusSpecItemElement extends SpecItemElement {
      */
     public unFocus(): void {
         this.log.info("Unfocusing item");
+        // TODO: restore scroll position
         this.oftStateController.unFocusItem(this.specItem.index, this.specItem.path);
     }
 
@@ -34,7 +38,6 @@ export class FocusSpecItemElement extends SpecItemElement {
      * Switch the coverType of this item and in case item is already selected.
      */
     private switchCoverType(): boolean {
-        // TODO: change coverType in graphic presentation of the focus element
         if (this.parentElement == null) return false;
         if (!this.selected) return false;
         this.coverType = (() => {
@@ -77,14 +80,14 @@ export class FocusSpecItemElement extends SpecItemElement {
 
     private createCoverTypeTemplate(): string {
         if (this.coverType == CoverType.covering) {
-            return `<div class="_specitem-cover-type">is covering</div>`;
+            return `<div class="_specitem-cover-type">${COVERING_TEXT}</div>`;
         } else {
-            return `<div class="_specitem-cover-type">is covered by</div>`;
+            return `<div class="_specitem-cover-type">${IS_COVERED_BY_TEXT}</div>`;
         }
     }
 
     private updateCoverTypeElement(): void {
-        this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? "is covering" : "is covered by");
+        this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? COVERING_TEXT : IS_COVERED_BY_TEXT);
     }
 
     protected override addListenersToTemplate(template: JQuery): JQuery {

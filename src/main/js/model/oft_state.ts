@@ -9,7 +9,7 @@ export enum CoverType {
 export class OftState {
     public constructor(
         private _selectedIndex: number | null = null,
-        private _scrollPosition: number = 0,
+        private _scrollPosition: number | undefined = undefined,
         private _selectedPath: Array<string> = [],
         private _selectedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),
         private _focusIndex: number | null = null,
@@ -56,11 +56,11 @@ export class OftState {
         this._selectedFilters = value;
     }
 
-    get scrollPosition(): number {
+    get scrollPosition(): number | undefined {
         return this._scrollPosition;
     }
 
-    set scrollPosition(value: number) {
+    set scrollPosition(value: number | undefined) {
         this._scrollPosition = value;
     }
 
