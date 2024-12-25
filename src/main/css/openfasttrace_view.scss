@@ -1,9 +1,9 @@
 /* Page Layouts */
 
-@import "expandable_widget";
-@import "filters";
-@import "specitems";
-@import "colors";
+@use "expandable_widget";
+@use "filters";
+@use "specitems";
+@use "colors";
 
 .ui-widget {
     font-size: 12px;
