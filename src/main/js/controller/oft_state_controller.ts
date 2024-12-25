@@ -48,12 +48,12 @@ export class FilterChangeEvent extends ChangeEvent {
 export type ChangeListener = (change: ChangeEvent) => void;
 
 export class OftStateController {
-    private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
-
     public constructor(
         private oftState: OftState = new OftStateBuilder().build(),
     ) {
     }
+
+    private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
 
     private log: Log = new Log("OftStateController");
 

@@ -14,7 +14,7 @@ function _init() {
     const oftStateController = new OftStateController(oftState);
 
     ExpandableWidget.init();
-    new FiltersElement(oftStateController).init();
+    new FiltersElement(metaModel, oftStateController).init();
 
     Migrate.init_searchform();
     Migrate.init_tabs();
