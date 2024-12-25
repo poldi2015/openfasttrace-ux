@@ -13,9 +13,11 @@ export class OftStateBuilder {
             this.oftState.selectedIndex = null;
             this.oftState.selectedPath = [];
         }
+        /*
         Object.entries(metaModel).forEach(([filterName, _]: [string, any]) => {
             this.oftState.selectedFilters.set(filterName, []);
         });
+         */
 
         return this;
     }

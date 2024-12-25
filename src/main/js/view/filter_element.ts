@@ -1,58 +1,101 @@
 /**
- *  FilterWidgets provide the filters in the left drawer.
+ *  FilterWidgets provide one of the filter list in a side drawer.
  *
- *  TODO: React to changed filter selection by focus item activated.
+ *  The filter is configured by a {@link FilterModel} that is part of the global metadata.
+ *
+ *  State changes are communicated via the {@link OftStateController}. The FilterElement issues changes to the filter
+ *  selection via {@link OftStateController.selectFilters}. By listening to {@link FilterChangeEvent} and {@link FocusChangeEvent}
+ *  it reacts to changes to the filters issued by other components.
  */
 import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
-import {OftStateController} from "@main/controller/oft_state_controller";
-import {FilterModel} from "@resources/js/meta_data";
+import {
+    ChangeEvent,
+    ChangeListener,
+    FilterChangeEvent,
+    FocusChangeEvent,
+    OftStateController
+} from "@main/controller/oft_state_controller";
+import {sameArrayValues} from "@main/utils/collections";
+import {FilterModel} from "@main/model/filter";
 
 export class FilterElement {
     public constructor(
         public readonly id: string,
         selectElement: HTMLElement,
-        private oftState: OftStateController,
+        private readonly filterModel: Array<FilterModel>,
+        private readonly oftState: OftStateController
     ) {
         this.selectElement = $(selectElement);
     }
 
+    /**
+     * selected options, gets updated when option is selected via the UI or via the oftState sending a filterChange event.
+     */
     public selectionIndexes: Array<number> = [];
 
+    /**
+     * The select element of the filter widget.
+     */
     private readonly selectElement: JQuery;
-    private readonly log:Log = new Log("FilterElement");
 
+    private readonly log: Log = new Log("FilterElement");
 
+    private filterChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
+        this.filterChangeListener((event as FilterChangeEvent).selectedFilters);
+    }
+
+    private focusChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
+        this.filterChangeListener((event as FocusChangeEvent).selectedFilters);
+    }
+
+    /**
+     * Initialize the filter widget.
+     *
+     * @param selectedIndexes List of selectable filter indexes
+     */
     public init(selectedIndexes: Array<number>): void {
-        this.addAllNoneSelector(this.selectElement);
-        this.appendFilterValues(this.id, this.selectElement);
-        this.initSelections(selectedIndexes, this.selectElement);
+        this.addAllNoneSelector();
+        this.appendFilterValues();
+        this.setSelections(selectedIndexes);
         this.deactivate();
 
         // TODO: Replace
-        const filters: Array<FilterModel> = window.metadata[this.id] as Array<FilterModel>;
+        /*
+        const filters: Array<FilterModel> = filterModel;
         if (filters) {
             const total = filters.reduce((sum: number, item: FilterModel) => item.item_count ? sum + item.item_count : 0, 0);
             if (total > 0) {
                 this.selectElement.parent().parent().find("._expandable-widget-header span").append(`&nbsp;&nbsp;(${total})`);
             }
         }
+         */
     }
 
     /**
-     * Activates the
+     * Enable the filter widget, ready to be used in the UI.
      */
     public activate(): void {
         this.selectElement.removeAttr("disabled");
         this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
+        this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
+        this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
         this.selectElement.trigger("change");
     }
 
+    /**
+     * Deactivates the filter widget, making it unavailable in the UI.
+     */
     public deactivate(): void {
         this.selectElement.attr("disabled", "disabled");
         this.selectElement.off('change');
+        this.oftState.removeChangeListener(this.filterChangeListenerFacade);
+        this.oftState.removeChangeListener(this.focusChangeListenerFacade);
     }
 
+    /**
+     * Query of the UI is active.
+     */
     public isDisabled(): boolean {
         return this.selectElement.attr("disabled") != undefined;
     }
@@ -63,28 +106,22 @@ export class FilterElement {
 
     /**
      * Imports option view for a filter widget from the global filter_config variable.
-     *
-     * @param {String} id of the expanded widget
-     * @param {JQuery} selectElement the select element within the widget
      */
-    private appendFilterValues(id: string, selectElement: JQuery): void {
-        const filters: Array<FilterModel> = window.metadata[id] ? window.metadata[id] as Array<FilterModel> : [];
-        selectElement.prop("size", filters.length);
-        filters && filters.forEach((item: FilterModel, index: number) => {
+    private appendFilterValues(): void {
+        this.selectElement.prop("size", this.filterModel.length);
+        this.filterModel.forEach((item: FilterModel, index: number) => {
             const color: string = item.color ? `style="color:${item.color}"` : '';
             const count: string = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
             const id: string = FilterElement.toSelectionId(this.id, index);
-            selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
+            this.selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
         });
     }
 
     /**
-     * Add a select all and a select none button above a select element.
-     *
-     * @param {JQuery} selectElement The select element
+     * Add a select all and a select off button above a select element.
      */
-    private addAllNoneSelector(selectElement: JQuery): void {
-        const buttonBar: JQuery = selectElement.parent().parent().find("._expandable-widget-header");
+    private addAllNoneSelector(): void {
+        const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-widget-header");
         buttonBar.append(`
             <div class="widget-filter-buttons">
                 <a href="#">All</a>
@@ -97,17 +134,21 @@ export class FilterElement {
     }
 
     /**
-     * Selects all options of a select element.
+     * Adapt the UI based on the selected indexes.
+     *
+     * Called when receiving a filterChangeEvent or a focusChangeEvent.
      *
      * @param {Array<number>} selectedIndexes List of selected entry indexes
-     * @param {JQuery} selectElement The select element
      */
-    private initSelections(selectedIndexes: Array<number>, selectElement: JQuery): void {
-        selectElement.attr('multiple', "true");
+    private setSelections(selectedIndexes: Array<number>): void {
+        this.selectionIndexes = selectedIndexes;
+        this.selectElement.attr('multiple', "true");
         this.log.info("initSelection ", this.id, " ", selectedIndexes);
-        selectElement.children("option").each((index: number, element: HTMLElement) => {
+        this.selectElement.children("option").each((index: number, element: HTMLElement) => {
             $(element).prop("selected", selectedIndexes.includes(index));
         });
+        this.toggleOff(selectedIndexes.length == 0);
+        this.selectElement.trigger("change");
     }
 
     /**
@@ -158,6 +199,11 @@ export class FilterElement {
         this.oftState.selectFilters(filters);
     }
 
+    /**
+     * Extracts the selected indexes from a select option elements.
+     *
+     * @param {JQuery} selectElement th select element of the options
+     */
     private toSelectionIndexes(selectElement: JQuery): Array<number> {
         return selectElement
             .find('option:selected')
@@ -165,12 +211,38 @@ export class FilterElement {
             ).toArray();
     }
 
+    /**
+     * Generates an element id for on option based in the id (index) of the filter entry.
+     *
+     * @param id of the filter
+     * @param index index of the filter entry
+     */
     private static toSelectionId(id: string, index: number): string {
         return `${id}_${index}`;
     }
 
+    /**
+     * Extracts the index out of the id of an option element
+     *
+     * @param element the option element
+     */
     private static toSelectionIndex(element: HTMLElement): number {
         return parseInt(element.id.replace(/^[A-Za-z0-9]+_/, ''));
+    }
+
+    /**
+     * Called when the filters changed their selection.
+     *
+     * All specItems matching the filters are made visible, all non matching are made invisible.
+     *
+     * @param selectedFilters filters to be selected (includes the selection of all filters not only this one)
+     */
+    private filterChangeListener(selectedFilters: Map<FilterName, SelectedFilterIndexes>): void {
+        this.log.info("filterChangeListener ", selectedFilters);
+        const changedSelectionIndexes: SelectedFilterIndexes = selectedFilters.get(this.id) ?? [];
+        if (sameArrayValues(this.selectionIndexes, changedSelectionIndexes)) return;
+        this.log.info("changedSelectionIndexes ", changedSelectionIndexes);
+        this.setSelections(changedSelectionIndexes);
     }
 
 } // FilterElement
