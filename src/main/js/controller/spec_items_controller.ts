@@ -166,8 +166,8 @@ export class SpecItemsController {
      */
     private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, SelectedFilterIndexes]>): boolean {
         return selectedFilters.every(([filterName, filterIndexes]: [string, SelectedFilterIndexes]): boolean => {
-            const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
             if (filterIndexes.length === 0) return true;
+            const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
             return itemIndexes.some((itemIndex: number) => filterIndexes.includes(itemIndex));
         });
     }
