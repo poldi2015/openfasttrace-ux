@@ -55,6 +55,8 @@ const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
         content: "Eu amet et deserunt ad et consequat sunt et aliqua consequat nulla. Irure nulla ",
         covered: [0, 1, 1, 1, 1, 1, 1],
         uncovered: [0, 1, 2, 3, 4, 5],
+        covering: [],
+        coveredBy: [107, 108],
         status: 1,
         path: ["project", "spec", "content"],
     },
