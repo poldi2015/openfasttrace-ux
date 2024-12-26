@@ -1,12 +1,22 @@
-/**
- *  FilterWidgets provide one of the filter list in a side drawer.
- *
- *  The filter is configured by a {@link FilterModel} that is part of the global metadata.
- *
- *  State changes are communicated via the {@link OftStateController}. The FilterElement issues changes to the filter
- *  selection via {@link OftStateController.selectFilters}. By listening to {@link FilterChangeEvent} and {@link FocusChangeEvent}
- *  it reacts to changes to the filters issued by other components.
- */
+/*
+  OpenFastTrace UX
+
+ Copyright (C) 2024-2025 itsallcode.org, Bernd Haberstumpf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public
+ License along with this program.  If not, see
+ <http://www.gnu.org/licenses/gpl-3.0.html>.
+*/
 import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
 import {
@@ -19,6 +29,15 @@ import {
 import {sameArrayValues} from "@main/utils/collections";
 import {FilterModel} from "@main/model/filter";
 
+/**
+ *  FilterElement provide one of the filter list in a side drawer.
+ *
+ *  The filter is configured by a {@link FilterModel} that is part of the global metadata.
+ *
+ *  State changes are communicated via the {@link OftStateController}. The FilterElement issues changes to the filter
+ *  selection via {@link OftStateController.selectFilters}. By listening to {@link FilterChangeEvent} and {@link FocusChangeEvent}
+ *  it reacts to changes to the filters issued by other components.
+ */
 export class FilterElement {
     public constructor(
         public readonly id: string,
