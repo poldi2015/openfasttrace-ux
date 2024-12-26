@@ -23,9 +23,33 @@ Only parts of the UI have already been realized.
 
 [![Build](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml/badge.svg)](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml)
 
-This project at the moment is a pure HTML application developed with HTML, SCSS and Typescript. The software is
-built via [Webpack](https://webpack.js.org/) which builds a HTML page including CSS and Javascript. To build the
-application you need to have [npm](https://github.com/nvm-sh/nvm) installed on your system.
+This project at the moment is a pure HTML application developed with HTML, SCSS and Typescript.
+
+# <img src="doc/resources/oft_ux_screenshot.png" alt="OFT UX"/>
+
+## Features
+
+### Tracing tool
+
+* &cross; **OFT reporter plugin**: Extension of the list of supported reporters for OFT.
+
+### User Interface
+
+* &cross; **Titlebar**: Titlebar on top with project title and global buttons.
+* &cross; **Statusbar**: Statusbar at the bottom with statistics.
+* &check; **Filter Sidebar**: Sidebar with filters, SpecObject table view specific.
+* &check; **SpecObject table**: Table as main UI element that lists all non-filtered SpecObjects.
+* &check; **SpecObject coverage overview**: Badges for missing deep coverage.
+* &check; **Focus SpecObject**: Pin a SpecObject with double click to the top and show only SpecObjects that are covered
+  by the SpecObject or SpecObject that the SpecObject covers. Own Filter selection for this view.
+* &cross; **File Tree View**: Treeview of source files.
+* &cross; **Details view**: View with details of the selected SpecObject.
+* ...
+
+## Build OFT UX
+
+The software is built via [Webpack](https://webpack.js.org/) which builds a HTML page including CSS and Javascript.
+To build the application you need to have [npm](https://github.com/nvm-sh/nvm) installed on your system.
 
 ```bash
 $ npm install
