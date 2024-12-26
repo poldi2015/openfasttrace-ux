@@ -6,7 +6,7 @@ of ReqMgrNG.
 
 ## Component breakdown
 
-<img src="resources/oft_ux_components.drawio.svg" alt="OFT UX Components" width="150"/>
+<img src="resources/oft_ux_components.drawio.svg" alt="OFT UX Components"/>
 
 OFT UX is composed out of two major parts:
 
@@ -26,7 +26,7 @@ The OFT UX Frontend is composed out of a static and trace run specific parts:
 This chapter details the planned OFT Frontend UI. The UI is a single page application with a single HTML page layout
 similar to that of an IDE like VSCode or IntelliJ.
 
-<img src="resources/main_ui.drawio.svg" alt="OFT Main UI" width="150"/>
+<img src="resources/main_ui.drawio.svg" alt="OFT Main UI"/>
 
 The main UI is composed out of the following parts:
 
