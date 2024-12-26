@@ -1,0 +1,19 @@
+{
+  "license": ".licenseheader",
+  "ignore": [
+    ".*",
+    ".*/**/*",
+    "xxx*",
+    "xxx/**/*",
+    "coverage/**/*",
+    "*.json",
+    "**/*.json",
+    "**/*.xml",
+    "*",
+    "build/**/*",
+    "src/main/libs/**/*",
+    "src/main/libs/*",
+    "src/main/resources/*",
+    "src/main/resources/**/*"
+  ]
+}
