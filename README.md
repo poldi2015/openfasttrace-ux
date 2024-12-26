@@ -21,7 +21,7 @@ Only parts of the UI have already been realized.
 
 ## Project Information
 
-[![Build](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml/badge.svg)](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml)
+[![Build](https://github.com/poldi2015/openfasttrace-ux/actions/workflows/webpack.yml/badge.svg)](https://github.com/poldi2015/openfasttrace-ux/actions/workflows/webpack.yml)
 
 This project at the moment is a pure HTML application developed with HTML, SCSS and Typescript.
 
