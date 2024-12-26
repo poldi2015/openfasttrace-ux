@@ -22,3 +22,17 @@ Only parts of the UI have already been realized.
 ## Project Information
 
 [![Build](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml/badge.svg)](https://github.com/itsallcode/openfasttrace/actions/workflows/build.yml)
+
+This project at the moment is a pure HTML application developed with HTML, SCSS and Typescript. The software is
+built via [Webpack](https://webpack.js.org/) which builds a HTML page including CSS and Javascript. To build the
+application you need to have [npm](https://github.com/nvm-sh/nvm) installed on your system.
+
+```bash
+$ npm install
+$ npm run build
+$ npm run test
+```
+
+## Contact
+
+* [Bernd (Poldi) Haberstumpf <poldi@thatswing.de>](mailto:poldi@thatswing.de)
