@@ -17,10 +17,10 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+
 /**
  * Definition of metadata used for filters and metrics.
  */
-
 
 declare global {
     interface Window {
@@ -39,8 +39,14 @@ export interface FilterModel {
     item_count: number,
 }
 
-// TODO: Replace, window.metadata is undefined in tests
-export const FILTER_NAMES: Array<String> = window.metadata != undefined ? Object.getOwnPropertyNames(window.metadata) : [];
+let _filterNames: Array<string> | undefined = undefined;
+
+/**
+ * Extract the names of all used filters from the filter
+ */
+export function getFilterNames(): Array<string> {
+    return _filterNames != undefined ? _filterNames : Array.from($(".filter").map((_, element) => element.id));
+}
 
 /**
  * Returns the label of an entry in the type filter.

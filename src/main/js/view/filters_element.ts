@@ -32,7 +32,7 @@ export class FiltersElement {
     public filterElements: Array<IFilterElement> = [];
 
     /**
-     * Initialize all filter widget marked with class .widget-filter.
+     * Initialize all filter widget marked with class .filter.
      */
     public init(): void {
         const filterElements: Array<IFilterElement> = this.filterElements;
@@ -40,7 +40,7 @@ export class FiltersElement {
         const filterModels: FilterModels = this.filterModels;
         const filterElementFactory: FilterElementFactory = this.filterElementFactory;
 
-        $(".widget-filter").each(function (_, element: HTMLElement) {
+        $(".filter").each(function (_, element: HTMLElement) {
             let id: string = element?.id ?? "";
             const filterElement: IFilterElement = filterElementFactory.build(id ? id : "", element, filterModels[id], oftState);
             const selectedFilterIndexes: SelectedFilterIndexes = oftState.getSelectedFilters().get(id) ?? [];
