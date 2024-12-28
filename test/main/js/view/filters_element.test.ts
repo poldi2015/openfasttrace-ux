@@ -8,13 +8,13 @@ import {$} from "@test/fixtures/dom";
 
 const HTML_MODEL = `
 <div>
-    <select class="widget-filter" id="type"></select>
-    <select class="widget-filter" id="coverage"></select>
+    <select class="filter" id="type"></select>
+    <select class="filter" id="coverage"></select>
 </div>
 `;
 
 describe("Tests  for FiltersElement", () => {
-    test("filterElements.init() creates FilterElements for each widget-filter class selector", () => {
+    test("filterElements.init() creates FilterElements for each filter class selector", () => {
         $("body").append(HTML_MODEL);
 
         const oftState: OftStateController = new OftStateController(new OftStateBuilder().build());

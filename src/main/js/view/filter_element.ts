@@ -146,12 +146,12 @@ export class FilterElement implements IFilterElement {
     private addAllNoneSelector(): void {
         const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-header");
         buttonBar.append(`
-            <div class="widget-filter-buttons">
+            <div class="filter-buttons">
                 <a href="#">All</a>
                 <a href="#">Off</a>
             </div>
         `);
-        const buttons: JQuery = buttonBar.find("div.widget-filter-buttons > a");
+        const buttons: JQuery = buttonBar.find("div.filter-buttons > a");
         buttons.first().on("click", () => this.selectAll());
         buttons.eq(1).on("click", () => this.selectOff());
     }

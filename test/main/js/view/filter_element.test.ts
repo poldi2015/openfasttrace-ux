@@ -9,7 +9,7 @@ import {ExpandableElements} from "../../../../src/main/js/view/expandable_elemen
 
 const HTML_MODEL = `
 <div class="expandable" data-title="Type" data-tooltip="Type part of the Requirement ID">
-    <select class="widget-filter" id="type"></select>
+    <select class="filter" id="type"></select>
 </div>
 `;
 
@@ -18,7 +18,7 @@ describe("Tests  for FilterElement", () => {
         const body = $("body");
         body.append(HTML_MODEL);
         new ExpandableElements().init();
-        const selectElement: HTMLElement = $(".widget-filter")[0];
+        const selectElement: HTMLElement = $(".filter")[0];
 
         const oftStateBuilder: OftStateBuilder = new OftStateBuilder()
             .setSelectedFilters(new Map<string, number[]>([['type', [1, 2]]]));
