@@ -77,8 +77,14 @@ export class OftStateController {
     private log: Log = new Log("OftStateController");
 
     public init(): void {
-        this.selectFilters();
+        // Bootstrap listeners (needed if e.g. state is persisted or otherwise not started with defaults)
+        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
+        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath));
+        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
     }
+
+    //
+    // State
 
     //
     // selected SpecItem
@@ -96,14 +102,6 @@ export class OftStateController {
         this.oftState.selectedIndex = null;
         this.oftState.selectedPath = [];
         this.notifyChange(new SelectionChangeEvent(null, []));
-    }
-
-    public getSelectedItemIndex(): number | null {
-        return this.oftState.selectedIndex;
-    }
-
-    public getSelectedItemPath(): Array<string> {
-        return this.oftState.selectedPath;
     }
 
     //
