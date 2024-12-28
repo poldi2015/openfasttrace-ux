@@ -54,6 +54,9 @@ export class SpecItemsController {
 
     public init(specItems: Array<SpecItem>): void {
         this.log.info("init ", specItems.map((specItem: SpecItem) => specItem.index).join(", "));
+        this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
+        this.oftStateController.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
+
         specItems.forEach((specItem: SpecItem) => {
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
             this.insertSpecItemAt(specItemElement);
@@ -61,8 +64,6 @@ export class SpecItemsController {
             this.specItems.set(specItem.index, specItem);
             if (this.specItemToElement.length === 1) specItemElement.select();
         });
-        this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
-        this.oftStateController.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
     }
 
     // Initialize Elements
