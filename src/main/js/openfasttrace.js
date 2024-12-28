@@ -17,7 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import * as ExpandableWidget from "./view/expandables.ts";
+import {ExpandableElements} from "./view/expandable_elements.ts";
 import * as Migrate from "./migrate.js";
 import {SpecItemsController} from "./controller/spec_items_controller";
 import {OftStateController} from "./controller/oft_state_controller";
@@ -32,7 +32,8 @@ function _init() {
     const oftState = new OftStateBuilder().fromModel(metaModel,specItems).build();
     const oftStateController = new OftStateController(oftState);
 
-    ExpandableWidget.init();
+    new ExpandableElements().init();
+    //ExpandableWidget.init();
     new FiltersElement(metaModel, oftStateController).init();
 
     Migrate.init_searchform();

@@ -17,11 +17,8 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-/*
-    Expandable widgets
- */
 
-.expandable-widget {
+.expandable {
   border: none;
   width: 100%;
   margin: 8px 5px 20px 5px;
@@ -29,7 +26,7 @@
   font-size: 12px;
 }
 
-._expandable-widget-header {
+._expandable-header {
   display: block;
   align-items: center;
   padding: 5px;
@@ -38,13 +35,13 @@
   font-size: 14px;
 }
 
-._expandable-widget-header span {
+._expandable-header span {
   margin-left: 5px;
   font-weight: bold;
   cursor: pointer;
 }
 
-._expandable-widget-header span::before {
+._expandable-header span::before {
   content: "";
   display: inline-block;
   width: 0;
@@ -56,21 +53,21 @@
   transition: transform 0.3s;
 }
 
-._expandable-widget-header.collapsed span::before {
+._expandable-header.collapsed span::before {
   transform: rotate(-90deg);
 }
 
-._expandable-widget-content {
+._expandable-content {
   font-size: 12px;
   display: none;
   padding: 0 8px 0 -2px;
 }
 
-._expandable-widget-content.visible {
+._expandable-content.visible {
   display: block;
 }
 
-._expandable-widget-content select option {
+._expandable-content select option {
   display: flex;
   justify-content: space-between;
   padding-left: 5px;
