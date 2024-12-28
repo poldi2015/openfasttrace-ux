@@ -29,6 +29,22 @@ import {
 import {sameArrayValues} from "@main/utils/collections";
 import {FilterModel} from "@main/model/filter";
 
+export interface IFilterElement {
+    init(): void;
+
+    activate(): void;
+
+    deactivate(): void;
+
+    isDisabled(): boolean;
+}
+
+export class FilterElementFactory {
+    public build(id: string, selectElement: HTMLElement, filterModel: Array<FilterModel>, oftState: OftStateController): IFilterElement {
+        return new FilterElement(id, selectElement, filterModel, oftState);
+    }
+}
+
 /**
  *  FilterElement provide one of the filter list in a side drawer.
  *
@@ -38,7 +54,7 @@ import {FilterModel} from "@main/model/filter";
  *  selection via {@link OftStateController.selectFilters}. By listening to {@link FilterChangeEvent} and {@link FocusChangeEvent}
  *  it reacts to changes to the filters issued by other components.
  */
-export class FilterElement {
+export class FilterElement implements IFilterElement {
     public constructor(
         public readonly id: string,
         selectElement: HTMLElement,
@@ -51,10 +67,10 @@ export class FilterElement {
     /**
      * selected options, gets updated when option is selected via the UI or via the oftState sending a filterChange event.
      */
-    public selectionIndexes: Array<number> = [];
+    private selectionIndexes: Array<number> = [];
 
     /**
-     * The select element of the filter widget.
+     * The select element of the filter element.
      */
     private readonly selectElement: JQuery;
 
@@ -69,41 +85,29 @@ export class FilterElement {
     }
 
     /**
-     * Initialize the filter widget.
-     *
-     * @param selectedIndexes List of selectable filter indexes
+     * Initialize the filter element.
      */
-    public init(selectedIndexes: Array<number>): void {
+    public init(): void {
+        this.selectElement.attr('multiple', "true");
         this.addAllNoneSelector();
         this.appendFilterValues();
-        this.setSelections(selectedIndexes);
+        this.setSelections(this.oftState.getSelectedFilters().get(this.id) ?? []);
         this.deactivate();
-
-        // TODO: Replace
-        /*
-        const filters: Array<FilterModel> = filterModel;
-        if (filters) {
-            const total = filters.reduce((sum: number, item: FilterModel) => item.item_count ? sum + item.item_count : 0, 0);
-            if (total > 0) {
-                this.selectElement.parent().parent().find("._expandable-widget-header span").append(`&nbsp;&nbsp;(${total})`);
-            }
-        }
-         */
     }
 
     /**
-     * Enable the filter widget, ready to be used in the UI.
+     * Enable the filter element, ready to be used in the UI.
      */
     public activate(): void {
         this.selectElement.removeAttr("disabled");
         this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
         this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
         this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
-        this.selectElement.trigger("change");
+        this.setSelections(this.oftState.getSelectedFilters().get(this.id) ?? []);
     }
 
     /**
-     * Deactivates the filter widget, making it unavailable in the UI.
+     * Deactivates the filter element, making it unavailable in the UI.
      */
     public deactivate(): void {
         this.selectElement.attr("disabled", "disabled");
@@ -124,7 +128,7 @@ export class FilterElement {
     // Private members
 
     /**
-     * Imports option view for a filter widget from the global filter_config variable.
+     * Imports option view for a filter element from the global filter_config variable.
      */
     private appendFilterValues(): void {
         this.selectElement.prop("size", this.filterModel.length);
@@ -140,14 +144,14 @@ export class FilterElement {
      * Add a select all and a select off button above a select element.
      */
     private addAllNoneSelector(): void {
-        const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-widget-header");
+        const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-header");
         buttonBar.append(`
             <div class="widget-filter-buttons">
                 <a href="#">All</a>
-                <a href="#"">Off</a>
+                <a href="#">Off</a>
             </div>
         `);
-        const buttons: JQuery = buttonBar.find('div.widget-filter-buttons > a');
+        const buttons: JQuery = buttonBar.find("div.widget-filter-buttons > a");
         buttons.first().on("click", () => this.selectAll());
         buttons.eq(1).on("click", () => this.selectOff());
     }
@@ -161,7 +165,6 @@ export class FilterElement {
      */
     private setSelections(selectedIndexes: Array<number>): void {
         this.selectionIndexes = selectedIndexes;
-        this.selectElement.attr('multiple', "true");
         this.log.info("initSelection ", this.id, " ", selectedIndexes);
         this.selectElement.children("option").each((index: number, element: HTMLElement) => {
             $(element).prop("selected", selectedIndexes.includes(index));
@@ -171,7 +174,7 @@ export class FilterElement {
     }
 
     /**
-     * Select or deselect all options within a widget.
+     * Select or deselect all options within a element.
      */
     private selectAll(): void {
         this.selectElement.children("option").each((_, element: HTMLElement) => {
