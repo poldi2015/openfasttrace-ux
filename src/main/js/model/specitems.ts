@@ -17,7 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {FILTER_NAMES} from "./filter";
+import {getFilterNames} from "./filter";
 
 export const INDEX_FILTER: string = "%index%";
 
@@ -42,12 +42,13 @@ export interface SpecItem {
 }
 
 export function getValuesByFilterName(specItem: SpecItem, filterName: string): Array<number> {
+    const filterNames: Array<string> = getFilterNames();
     switch (filterName) {
-        case FILTER_NAMES[0]:
+        case filterNames[0]:
             return [specItem.type];
-        case FILTER_NAMES[1]:
+        case filterNames[1]:
             return specItem.uncovered;
-        case FILTER_NAMES[2]:
+        case filterNames[2]:
             return [specItem.status];
         case INDEX_FILTER:
             return [specItem.index];
