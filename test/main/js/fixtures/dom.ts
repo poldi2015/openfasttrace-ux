@@ -17,7 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {expect} from "vitest";
+import {beforeEach, expect} from "vitest";
 import jQuery from "jquery";
 
 declare module 'vitest' {
@@ -38,6 +38,10 @@ declare global {
  */
 export const $: JQueryStatic = jQuery;
 window.$ = $;
+
+beforeEach(() => {
+    document.body.innerHTML = '';
+})
 
 
 /**
