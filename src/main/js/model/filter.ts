@@ -29,12 +29,7 @@ declare global {
     }
 }
 
-export type FilterModels = {
-    types: Array<FilterModel>;
-    coverages: Array<FilterModel>;
-    status: Array<FilterModel>;
-    tags : Array<FilterModel>;
-}
+export type FilterModels = Record<string, Array<FilterModel>>;
 
 export interface FilterModel {
     label?: string;
@@ -44,7 +39,8 @@ export interface FilterModel {
     item_count: number,
 }
 
-export const FILTER_NAMES : Array<String> = Object.getOwnPropertyNames(window.metadata);
+// TODO: Replace, window.metadata is undefined in tests
+export const FILTER_NAMES: Array<String> = window.metadata != undefined ? Object.getOwnPropertyNames(window.metadata) : [];
 
 /**
  * Returns the label of an entry in the type filter.

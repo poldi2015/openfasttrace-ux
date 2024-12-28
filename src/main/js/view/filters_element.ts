@@ -17,36 +17,34 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {FilterElement} from "./filter_element";
+import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {SelectedFilterIndexes} from "@main/model/oft_state";
-import {FilterModel} from "@resources/js/meta_data";
-
-interface FilterModelMetadata {
-    [key: string]: Array<FilterModel>;
-}
+import {FilterModels} from "@main/model/filter";
 
 export class FiltersElement {
     constructor(
-        private readonly filterModels: FilterModelMetadata,
-        private readonly oftState: OftStateController) {
+        private readonly filterModels: FilterModels,
+        private readonly oftState: OftStateController,
+        private readonly filterElementFactory: FilterElementFactory = new FilterElementFactory()) {
     }
 
-    public filterElements: Array<FilterElement> = [];
+    public filterElements: Array<IFilterElement> = [];
 
     /**
      * Initialize all filter widget marked with class .widget-filter.
      */
     public init(): void {
-        const filterElements: Array<FilterElement> = this.filterElements;
+        const filterElements: Array<IFilterElement> = this.filterElements;
         const oftState:OftStateController = this.oftState;
-        const filterModels: FilterModelMetadata = this.filterModels;
+        const filterModels: FilterModels = this.filterModels;
+        const filterElementFactory: FilterElementFactory = this.filterElementFactory;
 
         $(".widget-filter").each(function (_, element: HTMLElement) {
-            let id: string = element?.parentElement?.parentElement?.id ?? "";
-            const filterElement: FilterElement = new FilterElement(id ? id : "", element, filterModels[id], oftState);
+            let id: string = element?.id ?? "";
+            const filterElement: IFilterElement = filterElementFactory.build(id ? id : "", element, filterModels[id], oftState);
             const selectedFilterIndexes: SelectedFilterIndexes = oftState.getSelectedFilters().get(id) ?? [];
-            filterElement.init(selectedFilterIndexes);
+            filterElement.init();
             filterElement.activate();
             filterElements.push(filterElement);
         });
