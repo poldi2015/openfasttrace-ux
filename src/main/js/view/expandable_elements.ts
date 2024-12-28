@@ -33,7 +33,7 @@ export class ExpandableElements {
             const title: string = expandableWidget.data('title');
             expandableWidget.wrapInner('<div class="_expandable-content visible"></div>');
             expandableWidget.prepend(`<div class="_expandable-header"><span>${title}</span></div>`);
-            const toggleControl = expandableWidget.find("._expandable-header span");
+            const toggleControl = expandableWidget.find("._expandable-header > span");
             toggleControl.on("click", () => this.toggleExpansion(expandableWidget));
         });
     }
