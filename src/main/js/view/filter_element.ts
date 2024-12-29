@@ -29,13 +29,30 @@ import {
 import {sameArrayValues} from "@main/utils/collections";
 import {FilterModel} from "@main/model/filter";
 
+/**
+ * A FilterElement represents one filter type element in the UI.
+ *
+ * FilterElements are instantiated by {@link FiltersElement} based on the HTML model.
+ */
 export interface IFilterElement {
+    /**
+     * Builds the UI.
+     */
     init(): void;
 
+    /**
+     * Enable the filter element, ready to be used in the UI.
+     */
     activate(): void;
 
+    /**
+     * Deactivates the filter element, making it unavailable in the UI.
+     */
     deactivate(): void;
 
+    /**
+     * @returns true if the filter is active.
+     */
     isDisabled(): boolean;
 }
 
@@ -85,7 +102,7 @@ export class FilterElement implements IFilterElement {
     }
 
     /**
-     * Initialize the filter element.
+     * Builds the filter UI.
      */
     public init(): void {
         this.selectElement.attr('multiple', "true");
