@@ -18,6 +18,8 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
+import {SpecItem} from "@main/model/specitems";
+
 /**
  * Definition of metadata used for filters and metrics.
  */
@@ -29,8 +31,19 @@ declare global {
     }
 }
 
+//
+// FilterModel
+
+/**
+ * List of all available filters with selectable entries.
+ *
+ * The FilterModels are poplated by the generated window.metadata.
+ */
 export type FilterModels = Record<string, Array<FilterModel>>;
 
+/**
+ * A single filter
+ */
 export interface FilterModel {
     label?: string;
     name: string,
@@ -39,20 +52,81 @@ export interface FilterModel {
     item_count: number,
 }
 
-let _filterNames: Array<string> | undefined = undefined;
-
 /**
- * Extract the names of all used filters from the filter
+ * Apply a filter to a SpecItem.
  */
-export function getFilterNames(): Array<string> {
-    return _filterNames != undefined ? _filterNames : Array.from($(".filter").map((_, element) => element.id));
+export interface Filter {
+
+    /**
+     * @return true if the filter matches the specItem
+     */
+    matches(specItem: SpecItem): boolean;
 }
 
 /**
- * Returns the label of an entry in the type filter.
+ * A Filter that filters SpecItems based on a list of selected entries.
  *
- * @param index the index of the type filter
+ * This filter is used for the sidebar filters.
  */
-export function typeIndexToLabel(index : number ): string {
-    return window.metadata.types[index].label;
-}
+export class SelectionFilter implements Filter {
+    constructor(public readonly filterName: string,
+                public readonly filterIndexes: Array<number>) {
+    }
+
+    public matches(specItem: SpecItem): boolean {
+        if (this.filterIndexes.length == 0) return true;
+        const specItemValues: Array<number> | undefined = this.getSpecItemValuesByFilterName(specItem, this.filterName);
+        if (specItemValues == undefined) return false;
+        return specItemValues.some((value: number) => this.filterIndexes.includes(value));
+    }
+
+    private getSpecItemValuesByFilterName(specItem: SpecItem, filterName: string): Array<number> | undefined {
+        // TODO improve performance
+        if (!Object.keys(specItem).includes(filterName)) return undefined;
+        return Object.entries(specItem)
+            .filter(([key, _]: [string, any]) => key == filterName)
+            .map(([_, value]: [string, any]) => {
+                if (Array.isArray(value)) {
+                    return value as Array<number>;
+                } else if (typeof value == "number") {
+                    return [value];
+                }
+                return [];
+            }).flat();
+    }
+} // SelectionFilter
+
+/**
+ * A filter that applies for all SpecItems with an index matching a list of accepted indexes.
+ *
+ * If the accepted indexes == null than it matches all SpecItems.
+ */
+export class IndexFilter implements Filter {
+    constructor(private readonly acceptedIndexes: Array<number> | null) {
+    }
+
+    public matches(specItem: SpecItem): boolean {
+        return this.acceptedIndexes == null || this.acceptedIndexes.includes(specItem.index);
+    }
+
+} // IndexFilter
+
+/**
+ * A filter that filters SpecItems that contains a specific string or matches a regular expression.
+ */
+export class NameFilter implements Filter {
+    constructor(private readonly acceptedName: string,
+                private readonly isRegExp: boolean) {
+    }
+
+    public matches(specItem: SpecItem): boolean {
+        if (this.acceptedName == "") return true;
+
+        if (this.isRegExp) {
+            return specItem.fullName.match(this.acceptedName) != null;
+        } else {
+            return specItem.fullName.includes(this.acceptedName.toLowerCase());
+        }
+    }
+
+} // NameFilter

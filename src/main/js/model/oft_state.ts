@@ -17,6 +17,8 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+import {Filter} from "@main/model/filter";
+
 export type FilterName = string;
 export type SelectedFilterIndexes = Array<number>;
 
@@ -30,10 +32,10 @@ export class OftState {
         private _selectedIndex: number | null = null,
         private _scrollPosition: number | undefined = undefined,
         private _selectedPath: Array<string> = [],
-        private _selectedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),
+        private _selectedFilters: Map<FilterName, Filter> = new Map<FilterName, Filter>(),
         private _focusIndex: number | null = null,
         private _focusPath: Array<string> = [],
-        private _unfocusedFilters: Map<FilterName, SelectedFilterIndexes> = new Map<FilterName, SelectedFilterIndexes>(),
+        private _unfocusedFilters: Map<FilterName, Filter> = new Map<FilterName, Filter>(),
         private _coverType: CoverType = CoverType.covering,
     ) {
     }
@@ -67,11 +69,11 @@ export class OftState {
         this._selectedPath = value;
     }
 
-    public get selectedFilters(): Map<FilterName, SelectedFilterIndexes> {
+    public get selectedFilters(): Map<FilterName, Filter> {
         return this._selectedFilters;
     }
 
-    public set selectedFilters(value: Map<FilterName, SelectedFilterIndexes>) {
+    public set selectedFilters(value: Map<FilterName, Filter>) {
         this._selectedFilters = value;
     }
 
@@ -99,11 +101,11 @@ export class OftState {
         this._focusPath = value;
     }
 
-    get unfocusedFilters(): Map<string, Array<number>> {
+    get unfocusedFilters(): Map<FilterName, Filter> {
         return this._unfocusedFilters;
     }
 
-    set unfocusedFilters(value: Map<FilterName, SelectedFilterIndexes>) {
+    set unfocusedFilters(value: Map<FilterName, Filter>) {
         this._unfocusedFilters = value;
     }
 

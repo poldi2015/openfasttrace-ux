@@ -21,7 +21,8 @@ import {LoremIpsum} from "lorem-ipsum";
 import * as fs from "node:fs";
 import yargs from "yargs";
 
-const NUMBER_OF_TYPES: number = 8;
+const TYPE_LABELS: Array<String> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest", "stest"];
+const NUMBER_OF_TYPES: number = TYPE_LABELS.length;
 
 function random(min: number = 0, max: number = 1): number {
     return Math.round(Math.random() * (max - min)) + min;
@@ -67,6 +68,7 @@ class SpecItem {
             index: ${this.index},
             type: ${this.type},
             name: "${this.name}",
+            fullName: "${TYPE_LABELS[this.type]}:${this.name}:${this.version}",
             version: ${this.version},
             content: ${this.generateContent()},
             covered: [${this.covered.join(',')}],

@@ -27,7 +27,7 @@ import {
     OftStateController
 } from "@main/controller/oft_state_controller";
 import {sameArrayValues} from "@main/utils/collections";
-import {FilterModel} from "@main/model/filter";
+import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -108,7 +108,8 @@ export class FilterElement implements IFilterElement {
         this.selectElement.attr('multiple', "true");
         this.addAllNoneSelector();
         this.appendFilterValues();
-        this.setSelections(this.oftState.getSelectedFilters().get(this.id) ?? []);
+        // TODO can be removed?
+        this.setSelections(this.getSelectionIndexes(this.oftState.getSelectedFilters().get(this.id)));
         this.deactivate();
     }
 
@@ -120,7 +121,8 @@ export class FilterElement implements IFilterElement {
         this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
         this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
         this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
-        this.setSelections(this.oftState.getSelectedFilters().get(this.id) ?? []);
+        // TODO can be removed?
+        this.setSelections(this.getSelectionIndexes(this.oftState.getSelectedFilters().get(this.id)));
     }
 
     /**
@@ -234,7 +236,7 @@ export class FilterElement implements IFilterElement {
         this.log.info("selectionChanged ", this.id, " ", this.selectionIndexes);
         this.selectionIndexes = this.toSelectionIndexes(selectElement);
         this.toggleOff(this.selectionIndexes.length == 0);
-        const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[this.id, this.selectionIndexes]]);
+        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.selectionIndexes)]]);
         this.oftState.selectFilters(filters);
     }
 
@@ -276,12 +278,17 @@ export class FilterElement implements IFilterElement {
      *
      * @param selectedFilters filters to be selected (includes the selection of all filters not only this one)
      */
-    private filterChangeListener(selectedFilters: Map<FilterName, SelectedFilterIndexes>): void {
+    private filterChangeListener(selectedFilters: Map<FilterName, Filter>): void {
         this.log.info("filterChangeListener ", selectedFilters);
-        const changedSelectionIndexes: SelectedFilterIndexes = selectedFilters.get(this.id) ?? [];
+        const changedSelectionIndexes: SelectedFilterIndexes = this.getSelectionIndexes(selectedFilters.get(this.id));
         if (sameArrayValues(this.selectionIndexes, changedSelectionIndexes)) return;
         this.log.info("changedSelectionIndexes ", changedSelectionIndexes);
         this.setSelections(changedSelectionIndexes);
+    }
+
+    private getSelectionIndexes(filter: Filter | undefined): SelectedFilterIndexes {
+        if (filter == undefined || !(filter instanceof SelectionFilter)) return [];
+        return (filter as SelectionFilter).filterIndexes;
     }
 
 } // FilterElement

@@ -26,20 +26,19 @@ import {OftStateBuilder} from "./controller/oft_state_builder";
 import '@css/openfasttrace_view.scss'
 
 function _init() {
-    const metaModel = window.metadata;
+    const filters = window.metadata.filters;
     const specItems = window.specitem.specitems;
 
-    const oftState = new OftStateBuilder().fromModel(metaModel,specItems).build();
+    const oftState = new OftStateBuilder().fromModel(filters, specItems).build();
     const oftStateController = new OftStateController(oftState);
 
     new ExpandableElements().init();
-    //ExpandableWidget.init();
-    new FiltersElement(metaModel, oftStateController).init();
+    new FiltersElement(filters, oftStateController).init();
 
     Migrate.init_searchform();
     Migrate.init_tabs();
 
-    new SpecItemsController(oftStateController).init(specItems);
+    new SpecItemsController(oftStateController, filters.type).init(specItems);
 
     oftStateController.init();
 }

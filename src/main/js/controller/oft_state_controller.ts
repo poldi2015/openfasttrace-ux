@@ -17,11 +17,15 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {CoverType, FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
+import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {OftStateBuilder} from "./oft_state_builder";
 import {Log} from "@main/utils/log";
 import {INDEX_FILTER} from "@main/model/specitems";
+import {Filter} from "@main/model/filter";
 
+/**
+ * Emitted when the state of the OftState changes.
+ */
 export class ChangeEvent {
     constructor(
         public readonly type: string
@@ -29,6 +33,9 @@ export class ChangeEvent {
     }
 }
 
+/**
+ * Emitted when the selected SpecItem changes or one SpecItem gets selected or gets unselected (no active selection).
+ */
 export class SelectionChangeEvent extends ChangeEvent {
     public static readonly TYPE: string = "selectionChange";
 
@@ -41,31 +48,47 @@ export class SelectionChangeEvent extends ChangeEvent {
     }
 } // SelectionChangeEvent
 
+/**
+ * Emitted when an SpecItem is focused or the currently focused SpecItem changes the coverType.
+ */
 export class FocusChangeEvent extends ChangeEvent {
     public static readonly TYPE: string = "focusChange";
 
     constructor(
         public readonly index: number | null,
         public readonly coverType: CoverType = CoverType.covering,
-        public readonly selectedFilters: Map<FilterName, SelectedFilterIndexes>,
+        public readonly selectedFilters: Map<FilterName, Filter>,
         public readonly scrollPosition: number | undefined = undefined,
     ) {
         super(FocusChangeEvent.TYPE);
     }
 } // FocusChangeEvent
 
+/**
+ * Emit when active filters are added or removed or changed their value.
+ */
 export class FilterChangeEvent extends ChangeEvent {
     public static readonly TYPE: string = "filterChange";
 
     constructor(
-        public readonly selectedFilters: Map<FilterName, SelectedFilterIndexes>,
+        public readonly selectedFilters: Map<FilterName, Filter>,
     ) {
         super(FilterChangeEvent.TYPE);
     }
 } // FilterChangeEvent
 
+
+/**
+ * Signature of change listeners registered to OftStateController.
+ */
 export type ChangeListener = (change: ChangeEvent) => void;
 
+
+/**
+ * This OftStateController stores the global state of the application.
+ *
+ * When the state changes events of type {@link ChangeEvent} are emitted to all registered listeners.
+ */
 export class OftStateController {
     public constructor(
         private oftState: OftState = new OftStateBuilder().build(),
@@ -76,12 +99,16 @@ export class OftStateController {
 
     private log: Log = new Log("OftStateController");
 
+    /**
+     * Initialize the OftStateController, communicates the current state by emitting all change event types.
+     */
     public init(): void {
         // Bootstrap listeners (needed if e.g. state is persisted or otherwise not started with defaults)
         this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
         this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath));
         this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
     }
+
 
     //
     // State
@@ -110,7 +137,7 @@ export class OftStateController {
     public focusItem(index: number,
                      path: Array<string>,
                      coverType: CoverType,
-                     filters: Map<FilterName, SelectedFilterIndexes> | null = null,
+                     filters: Map<FilterName, Filter> | null = null,
                      scrollPosition: number): void {
         if (this.createFocus(index, path, coverType, filters, scrollPosition) ||
             this.adjustFocus(index, coverType, filters)) {
@@ -122,7 +149,7 @@ export class OftStateController {
     private createFocus(index: number,
                         path: Array<string>,
                         coverType: CoverType,
-                        filters: Map<FilterName, SelectedFilterIndexes> | null = null,
+                        filters: Map<FilterName, Filter> | null = null,
                         scrollPosition: number): boolean {
         if (this.oftState.focusIndex == index) return false;
         this.oftState.focusIndex = index;
@@ -140,7 +167,7 @@ export class OftStateController {
 
     private adjustFocus(index: number,
                         coverType: CoverType,
-                        filters: Map<FilterName, SelectedFilterIndexes> | null = null): boolean {
+                        filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex != index) return false;
         this.oftState.coverType = coverType;
         if (filters != null) this.oftState.selectedFilters = filters;
@@ -168,14 +195,14 @@ export class OftStateController {
     //
     // Filters
 
-    public selectFilters(filters: Map<FilterName, SelectedFilterIndexes> = new Map()): void {
-        filters.forEach((value: SelectedFilterIndexes, key: FilterName) => {
+    public selectFilters(filters: Map<FilterName, Filter> = new Map()): void {
+        filters.forEach((value: Filter, key: FilterName) => {
             this.oftState.selectedFilters.set(key, value)
         });
         this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
     }
 
-    public getSelectedFilters(): Map<FilterName, SelectedFilterIndexes> {
+    public getSelectedFilters(): Map<FilterName, Filter> {
         return this.oftState.selectedFilters;
     }
 
