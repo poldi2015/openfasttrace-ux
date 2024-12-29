@@ -21,6 +21,7 @@ import {SpecItemElement} from "@main/view/spec_item_element";
 import {OftStateController, SelectionChangeEvent} from "@main/controller/oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
+import {FilterModel} from "@main/model/filter";
 
 const COVERING_TEXT: string = "<<<<  is covering    <<<<";
 const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
@@ -29,9 +30,10 @@ export class FocusSpecItemElement extends SpecItemElement {
     public constructor(
         specItem: SpecItem,
         public coverType: CoverType,
-        oftStateController: OftStateController
+        oftStateController: OftStateController,
+        typeFilterModel: Array<FilterModel>
     ) {
-        super(specItem, oftStateController);
+        super(specItem, oftStateController, typeFilterModel);
         this.log.info("Creating FocusSpecItemElement");
     }
 

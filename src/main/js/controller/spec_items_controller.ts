@@ -18,7 +18,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {SpecItemElement} from '@main/view/spec_item_element';
-import {getValuesByFilterName, SpecItem} from "@main/model/specitems";
+import {SpecItem} from "@main/model/specitems";
 import {
     ChangeEvent,
     ChangeListener,
@@ -26,15 +26,17 @@ import {
     FocusChangeEvent,
     OftStateController
 } from "./oft_state_controller";
-import {CoverType, SelectedFilterIndexes} from "@main/model/oft_state";
+import {CoverType} from "@main/model/oft_state";
 import {Log} from "@main/utils/log";
 import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
+import {Filter, FilterModel} from "@main/model/filter";
 
 const FOCUS_SPECITEM_ELEMENT_ID: string = "#focusitem";
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
 
 export class SpecItemsController {
-    constructor(private oftStateController: OftStateController) {
+    constructor(private oftStateController: OftStateController,
+                private typeFilterModel: Array<FilterModel>) {
     }
 
     private log: Log = new Log("SpecItemsController");
@@ -71,7 +73,8 @@ export class SpecItemsController {
     private createSpecItemElement(specItem: SpecItem): SpecItemElement {
         return new SpecItemElement(
             specItem,
-            this.oftStateController
+            this.oftStateController,
+            this.typeFilterModel
         );
     }
 
@@ -80,7 +83,8 @@ export class SpecItemsController {
         return new FocusSpecItemElement(
             specItem,
             coverType,
-            this.oftStateController
+            this.oftStateController,
+            this.typeFilterModel
         );
     }
 
@@ -128,7 +132,7 @@ export class SpecItemsController {
         }
 
         // Update filtered items
-        const selectedFilters: Array<[string, SelectedFilterIndexes]> = Array.from(focusChangeEvent.selectedFilters);
+        const selectedFilters: Array<[string, Filter]> = Array.from(focusChangeEvent.selectedFilters);
         const filteredSpecItems: Array<SpecItemElement> =
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
@@ -154,7 +158,7 @@ export class SpecItemsController {
      */
     private filterChangeListener(filterChangeEvent: FilterChangeEvent): void {
         this.log.info("filterChangeListener ", filterChangeEvent);
-        const selectedFilters: Array<[string, SelectedFilterIndexes]> = Array.from(filterChangeEvent.selectedFilters);
+        const selectedFilters: Array<[string, Filter]> = Array.from(filterChangeEvent.selectedFilters);
         const filteredSpecItems: Array<SpecItemElement> =
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
@@ -169,7 +173,7 @@ export class SpecItemsController {
      * @param selectedFilters active filters
      */
     private static getSpecItemsMatchingFilters(specItemToElement: Array<[SpecItem, SpecItemElement]>,
-                                               selectedFilters: Array<[string, SelectedFilterIndexes]>): Array<SpecItemElement> {
+                                               selectedFilters: Array<[string, Filter]>): Array<SpecItemElement> {
 
         return specItemToElement
             .filter(([specItem, _]: [SpecItem, any]) => {
@@ -184,12 +188,8 @@ export class SpecItemsController {
      * @return true if the specItem matches all filters
      * @private
      */
-    private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, SelectedFilterIndexes]>): boolean {
-        return selectedFilters.every(([filterName, filterIndexes]: [string, SelectedFilterIndexes]): boolean => {
-            if (filterIndexes.length === 0) return true;
-            const itemIndexes: number[] = getValuesByFilterName(specItem, filterName);
-            return itemIndexes.some((itemIndex: number) => filterIndexes.includes(itemIndex));
-        });
+    private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, Filter]>): boolean {
+        return selectedFilters.every(([_, filter]: [string, Filter]): boolean => filter.matches(specItem));
     }
 
     /**

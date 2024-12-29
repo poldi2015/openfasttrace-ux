@@ -23,10 +23,9 @@ import {
     OftStateController,
     SelectionChangeEvent,
 } from "@main/controller/oft_state_controller";
-import {FilterModel} from "@resources/js/meta_data";
-import {typeIndexToLabel} from "@main/model/filter";
+import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
-import {CoverType, FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
+import {CoverType, FilterName} from "@main/model/oft_state";
 import {INDEX_FILTER, SpecItem} from "@main/model/specitems";
 
 export enum Status {
@@ -41,13 +40,16 @@ const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 export class SpecItemElement {
     public constructor(
         readonly specItem: SpecItem,
-        protected readonly oftStateController: OftStateController
+        protected readonly oftStateController: OftStateController,
+        protected readonly typeFilterModels: Array<FilterModel>
     ) {
         this.elementId = SpecItemElement.toElementId(specItem.index);
         this.element = this.createTemplate();
+        const typeFilterModel: FilterModel = this.typeFilterModels[this.specItem.type];
+        this.typeLabel = typeFilterModel.label ?? typeFilterModel.name;
     }
 
-    protected readonly typeLabel: string = typeIndexToLabel(this.specItem.type);
+    protected readonly typeLabel: string;
     protected readonly element;
     protected parentElement: JQuery | null = null;
     protected readonly elementId: string;
@@ -143,7 +145,7 @@ export class SpecItemElement {
             }
         })();
 
-        const filters: Map<FilterName, SelectedFilterIndexes> = new Map([[INDEX_FILTER, acceptedIndexes]]);
+        const filters: Map<FilterName, Filter> = new Map([[INDEX_FILTER, new IndexFilter(acceptedIndexes)]]);
         this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.coveredBy, filters, this.parentElement.scrollTop()!!);
     }
 
@@ -196,8 +198,7 @@ export class SpecItemElement {
     }
 
     protected createCoverageTemplate(): string {
-        const types = window.metadata.types as Array<FilterModel>;
-        return types.map((type: FilterModel, index: number): string => {
+        return this.typeFilterModels.map((type: FilterModel, index: number): string => {
             switch (this.specItem.covered[index]) {
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
