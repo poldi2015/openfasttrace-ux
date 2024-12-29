@@ -19,9 +19,11 @@
 */
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {SelectedFilterIndexes} from "@main/model/oft_state";
 import {FilterModels} from "@main/model/filter";
 
+/**
+ * Populates the Filter UI with the corresponding filter elements based on the {@link FilterModels}.
+ */
 export class FiltersElement {
     constructor(
         private readonly filterModels: FilterModels,
@@ -29,26 +31,16 @@ export class FiltersElement {
         private readonly filterElementFactory: FilterElementFactory = new FilterElementFactory()) {
     }
 
-    public filterElements: Array<IFilterElement> = [];
-
     /**
      * Initialize all filter widget marked with class .filter.
      */
     public init(): void {
-        const filterElements: Array<IFilterElement> = this.filterElements;
-        const oftState:OftStateController = this.oftState;
-        const filterModels: FilterModels = this.filterModels;
-        const filterElementFactory: FilterElementFactory = this.filterElementFactory;
-
-        $(".filter").each(function (_, element: HTMLElement) {
+        $(".filter").each((_, element: HTMLElement) => {
             let id: string = element?.id ?? "";
-            const filterElement: IFilterElement = filterElementFactory.build(id ? id : "", element, filterModels[id], oftState);
-            const selectedFilterIndexes: SelectedFilterIndexes = oftState.getSelectedFilters().get(id) ?? [];
+            const filterElement: IFilterElement = this.filterElementFactory.build(id ? id : "", element, this.filterModels[id], this.oftState);
             filterElement.init();
             filterElement.activate();
-            filterElements.push(filterElement);
         });
-        this.filterElements = filterElements;
     }
 
 } // FiltersElement
