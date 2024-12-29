@@ -79,12 +79,6 @@ export class SpecItemElement {
         this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
     }
 
-    public deactivate(): void {
-        if (this.parentElement == null) throw Error('No parentElement');
-        this.oftStateController.removeChangeListener(this.changeListener);
-        this.element.hide();
-    }
-
     public activate(): void {
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
@@ -101,6 +95,12 @@ export class SpecItemElement {
         this.oftStateController.removeChangeListener(this.changeListener);
     }
 
+    public deactivate(): void {
+        if (this.parentElement == null) throw Error('No parentElement');
+        this.oftStateController.removeChangeListener(this.changeListener);
+        this.element.hide();
+    }
+
     /**
      * Dispatches a selection of this element to the OftStateController.
      *
@@ -113,10 +113,15 @@ export class SpecItemElement {
         return true;
     }
 
+
+    //
+    // private members
+
+
     /**
      * Set this element as the focus element.
      */
-    public focus(coverType: CoverType = CoverType.coveredBy): void {
+    protected focus(coverType: CoverType = CoverType.coveredBy): void {
         if (this.parentElement == null) return;
         this.log.info("Focus filters ", this.specItem);
 
@@ -145,13 +150,6 @@ export class SpecItemElement {
     private static toElementId(index: number): string {
         return `to_${index.toString()}`;
     }
-
-    public getElementId(): string {
-        return this.elementId;
-    }
-
-    //
-    // private members
 
     private mouseEntered(): void {
         if (!this.selected) {
