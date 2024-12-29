@@ -53,6 +53,10 @@ export class FocusSpecItemElement extends SpecItemElement {
         return this.switchCoverType() ? true : super.select();
     }
 
+
+    //
+    // private members
+
     /**
      * Switch the coverType of this item and in case item is already selected.
      */
