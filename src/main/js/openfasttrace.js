@@ -17,13 +17,14 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+import '@css/openfasttrace_view.scss';
 import {ExpandableElements} from "./view/expandable_elements.ts";
 import * as Migrate from "./migrate.js";
 import {SpecItemsController} from "./controller/spec_items_controller";
 import {OftStateController} from "./controller/oft_state_controller";
 import {FiltersElement} from "./view/filters_element";
 import {OftStateBuilder} from "./controller/oft_state_builder";
-import '@css/openfasttrace_view.scss'
+import {SearchElement} from "@main/view/search_element";
 
 function _init() {
     const filters = window.metadata.filters;
@@ -35,7 +36,7 @@ function _init() {
     new ExpandableElements().init();
     new FiltersElement(filters, oftStateController).init();
 
-    Migrate.init_searchform();
+    new SearchElement(oftStateController).init().activate();
     Migrate.init_tabs();
 
     new SpecItemsController(oftStateController, filters.type).init(specItems);
