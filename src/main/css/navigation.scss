@@ -1,0 +1,35 @@
+.nav-bar {
+  float: right;
+  top: -8px;
+  position: relative;
+}
+
+.nav-btn {
+  content: "";
+  border: none;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  border-radius: 1px;
+  //transition: background-color 0.3s;
+}
+
+.nav-btn-activator {
+}
+
+.nav-btn-toggler {
+}
+
+.nav-btn:hover {
+  background-color: #e8e8de;
+}
+
+.nav-btn.nav-btn-on {
+  background-color: #e8e8de;
+  border-radius: 2px;
+  box-shadow: inset 1px 1px 2px #bcbcbc;
+}
