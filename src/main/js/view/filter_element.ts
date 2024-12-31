@@ -28,6 +28,7 @@ import {
 } from "@main/controller/oft_state_controller";
 import {sameArrayValues} from "@main/utils/collections";
 import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
+import {NavbarElement} from "@main/view/navbar_element";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -91,6 +92,8 @@ export class FilterElement implements IFilterElement {
      */
     private readonly selectElement: JQuery;
 
+    private navbarElement: NavbarElement | undefined = undefined;
+
     private readonly log: Log = new Log("FilterElement");
 
     private filterChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
@@ -108,8 +111,6 @@ export class FilterElement implements IFilterElement {
         this.selectElement.attr('multiple', "true");
         this.addAllNoneSelector();
         this.appendFilterValues();
-        // TODO can be removed?
-        this.setSelections(this.getSelectionIndexes(this.oftState.getSelectedFilters().get(this.id)));
         this.deactivate();
     }
 
@@ -121,18 +122,18 @@ export class FilterElement implements IFilterElement {
         this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
         this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
         this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
-        // TODO can be removed?
-        this.setSelections(this.getSelectionIndexes(this.oftState.getSelectedFilters().get(this.id)));
+        this.navbarElement?.activate();
     }
 
     /**
      * Deactivates the filter element, making it unavailable in the UI.
      */
     public deactivate(): void {
+        this.navbarElement?.deactivate();
         this.selectElement.attr("disabled", "disabled");
         this.selectElement.off('change');
-        this.oftState.removeChangeListener(this.filterChangeListenerFacade);
         this.oftState.removeChangeListener(this.focusChangeListenerFacade);
+        this.oftState.removeChangeListener(this.filterChangeListenerFacade);
     }
 
     /**
@@ -146,6 +147,8 @@ export class FilterElement implements IFilterElement {
     //
     // Private members
 
+    // Init UI
+
     /**
      * Imports option view for a filter element from the global filter_config variable.
      */
@@ -157,6 +160,7 @@ export class FilterElement implements IFilterElement {
             const id: string = FilterElement.toSelectionId(this.id, index);
             this.selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
         });
+        this.toggleOff(true);
     }
 
     /**
@@ -165,32 +169,19 @@ export class FilterElement implements IFilterElement {
     private addAllNoneSelector(): void {
         const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-header");
         buttonBar.append(`
-            <div class="filter-buttons">
-                <a href="#">All</a>
-                <a href="#">Off</a>
+            <div class="nav-bar _filter-nav-bar">
+                <a id="${this.id}-btn-all" class="nav-btn _filter-all" href="#" ></a>
+                <a id="${this.id}-btn-off" class="nav-btn nav-btn-activator _filter-off nav-btn-on" href="#"></a>
             </div>
         `);
-        const buttons: JQuery = buttonBar.find("div.filter-buttons > a");
-        buttons.first().on("click", () => this.selectAll());
-        buttons.eq(1).on("click", () => this.selectOff());
+        this.navbarElement = new NavbarElement(buttonBar);
+        this.navbarElement.setChangeListener(`${this.id}-btn-all`, (id: string, state: boolean) => this.selectAll());
+        this.navbarElement.setChangeListener(`${this.id}-btn-off`, (id: string, state: boolean) => this.selectOff());
+        this.navbarElement.init();
     }
 
-    /**
-     * Adapt the UI based on the selected indexes.
-     *
-     * Called when receiving a filterChangeEvent or a focusChangeEvent.
-     *
-     * @param {Array<number>} selectedIndexes List of selected entry indexes
-     */
-    private setSelections(selectedIndexes: Array<number>): void {
-        this.selectionIndexes = selectedIndexes;
-        this.log.info("initSelection ", this.id, " ", selectedIndexes);
-        this.selectElement.children("option").each((index: number, element: HTMLElement) => {
-            $(element).prop("selected", selectedIndexes.includes(index));
-        });
-        this.toggleOff(selectedIndexes.length == 0);
-        this.selectElement.trigger("change");
-    }
+
+    // UI Event Handler
 
     /**
      * Select or deselect all options within a element.
@@ -212,20 +203,6 @@ export class FilterElement implements IFilterElement {
         this.selectElement.trigger("change");
     }
 
-    /**
-     * Toggles of the items are shown as being off or not.
-     *
-     * @param off true to set the items off
-     */
-    private toggleOff(off: boolean): void {
-        this.selectElement.children("option").each((_, element: HTMLElement) => {
-            if (off) {
-                $(element).addClass("filter-item-off");
-            } else {
-                $(element).removeClass("filter-item-off");
-            }
-        });
-    }
 
     /**
      * Listener that reports changed selection to oftState.
@@ -271,6 +248,9 @@ export class FilterElement implements IFilterElement {
         return parseInt(element.id.replace(/^[A-Za-z0-9]+_/, ''));
     }
 
+
+    // State change handling
+
     /**
      * Called when the filters changed their selection.
      *
@@ -281,9 +261,43 @@ export class FilterElement implements IFilterElement {
     private filterChangeListener(selectedFilters: Map<FilterName, Filter>): void {
         this.log.info("filterChangeListener ", selectedFilters);
         const changedSelectionIndexes: SelectedFilterIndexes = this.getSelectionIndexes(selectedFilters.get(this.id));
-        if (sameArrayValues(this.selectionIndexes, changedSelectionIndexes)) return;
-        this.log.info("changedSelectionIndexes ", changedSelectionIndexes);
         this.setSelections(changedSelectionIndexes);
+    }
+
+    /**
+     * Adapt the UI based on the selected indexes.
+     *
+     * Called when receiving a filterChangeEvent or a focusChangeEvent.
+     *
+     * @param {Array<number>} changedIndexed List of selected entry indexes
+     */
+    private setSelections(changedIndexed: Array<number>): void {
+        // Prevent OftState events received by change to the UI
+        if (sameArrayValues(this.selectionIndexes, changedIndexed)) return;
+        this.log.info("changedSelectionIndexes ", changedIndexed);
+        this.selectionIndexes = changedIndexed;
+        this.log.info("initSelection ", this.id, " ", changedIndexed);
+        this.selectElement.children("option").each((index: number, element: HTMLElement) => {
+            $(element).prop("selected", changedIndexed.includes(index));
+        });
+        //this.toggleOff(selectedIndexes.length == 0);
+        this.selectElement.trigger("change");
+    }
+
+    /**
+     * Toggles of the items are shown as being off or not.
+     *
+     * @param off true to set the items off
+     */
+    private toggleOff(off: boolean): void {
+        this.selectElement.children("option").each((_, element: HTMLElement) => {
+            if (off) {
+                $(element).addClass("_filter-item-off");
+            } else {
+                $(element).removeClass("_filter-item-off");
+            }
+        });
+        this.navbarElement?.getButton(`${this.id}-btn-off`)?.toggle(off);
     }
 
     private getSelectionIndexes(filter: Filter | undefined): SelectedFilterIndexes {
