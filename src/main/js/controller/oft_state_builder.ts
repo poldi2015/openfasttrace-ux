@@ -17,8 +17,8 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {CoverType, FilterName, OftState, SelectedFilterIndexes} from "@main/model/oft_state";
-import {FilterModels} from "@main/model/filter";
+import {CoverType, FilterName, OftState} from "@main/model/oft_state";
+import {Filter, FilterModels, SelectionFilter} from "@main/model/filter";
 import {SpecItem} from "@main/model/specitems";
 
 export class OftStateBuilder {
@@ -33,7 +33,7 @@ export class OftStateBuilder {
             this.oftState.selectedPath = [];
         }
         Object.entries(metaModel).forEach(([filterName, _]: [string, any]) => {
-            this.oftState.selectedFilters.set(filterName, []);
+            this.oftState.selectedFilters.set(filterName, new SelectionFilter(filterName, []));
         });
 
         return this;
@@ -53,7 +53,7 @@ export class OftStateBuilder {
         return this;
     }
 
-    public setSelectedFilters(selectedFilters: Map<FilterName, SelectedFilterIndexes>): OftStateBuilder {
+    public setSelectedFilters(selectedFilters: Map<FilterName, Filter>): OftStateBuilder {
         this.oftState.selectedFilters = selectedFilters;
         return this;
     }
@@ -62,7 +62,7 @@ export class OftStateBuilder {
         this.oftState.focusIndex = value;
     }
 
-    public setUnfocusedFilters(unfocusedFilters: Map<FilterName, SelectedFilterIndexes>): OftStateBuilder {
+    public setUnfocusedFilters(unfocusedFilters: Map<FilterName, Filter>): OftStateBuilder {
         this.oftState.unfocusedFilters = unfocusedFilters;
         return this;
     }

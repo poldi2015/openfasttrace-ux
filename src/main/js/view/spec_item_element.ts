@@ -26,7 +26,7 @@ import {
 import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
-import {INDEX_FILTER, SpecItem} from "@main/model/specitems";
+import {SpecItem} from "@main/model/specitems";
 
 export enum Status {
     Accepted = 0,
@@ -44,9 +44,9 @@ export class SpecItemElement {
         protected readonly typeFilterModels: Array<FilterModel>
     ) {
         this.elementId = SpecItemElement.toElementId(specItem.index);
-        this.element = this.createTemplate();
-        const typeFilterModel: FilterModel = this.typeFilterModels[this.specItem.type];
+        const typeFilterModel: FilterModel = typeFilterModels[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name;
+        this.element = this.createTemplate();
     }
 
     protected readonly typeLabel: string;
@@ -145,7 +145,7 @@ export class SpecItemElement {
             }
         })();
 
-        const filters: Map<FilterName, Filter> = new Map([[INDEX_FILTER, new IndexFilter(acceptedIndexes)]]);
+        const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes)]]);
         this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.coveredBy, filters, this.parentElement.scrollTop()!!);
     }
 
@@ -172,8 +172,8 @@ export class SpecItemElement {
         this.selected = this.specItem.index == event.index;
         if (this.selected) {
             this.element.addClass(SELECT_CLASS);
-            this.element.removeClass(MOUSE_ENTER_CLASS);
-            this.element.removeClass(MOUSE_LEAVE_CLASS);
+            //this.element.removeClass(MOUSE_ENTER_CLASS);
+            //this.element.removeClass(MOUSE_LEAVE_CLASS);
         } else {
             this.element.removeClass(SELECT_CLASS);
         }
