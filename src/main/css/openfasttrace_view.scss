@@ -18,10 +18,15 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
+$assets: '../resources/';
+$images: '../resources/images/';
+
+@use "navigation";
 @use "expandable";
 @use "filters";
 @use "specitems";
 @use "colors";
+@use "search";
 
 .ui-widget {
     font-size: 12px;
@@ -29,8 +34,10 @@
 
 #viewport {
     position: relative;
-    width: 95vw;
-    height: 90vh;
+    width: 100%;
+    height: 100%;
+    //width: 95vw;
+    //height: 90vh;
     padding: 5px 5px 0 0;
 }
 
@@ -41,13 +48,17 @@
 #left {
     vertical-align: top;
     width: 15vw;
+    min-height: 500px;
+    max-height: 100%;
+    background-color: #f9f9f8;
+    border-right: solid 1px #dddcdc;
 }
 
 #right {
     vertical-align: top;
-    height: 97vh;
+    //height: 97vh;
     min-height: 500px;
-    max-height: 90%;
+    max-height: 100%;
     width: 77vw;
     max-width: 77vw;
     overflow: hidden;
