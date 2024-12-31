@@ -20,7 +20,7 @@
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
-import {FilterModel, FilterModels} from "@main/model/filter";
+import {FilterModel, FilterModels, SelectionFilter} from "@main/model/filter";
 import {OftState} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
 
@@ -59,10 +59,10 @@ const SAMPLE_METADATA: FilterModels = {
     ]
 };
 
-const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, Array<number>> = new Map(
+const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, SelectionFilter> = new Map(
     Object
         .entries(SAMPLE_METADATA)
-        .map(([key, _value]: [string, Array<FilterModel>]): [string, never[]] => [key, []])
+        .map(([key, _value]: [string, Array<FilterModel>]): [string, SelectionFilter] => [key, new SelectionFilter(key, [])])
 );
 
 const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
@@ -70,6 +70,7 @@ const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
         index: 0,
         type: 0,
         name: "culpa-fugiat-aute-amet-qui-occaecat",
+        fullName: "feat:culpa-fugiat-aute-amet-qui-occaecat:3",
         version: 3,
         content: "Eu amet et deserunt ad et consequat sunt et aliqua consequat nulla. Irure nulla ",
         covered: [0, 1, 1, 1, 1, 1, 1],
@@ -98,14 +99,14 @@ describe("Tests of the Logger API", () => {
     });
 
     test("create oft state initialized from metadata overridden by a filter value", () => {
-        const changedFilters: Map<string, Array<number>> = GOLDEN_MASTER_FILTER_WITHOUT_VALUES;
-        changedFilters.set("types", [1]);
+        const changedFilters: Map<string, SelectionFilter> = GOLDEN_MASTER_FILTER_WITHOUT_VALUES;
+        changedFilters.set("types", new SelectionFilter("types", [1]));
         const oftState: OftState = new OftStateBuilder()
             .fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS)
             .setSelectedFilters(changedFilters)
             .build();
         expect(oftState.selectedIndex).toBe(0);
         expect(oftState.selectedPath).toStrictEqual(["project", "spec", "content"]);
-        expect(oftState.selectedFilters.get("types")).toHaveLength(1);
+        expect(oftState.selectedFilters.get("types")).toBeInstanceOf(SelectionFilter);
     });
 });

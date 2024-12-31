@@ -20,8 +20,7 @@
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {OftStateBuilder} from "./oft_state_builder";
 import {Log} from "@main/utils/log";
-import {INDEX_FILTER} from "@main/model/specitems";
-import {Filter} from "@main/model/filter";
+import {Filter, IndexFilter} from "@main/model/filter";
 
 /**
  * Emitted when the state of the OftState changes.
@@ -31,6 +30,10 @@ export class ChangeEvent {
         public readonly type: string
     ) {
     }
+}
+
+export interface ChangeEventFactory {
+    build(OftState: OftState): ChangeEvent;
 }
 
 /**
@@ -48,6 +51,12 @@ export class SelectionChangeEvent extends ChangeEvent {
     }
 } // SelectionChangeEvent
 
+class SelectionChangeEventFactory implements ChangeEventFactory {
+    build(oftState: OftState): ChangeEvent {
+        return new SelectionChangeEvent(oftState.selectedIndex, oftState.selectedPath, false);
+    }
+} // SelectionChangeEventFactory
+
 /**
  * Emitted when an SpecItem is focused or the currently focused SpecItem changes the coverType.
  */
@@ -64,6 +73,12 @@ export class FocusChangeEvent extends ChangeEvent {
     }
 } // FocusChangeEvent
 
+class FocusChangeEventFactory implements ChangeEventFactory {
+    build(oftState: OftState): ChangeEvent {
+        return new FocusChangeEvent(oftState.focusIndex, oftState.coverType, oftState.selectedFilters, oftState.scrollPosition);
+    }
+} // FocusChangeEventFactory
+
 /**
  * Emit when active filters are added or removed or changed their value.
  */
@@ -76,6 +91,12 @@ export class FilterChangeEvent extends ChangeEvent {
         super(FilterChangeEvent.TYPE);
     }
 } // FilterChangeEvent
+
+class FilterChangeEventFactory implements ChangeEventFactory {
+    build(oftState: OftState): ChangeEvent {
+        return new FilterChangeEvent(oftState.selectedFilters);
+    }
+} // FilterChangeEventFactory
 
 
 /**
@@ -95,18 +116,25 @@ export class OftStateController {
     ) {
     }
 
+    private readonly changeEventFactories: Map<string, ChangeEventFactory> = new Map<string, ChangeEventFactory>();
     private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
 
     private log: Log = new Log("OftStateController");
 
     /**
-     * Initialize the OftStateController, communicates the current state by emitting all change event types.
+     * Initialize the OftStateController.
+     *
+     * Communicates the current state by emitting all change event types to registered listeners.
      */
     public init(): void {
-        // Bootstrap listeners (needed if e.g. state is persisted or otherwise not started with defaults)
-        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
-        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath));
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+        this.changeEventFactories.set(SelectionChangeEvent.TYPE, new SelectionChangeEventFactory());
+        this.changeEventFactories.set(FocusChangeEvent.TYPE, new FocusChangeEventFactory());
+        this.changeEventFactories.set(FilterChangeEvent.TYPE, new FilterChangeEventFactory());
+
+        // Bootstrap already connected listeners.
+        this.changeEventFactories.forEach((factory: ChangeEventFactory, _: string) => {
+            this.notifyChange(factory.build(this.oftState));
+        });
     }
 
 
@@ -158,7 +186,7 @@ export class OftStateController {
         this.oftState.selectedIndex = null;
         this.oftState.selectedPath = [];
         this.oftState.unfocusedFilters = this.oftState.selectedFilters;
-        this.oftState.unfocusedFilters.delete(INDEX_FILTER);
+        this.oftState.unfocusedFilters.delete(IndexFilter.FILTER_NAME);
         if (filters != null) this.oftState.selectedFilters = filters;
         this.oftState.scrollPosition = scrollPosition;
         this.log.info("focusing item", this.oftState);
@@ -215,6 +243,7 @@ export class OftStateController {
             this.changeListeners.get(eventType) : new Array<ChangeListener>();
         listeners!.push(listener);
         this.changeListeners.set(eventType, listeners!);
+        this.initialChangeEventListenerNotification(eventType, listener);
     }
 
     public removeChangeListener(listener: ChangeListener): void {
@@ -232,6 +261,11 @@ export class OftStateController {
         this.changeListeners.get(changeEvent.type)?.forEach((listener: ChangeListener) => {
             listener(changeEvent);
         })
+    }
+
+    public initialChangeEventListenerNotification(eventType: string, listener: ChangeListener): void {
+        const changeEvent: ChangeEvent | undefined = this.changeEventFactories.get(eventType)?.build(this.oftState);
+        if (changeEvent != undefined) listener(changeEvent);
     }
 
 } // OftState

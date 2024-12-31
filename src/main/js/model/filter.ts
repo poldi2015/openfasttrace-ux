@@ -55,12 +55,14 @@ export interface FilterModel {
 /**
  * Apply a filter to a SpecItem.
  */
-export interface Filter {
+export abstract class Filter {
+    protected constructor(public readonly filterName: string) {
+    }
 
     /**
      * @return true if the filter matches the specItem
      */
-    matches(specItem: SpecItem): boolean;
+    public abstract matches(specItem: SpecItem): boolean;
 }
 
 /**
@@ -68,9 +70,10 @@ export interface Filter {
  *
  * This filter is used for the sidebar filters.
  */
-export class SelectionFilter implements Filter {
-    constructor(public readonly filterName: string,
+export class SelectionFilter extends Filter {
+    constructor(filterName: string,
                 public readonly filterIndexes: Array<number>) {
+        super(filterName);
     }
 
     public matches(specItem: SpecItem): boolean {
@@ -101,8 +104,11 @@ export class SelectionFilter implements Filter {
  *
  * If the accepted indexes == null than it matches all SpecItems.
  */
-export class IndexFilter implements Filter {
+export class IndexFilter extends Filter {
+    public static readonly FILTER_NAME: string = "%index%";
+
     constructor(private readonly acceptedIndexes: Array<number> | null) {
+        super(IndexFilter.FILTER_NAME);
     }
 
     public matches(specItem: SpecItem): boolean {
@@ -111,21 +117,32 @@ export class IndexFilter implements Filter {
 
 } // IndexFilter
 
+export enum NameFilterTarget {
+    name = 0,
+    content = 1
+} // NameFilterTarget
+
 /**
  * A filter that filters SpecItems that contains a specific string or matches a regular expression.
  */
-export class NameFilter implements Filter {
-    constructor(private readonly acceptedName: string,
-                private readonly isRegExp: boolean) {
+export class NameFilter extends Filter {
+    public static readonly FILTER_NAME: string = "%name%";
+
+    constructor(public readonly acceptedName: string,
+                private readonly isRegExp: boolean = false,
+                private readonly nameFilterTarget: NameFilterTarget = NameFilterTarget.name
+    ) {
+        super(NameFilter.FILTER_NAME);
     }
 
     public matches(specItem: SpecItem): boolean {
         if (this.acceptedName == "") return true;
+        const specItemValue: string = this.nameFilterTarget == NameFilterTarget.name ? specItem.fullName : specItem.content;
 
         if (this.isRegExp) {
-            return specItem.fullName.match(this.acceptedName) != null;
+            return specItemValue.match(this.acceptedName) != null;
         } else {
-            return specItem.fullName.includes(this.acceptedName.toLowerCase());
+            return specItemValue.includes(this.acceptedName.toLowerCase());
         }
     }
 

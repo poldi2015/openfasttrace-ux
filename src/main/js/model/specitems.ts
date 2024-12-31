@@ -18,8 +18,6 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
-export const INDEX_FILTER: string = "%index%";
-
 declare global {
     interface Window {
         specitem: any;
