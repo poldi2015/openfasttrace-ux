@@ -19,8 +19,9 @@
 */
 
 #specitems-tab {
-  height: 95%;
+  height: calc(100vh - 400px);
   overflow: hidden;
+  padding: 5px;
 }
 
 #specitems {
@@ -32,6 +33,7 @@
 .specitem {
   display: block;
   cursor: default;
+  border-radius: 2px;
 }
 
 ._specitem-header {
@@ -55,57 +57,49 @@
 ._specitem-body {
   font-size: 14px;
   margin: 5px 3px 3px 3px;
-  //padding: 2px 4px 2px 4px;
   padding: 7px 12px 7px 14px;
-  //background-color: #eeeeee;
+}
+
+// Badges
+
+@mixin _specitem-badge($color) {
+  float: left;
+  height: 15px;
+  margin-left: 5px;
+  padding: 2px 4px 2px 4px;
+  background-color: $color;
+  border: 1px solid var(--col-specitem-badge-border);
+  border-radius: 3px;
 }
 
 ._specitem-none {
-  float: left;
-  height: 15px;
-  margin-left: 5px;
-  padding: 2px 4px 2px 4px;
-  background-color: #f4f4f4;
-  border: 1px solid;
-  border-radius: 3px;
+  @include _specitem-badge(var(--col-specitem-badge-color-none));
 }
 
 ._specitem-covered {
-  float: left;
-  height: 15px;
-  margin-left: 5px;
-  padding: 2px 4px 2px 4px;
-  background-color: #b7f3b7;
-  border: 1px solid;
-  border-radius: 3px;
+  @include _specitem-badge(var(--col-specitem-badge-color-covered));
 }
 
 ._specitem-uncovered {
-  float: left;
-  height: 15px;
-  margin-left: 5px;
-  padding: 2px 4px 2px 4px;
-  background-color: #f3c5c5;
-  border: 1px solid;
-  border-radius: 3px;
+  @include _specitem-badge(var(--col-specitem-badge-color-uncovered));
 }
 
 ._specitem-draft {
   float: left;
-  color: #605454;
+  color: var(--col-specitem-type);
   font-weight: bold;
   padding: 2px 4px 2px 4px;
 }
 
 ._specitem-selected {
-  background-color: #ccd6d6 !important;
+  background-color: var(--col-specitem-selected) !important;
 }
 
-._specitem-mouse-enter {
-  background-color: #ebf1f1 !important;
+._specitem-mouse-enter:not(._specitem-selected) {
+  background-color: var(--col-specitem-hover) !important;
 }
 
-._specitem-mouse-leave {
+._specitem-mouse-leave:not(._specitem-selected) {
   background-color: transparent;
 }
 
@@ -117,24 +111,24 @@
 ._focuspecitem {
   margin: 0;
   padding: 0;
-  border: solid 1px #505050;
+  border: solid 1px var(--col-specitem-focus-border);
   border-radius: 8px;
-  background-color: #daecda;
+  background-color: var(--col-specitem-focus);
 }
 
 ._specitem-cover-type {
   text-align: center;
-  color: #ffffff;
+  color: var(--col-font);
   display: block;
   font-size: 14px;
   padding: 5px 4px 5px 4px;
-  background-color: #505050;
+  background-color: var(--col-specitem-focus-border);
 }
 
 ._specitem-selected._focuspecitem {
-  background-color: #a2cfc6 !important;
+  background-color: var(--col-specitem-focus-selected) !important;
 }
 
 ._specitem-mouse-enter._focuspecitem {
-  background-color: #c9e8c9 !important;
+  background-color: var(--col-specitem-focus-focus) !important;
 }

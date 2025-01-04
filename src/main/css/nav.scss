@@ -1,0 +1,57 @@
+@use "paths";
+@use "icons";
+
+//
+// Header
+
+.nav-header {
+  position: relative;
+  font-size: 12pt;
+  font-weight: bold;
+  color: #656a77;
+  padding-left: 8pt;
+  padding-right: 4pt;
+  height: 35px;
+  background-color: #f0f0f0;
+  border-top: solid 1px #dddcdc;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+//
+// Button bar
+
+.nav-bar {
+  float: right;
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.nav-btn {
+  @extend ._icon-image;
+  margin-left: 5px;
+
+  .nav-btn-activator {
+  }
+
+  .nav-btn-toggler {
+  }
+
+  .nav-btn:hover {
+    background-color: #e8e8de;
+  }
+
+  .nav-btn-on {
+    background-color: #e8e8de;
+    border-radius: 2px;
+    box-shadow: inset 1px 1px 2px #bcbcbc;
+  }
+}
+

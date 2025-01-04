@@ -19,8 +19,8 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
     <div class="_expandable-header">
         <span>Type</span>
         <div class="nav-bar _filter-nav-bar">
-            <a class="nav-btn _filter-all" href="#"></a>
-            <a class="nav-btn _filter-off" href="#"></a>
+            <a class="nav-btn _img-filter-all" href="#"></a>
+            <a class="nav-btn _img-filter-off" href="#"></a>
         </div>
     </div>
         <div class="_expandable-content visible">

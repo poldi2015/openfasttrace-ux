@@ -17,3 +17,50 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+
+$light-color-bg-darker: #f0f0f0;
+$light-color-bg-lighter: #f6f6f6;
+$light-color-border: #dddcdc;
+$light-color-icons: #434343;
+$light-color-selected: #d4d9dc;
+$light-color-disabled: #b8b3b3;
+$light-color-font: #656a77;
+$light-color-font-light: #605454;
+$light-color-specitem-selected: #ccd6d6;
+$light-color-specitem-hover: #ebf1f1;
+$light-color-specitem-focus: #daecda;
+$light-color-specitem-focus-selected: #a2cfc6;
+
+// focus-border: #505050
+
+$light-color-badge-border: #424141;
+$light-color-badge-grey: #f9f9f8;
+$light-color-badge-green: #b7f3b7;
+$light-color-badge-red: #f3c5c5;
+
+:root {
+  --col-font: #{$light-color-font};
+  --col-header-footer: #{$light-color-bg-darker};
+  --col-slider: #{$light-color-bg-lighter};
+  --col-separator: #{$light-color-border};
+  --col-border: #{$light-color-border};
+  --col-icons: #{$light-color-icons};
+  --col-selected: #{$light-color-selected};
+  --col-disabled: #{$light-color-disabled};
+
+  --col-table-head: #{$light-color-bg-darker};
+  --col-table-odd-value: #{$light-color-bg-lighter};
+
+  --col-specitem-badge-border: #{$light-color-badge-border};
+  --col-specitem-badge-color-none: #{$light-color-badge-grey};
+  --col-specitem-badge-color-covered: #{$light-color-badge-green};
+  --col-specitem-badge-color-uncovered: #{$light-color-badge-red};
+
+  --col-specitem-type: #{$light-color-font-light};
+  --col-specitem-selected: #{$light-color-specitem-selected};
+  --col-specitem-hover: #{$light-color-specitem-hover};
+  --col-specitem-focus: #{$light-color-specitem-focus};
+  --col-specitem-focus-selected: #{$light-color-specitem-focus-selected};
+  --col-specitem-focus-focus: #{$light-color-specitem-focus-selected};
+  --col-specitem-focus-border: #{$light-color-border};
+}
