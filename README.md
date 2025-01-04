@@ -1,4 +1,4 @@
-# <img src="src/main/resources/openfasttrace_logo.svg" alt="OFT logo" width="150"/> OpenFastTrace UX [POC]
+# <img src="src/main/resources/images/openfasttrace_logo.svg" alt="OFT logo" width="150"/> OpenFastTrace UX [POC]
 
 ## What is OpenFastTrace UX?
 
