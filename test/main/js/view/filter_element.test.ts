@@ -19,13 +19,13 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
     <div class="_expandable-header">
         <span>Type</span>
         <div class="nav-bar _filter-nav-bar">
-            <a class="nav-btn _img-filter-all" href="#"></a>
-            <a class="nav-btn _img-filter-off" href="#"></a>
+            <a id="type-btn-all" class="nav-btn _img-filter-all" href="#"></a>
+            <a id="type-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#"></a>
         </div>
     </div>
         <div class="_expandable-content visible">
         <select class="filter" id="type" multiple="multiple" size="1" disabled="disabled">
-            <option id="type_0" style="color:red">Feature&nbsp;&nbsp;(5)</option>
+            <option id="type_0" style="color:red" class="_filter-item-off">Feature&nbsp;&nbsp;(5)</option>            
         </select>
     </div>
 </div>    
