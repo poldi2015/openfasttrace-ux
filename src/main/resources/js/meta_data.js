@@ -1,5 +1,11 @@
 (function (window) {
     window.metadata = {
+        project: {
+            name: "project-2501-131527",
+            item_count: 500,
+            item_covered: 300,
+            item_uncovered: 200,
+        },
         filters: {
             type: [
                 {

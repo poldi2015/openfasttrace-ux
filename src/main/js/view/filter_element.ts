@@ -170,8 +170,8 @@ export class FilterElement implements IFilterElement {
         const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-header");
         buttonBar.append(`
             <div class="nav-bar _filter-nav-bar">
-                <a id="${this.id}-btn-all" class="nav-btn _filter-all" href="#" ></a>
-                <a id="${this.id}-btn-off" class="nav-btn nav-btn-activator _filter-off nav-btn-on" href="#"></a>
+                <a id="${this.id}-btn-all" class="nav-btn _img-filter-all" href="#" ></a>
+                <a id="${this.id}-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#"></a>
             </div>
         `);
         this.navbarElement = new NavbarElement(buttonBar);

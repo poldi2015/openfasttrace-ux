@@ -22,7 +22,6 @@
   border: none;
   width: 100%;
   margin: 8px 5px 20px 5px;
-  font-family: Verdana, Arial, sans-serif;
   font-size: 12px;
 }
 
@@ -31,7 +30,6 @@
   align-items: center;
   padding: 5px;
   border-bottom: 1px dotted;
-  font-family: Verdana, Arial, sans-serif;
   font-size: 14px;
 }
 
@@ -42,14 +40,13 @@
 }
 
 ._expandable-header span::before {
-  content: "";
   display: inline-block;
   width: 0;
   height: 0;
   margin-right: 8px;
   border-style: solid;
   border-width: 8px 5px 0 5px;
-  border-color: #838181 transparent transparent transparent;
+  border-color: var(--col-icons) transparent transparent transparent;
   transition: transform 0.3s;
 }
 
@@ -58,18 +55,10 @@
 }
 
 ._expandable-content {
-  font-size: 12px;
   display: none;
   padding: 0 8px 0 -2px;
 }
 
 ._expandable-content.visible {
   display: block;
-}
-
-._expandable-content select option {
-  display: flex;
-  justify-content: space-between;
-  padding-left: 5px;
-  padding-right: 15px;
 }

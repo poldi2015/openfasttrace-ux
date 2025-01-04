@@ -1,0 +1,52 @@
+@use "colors";
+
+#details {
+  position: relative;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: flex-start; /* Centers vertically */
+}
+
+#details-table {
+  position: relative;
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 2ex 0;
+  border: 1px solid var(--col-border);
+  font-size: 11pt;
+
+  td {
+    padding: 5px 8px 5px 8px;
+  }
+
+  tr:nth-child(odd) > td.details-table-value {
+    background-color: var(--col-table-odd-value);
+  }
+
+  tr:nth-child(even) > td.details-table-value {
+    background-color: white;
+  }
+
+  colgroup {
+    width: 50%;
+    border: 1px dotted var(--col-border);
+  }
+
+  .details-table-title {
+    width: 120px;
+    min-width: 120px;
+    background-color: var(--col-table-head);
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .details-table-value {
+    min-width: 400px;
+    border: 1px solid var(--col-border);
+    text-align: left;
+  }
+}

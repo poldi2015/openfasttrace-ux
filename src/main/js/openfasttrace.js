@@ -17,13 +17,13 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import '@css/openfasttrace_view.scss';
+import '@css/openfasttrace.scss';
 import {ExpandableElements} from "./view/expandable_elements.ts";
-import * as Migrate from "./migrate.js";
-import {SpecItemsController} from "./controller/spec_items_controller";
-import {OftStateController} from "./controller/oft_state_controller";
-import {FiltersElement} from "./view/filters_element";
-import {OftStateBuilder} from "./controller/oft_state_builder";
+import * as Migrate from "@main/migrate.js";
+import {SpecItemsController} from "@main/controller/spec_items_controller";
+import {OftStateController} from "@main/controller/oft_state_controller";
+import {FiltersElement} from "@main/view/filters_element";
+import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {SearchElement} from "@main/view/search_element";
 
 function _init() {
@@ -40,6 +40,11 @@ function _init() {
     Migrate.init_tabs();
 
     new SpecItemsController(oftStateController, filters.type).init(specItems);
+
+    $("#project-name").append(window.metadata.project.name);
+    $("#specitem-total").append(window.metadata.project.item_count);
+    $("#specitem-covered").append(window.metadata.project.item_covered);
+    $("#specitem-uncovered").append(window.metadata.project.item_uncovered);
 
     oftStateController.init();
 }
