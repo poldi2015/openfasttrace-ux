@@ -26,12 +26,7 @@ import {
 import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
-import {SpecItem} from "@main/model/specitems";
-
-export enum Status {
-    Accepted = 0,
-    Draft = 1
-}
+import {SpecItem, SpecItemStatus} from "@main/model/specitems";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -60,6 +55,7 @@ export class SpecItemElement {
     private changeListener: ChangeListener = (event: ChangeEvent): void => {
         this.selectionChangeListener(event as SelectionChangeEvent);
     }
+
 
     /**
      * Inserts the specitem at a specific position into the children of the parentElement.
@@ -101,6 +97,21 @@ export class SpecItemElement {
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.removeChangeListener(this.changeListener);
         this.element.hide();
+    }
+
+    /**
+     * @return true of the element is not made invisible
+     */
+    public isActive() {
+        return this.parentElement != null && this.element.is(':visible');
+    }
+
+    public getScrollPosition(): number | undefined {
+        if (this.parentElement == null) return undefined;
+        const elementOffset: number = this.element!.offset()!.top;
+        const parentOffset: number = this.parentElement!.offset()!.top;
+        const parentScrollTop: number = this.parentElement!.scrollTop()!;
+        return elementOffset - parentOffset + parentScrollTop;
     }
 
     /**
@@ -172,8 +183,8 @@ export class SpecItemElement {
         this.selected = this.specItem.index == event.index;
         if (this.selected) {
             this.element.addClass(SELECT_CLASS);
-            //this.element.removeClass(MOUSE_ENTER_CLASS);
-            //this.element.removeClass(MOUSE_LEAVE_CLASS);
+            this.element.removeClass(MOUSE_ENTER_CLASS);
+            this.element.removeClass(MOUSE_LEAVE_CLASS);
         } else {
             this.element.removeClass(SELECT_CLASS);
         }
@@ -211,7 +222,7 @@ export class SpecItemElement {
     }
 
     protected createDraftTemplate(): string {
-        return this.specItem.status === Status.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
+        return this.specItem.status === SpecItemStatus.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {

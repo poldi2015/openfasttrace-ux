@@ -25,6 +25,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {FiltersElement} from "@main/view/filters_element";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {SearchElement} from "@main/view/search_element";
+import {DetailsElementFactory} from "@main/view/details_element";
 
 function _init() {
     const filters = window.metadata.filters;
@@ -41,12 +42,25 @@ function _init() {
 
     new SpecItemsController(oftStateController, filters.type).init(specItems);
 
+    initHeader();
+    initFooter();
+
+    const types = filters.type.map((type) => type.name);
+    const tags = filters.tags.map((tag) => tag.name);
+    console.log("SPECITEMS", specItems[300]);
+    new DetailsElementFactory().build(specItems, types, tags, oftStateController).init().activate();
+
+    oftStateController.init();
+}
+
+function initHeader() {
     $("#project-name").append(window.metadata.project.name);
+}
+
+function initFooter() {
     $("#specitem-total").append(window.metadata.project.item_count);
     $("#specitem-covered").append(window.metadata.project.item_covered);
     $("#specitem-uncovered").append(window.metadata.project.item_uncovered);
-
-    oftStateController.init();
 }
 
 $(_init);

@@ -87,7 +87,7 @@
                 <span id="img-logo-content" class="sidebar-logo"></span>&nbsp;
 
                 <span class="nav-bar">
-                    <div id="search"></div>&nbsp;&nbsp;
+                    <span id="search"></span>&nbsp;&nbsp;
                     <span id="img-history-back" class="nav-btn"></span>
                     <span id="img-history-forward" class="nav-btn"></span>
                     <span id="img-expand" class="nav-btn"></span>
@@ -103,7 +103,10 @@
     <tr>
         <td id="sidebar-bottom">
             <div class="nav-header">
-                <span class="sidebar-logo img-logo-details"></span>&nbsp;
+                <span>
+                    <span class="sidebar-logo img-logo-details"></span>&nbsp;
+                    <span class="specitem-id"></span>
+                </span>
                 <span class="nav-bar">
                     <span id="sidebar-details-close" class="nav-btn img-sidebar-close"></span>
                 </span>
@@ -121,29 +124,30 @@
                     <tbody>
                     <tr>
                         <td class="details-table-title">Status</td>
-                        <td class="details-table-value _details_status">Draft</td>
+                        <td id="details_status" class="details-table-value">Draft</td>
                         <td class="details-table-title">Needs</td>
-                        <td class="details-table-value _details-needs">Req,Impl</td>
+                        <td id="details-needs" class="details-table-value">Req,Impl</td>
                     </tr>
                     <tr>
                         <td class="details-table-title">Covers</td>
-                        <td class="details-table-value  _details-covers">Feature</td>
+                        <td id="details-covers" class="details-table-value">Feature</td>
                         <td class="details-table-title">Tags</td>
-                        <td class="details-table-value _details-Tags">v0.1, v1.0, v2.0</td>
+                        <td id="details-tags" class="details-table-value">v0.1, v1.0, v2.0</td>
                     </tr>
                     <tr>
                         <td class="details-table-title">Source</td>
-                        <td colspan="3" class="details-table-value _details-source">
+                        <td id="details-source" colspan="3" class="details-table-value">
                             /home/poldi/project/openfasttrace/build/requirements.xml
                         </td>
                     </tr>
                     <tr>
                         <td class="details-table-title">Comments</td>
-                        <td colspan="3" class="details-table-value">Relevant for next release.</td>
+                        <td id="details-comments" colspan="3" class="details-table-value">Relevant for next release.
+                        </td>
                     </tr>
                     <tr>
                         <td class="details-table-title">Dependencies</td>
-                        <td colspan="3" class="details-table-value _details-dependencies">Relevant for next release.
+                        <td id="details-dependencies" colspan="3" class="details-table-value">Relevant for next release.
                         </td>
                     </tr>
                     </tbody>

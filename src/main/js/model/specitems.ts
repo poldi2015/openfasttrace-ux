@@ -24,17 +24,29 @@ declare global {
     }
 }
 
+export enum SpecItemStatus {
+    Accepted = 0,
+    Draft = 1
+}
+
 export interface SpecItem {
     index: number,
     type: number,
     name: string,
     fullName: string,
+    tags: Array<number>,
     version: number,
     content: string,
+    provides: Array<number>,
+    needs: Array<number>,
     covered: Array<number>,
     uncovered: Array<number>,
     covering: Array<number>,
     coveredBy: Array<number>,
-    status: number,
+    depends: Array<number>,
+    status: SpecItemStatus,
     path: Array<string>,
+    sourceFile: string,
+    sourceLine: number,
+    comments: string,
 }

@@ -37,9 +37,12 @@ const SPECITEMS_ELEMENT_ID: string = "#specitems";
 export class SpecItemsController {
     constructor(private oftStateController: OftStateController,
                 private typeFilterModel: Array<FilterModel>) {
+        this.specItemsElement = $(SPECITEMS_ELEMENT_ID);
     }
 
     private log: Log = new Log("SpecItemsController");
+
+    private readonly specItemsElement: JQuery<HTMLElement>;
 
     private focusSpecItemElement: SpecItemElement | null = null;
     private specItems: Map<number, SpecItem> = new Map<number, SpecItem>();
@@ -89,7 +92,7 @@ export class SpecItemsController {
     }
 
     private insertSpecItemAt(specItem: SpecItemElement, index: number = -1): void {
-        specItem.insertToAt($(SPECITEMS_ELEMENT_ID), index);
+        specItem.insertToAt(this.specItemsElement, index);
         this.specItemElements.push(specItem);
     }
 
@@ -136,12 +139,12 @@ export class SpecItemsController {
         const filteredSpecItems: Array<SpecItemElement> =
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
-        this.showOnlySelectedSpecItemElements(filteredSpecItems);
+        this.showOnlySelectedSpecItemElements(filteredSpecItems, focusChangeEvent.index);
 
         // scroll to last position before focusing
         if (focusChangeEvent.scrollPosition != undefined) {
             this.log.info("Scroll to ", focusChangeEvent.scrollPosition);
-            $(SPECITEMS_ELEMENT_ID).scrollTop(focusChangeEvent.scrollPosition);
+            this.specItemsElement.scrollTop(focusChangeEvent.scrollPosition);
         }
     }
 
@@ -162,7 +165,7 @@ export class SpecItemsController {
         const filteredSpecItems: Array<SpecItemElement> =
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
-        this.showOnlySelectedSpecItemElements(filteredSpecItems);
+        this.showOnlySelectedSpecItemElements(filteredSpecItems, filterChangeEvent.selectedIndex);
     }
 
 
@@ -195,16 +198,43 @@ export class SpecItemsController {
     /**
      * Shows selected SpecItemElements and hides the others.
      *
+     * IF the selected specItem is hidden then an {@link unselectItem} is sent.
+     *
      * @param specItemElements The specItems to show
+     * @param selectedIndex Index of the SpecItem that currently has the selection or null if none has the sepecItem
      */
-    private showOnlySelectedSpecItemElements(specItemElements: Array<SpecItemElement>): void {
+    private showOnlySelectedSpecItemElements(specItemElements: Array<SpecItemElement>, selectedIndex: number | null): void {
         this.specItemElements.forEach((specItemElement: SpecItemElement) => {
             if (specItemElements.includes(specItemElement)) {
                 specItemElement.activate();
             } else {
                 specItemElement.deactivate();
+                if (specItemElement.specItem.index == selectedIndex) this.oftStateController.unselectItem();
             }
         });
+        this.showSpecItem(selectedIndex);
+    }
+
+    private showSpecItem(index: number | null): boolean {
+        if (index == null || index < 0 || index >= this.specItemElements.length) return false;
+        const specItemElement: SpecItemElement = this.specItemElements[index];
+        if (!specItemElement.isActive()) return false;
+
+        const scrollTop: number | undefined = this.specItemsElement.scrollTop();
+        const visibleHeight: number | undefined = this.specItemsElement.outerHeight();
+        if (scrollTop == undefined || visibleHeight == undefined) return false;
+        const scrollBottom: number = scrollTop! + visibleHeight!;
+
+        const elementScrollPosition: number = specItemElement.getScrollPosition()!;
+
+        this.log.info("Scrolls", scrollTop, scrollBottom, elementScrollPosition);
+
+        if (elementScrollPosition >= scrollTop && elementScrollPosition <= scrollBottom) return true;
+
+        this.log.info("Scroll to", elementScrollPosition);
+        this.specItemsElement.scrollTop(elementScrollPosition);
+        return true;
+
     }
 
 } // SpecItemsElement

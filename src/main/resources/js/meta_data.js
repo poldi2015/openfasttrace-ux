@@ -134,6 +134,16 @@
                     color: "green",
                     item_count: 50,
                 },
+                {
+                    name: "frontend",
+                    tooltip: "Web Page",
+                    item_count: 50,
+                },
+                {
+                    name: "backend",
+                    tooltip: "Cloud software",
+                    item_count: 50,
+                },
             ]
         }
     };
