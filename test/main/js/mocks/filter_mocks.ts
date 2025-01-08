@@ -36,21 +36,22 @@ export class FilterElementMock implements IFilterElement {
     ) {
     }
 
-    public isActive: boolean = false;
+    public _isActive: boolean = false;
 
 
-    init(): void {
+    public init(): IFilterElement {
+        return this;
     }
 
-    activate(): void {
-        this.isActive = true;
+    public activate(): void {
+        this._isActive = true;
     }
 
-    deactivate(): void {
-        this.isActive = false;
+    public deactivate(): void {
+        this._isActive = false;
     }
 
-    isDisabled(): boolean {
+    public isActive(): boolean {
         return true;
     }
 } // FilterElementMock
@@ -61,7 +62,7 @@ export class FilterElementSpy {
         this.initSpy = vi.spyOn(this.filterElement, 'init');
         this.activateSpy = vi.spyOn(this.filterElement, 'activate');
         this.deactivateSpy = vi.spyOn(this.filterElement, 'deactivate');
-        this.isDisabledSpy = vi.spyOn(this.filterElement, 'isDisabled');
+        this.isDisabledSpy = vi.spyOn(this.filterElement, 'isActive');
     }
 
     public readonly filterElement: FilterElementMock;

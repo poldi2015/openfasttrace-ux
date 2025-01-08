@@ -29,32 +29,14 @@ import {
 import {sameArrayValues} from "@main/utils/collections";
 import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
+import {IElement} from "@main/view/element";
 
 /**
  * A FilterElement represents one filter type element in the UI.
  *
  * FilterElements are instantiated by {@link FiltersElement} based on the HTML model.
  */
-export interface IFilterElement {
-    /**
-     * Builds the UI.
-     */
-    init(): void;
-
-    /**
-     * Enable the filter element, ready to be used in the UI.
-     */
-    activate(): void;
-
-    /**
-     * Deactivates the filter element, making it unavailable in the UI.
-     */
-    deactivate(): void;
-
-    /**
-     * @returns true if the filter is active.
-     */
-    isDisabled(): boolean;
+export interface IFilterElement extends IElement {
 }
 
 export class FilterElementFactory {
@@ -107,11 +89,12 @@ export class FilterElement implements IFilterElement {
     /**
      * Builds the filter UI.
      */
-    public init(): void {
+    public init(): IFilterElement {
         this.selectElement.attr('multiple', "true");
         this.addAllNoneSelector();
         this.appendFilterValues();
         this.deactivate();
+        return this;
     }
 
     /**
@@ -139,7 +122,7 @@ export class FilterElement implements IFilterElement {
     /**
      * Query of the UI is active.
      */
-    public isDisabled(): boolean {
+    public isActive(): boolean {
         return this.selectElement.attr("disabled") != undefined;
     }
 

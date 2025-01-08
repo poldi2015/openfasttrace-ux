@@ -38,8 +38,7 @@ export class FiltersElement {
         $(".filter").each((_, element: HTMLElement) => {
             let id: string = element?.id ?? "";
             const filterElement: IFilterElement = this.filterElementFactory.build(id ? id : "", element, this.filterModels[id], this.oftState);
-            filterElement.init();
-            filterElement.activate();
+            filterElement.init().activate();
         });
     }
 

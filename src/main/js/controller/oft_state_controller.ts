@@ -87,6 +87,7 @@ export class FilterChangeEvent extends ChangeEvent {
 
     constructor(
         public readonly selectedFilters: Map<FilterName, Filter>,
+        public readonly selectedIndex: number | null,
     ) {
         super(FilterChangeEvent.TYPE);
     }
@@ -94,7 +95,7 @@ export class FilterChangeEvent extends ChangeEvent {
 
 class FilterChangeEventFactory implements ChangeEventFactory {
     build(oftState: OftState): ChangeEvent {
-        return new FilterChangeEvent(oftState.selectedFilters);
+        return new FilterChangeEvent(oftState.selectedFilters, oftState.selectedIndex);
     }
 } // FilterChangeEventFactory
 
@@ -227,7 +228,7 @@ export class OftStateController {
         filters.forEach((value: Filter, key: FilterName) => {
             this.oftState.selectedFilters.set(key, value)
         });
-        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters));
+        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters, this.oftState.selectedIndex));
     }
 
     public getSelectedFilters(): Map<FilterName, Filter> {
