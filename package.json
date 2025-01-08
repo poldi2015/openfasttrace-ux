@@ -10,7 +10,7 @@
     "release": "webpack --config webpack/main/webpack.prod.js --color --no-watch",
     "tools": "webpack --config webpack/tools/webpack.tools.js --color --no-watch",
     "tooltest": "vitest --config vitest/tools/vitest.config.ts",
-    "samples": "node build/tools/gen_model/js/gen_model.js -s 100 -o specitem_data.js",
+    "samples": "node build/tools/gen_model/js/gen_model.js -s 100 --paths ./src/tools/resources/samples -o specitem_data.js",
     "licenses": "npx license-check-and-add add",
     "clean": "rm -rf build"
   },
