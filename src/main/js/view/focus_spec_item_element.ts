@@ -43,7 +43,7 @@ export class FocusSpecItemElement extends SpecItemElement {
     public unFocus(): void {
         this.log.info("Unfocusing item");
         // TODO: restore scroll position
-        this.oftStateController.unFocusItem(this.specItem.index, this.specItem.path);
+        this.oftStateController.unFocusItem(this.specItem.index);
     }
 
 

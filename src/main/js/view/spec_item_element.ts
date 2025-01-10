@@ -122,7 +122,7 @@ export class SpecItemElement {
     public select(): boolean {
         this.log.info("select ", this.specItem.index, " ", this.specItem.path);
         if (this.parentElement == null) return false;
-        this.oftStateController.selectItem(this.specItem.index, this.specItem.path, this.parentElement.scrollTop());
+        this.oftStateController.selectItem(this.specItem.index);
         return true;
     }
 
@@ -157,7 +157,7 @@ export class SpecItemElement {
         })();
 
         const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes)]]);
-        this.oftStateController.focusItem(this.specItem.index, this.specItem.path, CoverType.coveredBy, filters, this.parentElement.scrollTop()!!);
+        this.oftStateController.focusItem(this.specItem.index, CoverType.coveredBy, filters);
     }
 
     private static toElementId(index: number): string {
