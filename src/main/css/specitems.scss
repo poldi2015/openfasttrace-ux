@@ -19,7 +19,7 @@
 */
 
 #specitems-tab {
-  height: calc(100vh - 400px);
+  height: calc(100vh - 340px);
   overflow: hidden;
   padding: 5px;
 }
@@ -95,11 +95,11 @@
   background-color: var(--col-specitem-selected) !important;
 }
 
-._specitem-mouse-enter:not(._specitem-selected) {
+._specitem-mouse-enter:not(._specitem-selected,._focuspecitem) {
   background-color: var(--col-specitem-hover) !important;
 }
 
-._specitem-mouse-leave:not(._specitem-selected) {
+._specitem-mouse-leave:not(._specitem-selected,._focuspecitem) {
   background-color: transparent;
 }
 
