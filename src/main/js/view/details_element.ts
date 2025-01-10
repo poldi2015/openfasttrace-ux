@@ -8,8 +8,6 @@ import {
 } from "@main/controller/oft_state_controller";
 import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
-import {Filter, IndexFilter} from "@main/model/filter";
-import {CoverType, FilterName} from "@main/model/oft_state";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";
@@ -150,9 +148,7 @@ export class DetailsElement implements IDetailsElement {
             if (url) {
                 this.log.info("HYPERLINK", url);
                 const index: number = Number.parseInt(url);
-                const path: Array<string> = this.specItems[index].path;
-                const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(this.specItems[index].covering)]]);
-                this.oftState.focusItem(index, path, CoverType.covering, new Map<FilterName, Filter>(), 0);
+                this.oftState.selectAndShow(index);
             }
         })
     }

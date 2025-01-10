@@ -32,7 +32,7 @@ describe("Tests  for FiltersElement", () => {
         expect(filterElementSpy.filterElement.id).toBe(id);
         expect(filterElementSpy.initSpy).toHaveBeenCalled();
         expect(filterElementSpy.activateSpy).toHaveBeenCalled();
-        expect(filterElementSpy.filterElement.isActive).toBe(true);
+        expect(filterElementSpy.filterElement.isActive()).toBe(true);
         expect(filterElementSpy.filterElement.selectElement.id).toBe(id);
     }
 });
