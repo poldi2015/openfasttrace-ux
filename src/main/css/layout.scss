@@ -1,9 +1,9 @@
 @use "paths";
 
 #viewport {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  width: 99.5%;
+  height: 99%;
   font-family: Verdana, Arial, sans-serif;
   font-size: 12px;
   border-collapse: collapse;
@@ -61,7 +61,7 @@
   min-width: 100px;
   min-height: 500px;
   width: 100%;
-  height: 80vh;
+  //height: 80vh;
   max-width: 77vw;
   padding: 0 0 0 0;
 }
