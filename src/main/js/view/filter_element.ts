@@ -158,8 +158,8 @@ export class FilterElement implements IFilterElement {
             </div>
         `);
         this.navbarElement = new NavbarElement(buttonBar);
-        this.navbarElement.setChangeListener(`${this.id}-btn-all`, (id: string, state: boolean) => this.selectAll());
-        this.navbarElement.setChangeListener(`${this.id}-btn-off`, (id: string, state: boolean) => this.selectOff());
+        this.navbarElement.setChangeListener(`${this.id}-btn-all`, () => this.selectAll());
+        this.navbarElement.setChangeListener(`${this.id}-btn-off`, () => this.selectOff());
         this.navbarElement.init();
     }
 
