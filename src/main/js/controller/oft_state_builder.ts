@@ -27,10 +27,8 @@ export class OftStateBuilder {
     public fromModel(metaModel: FilterModels, specItems: Array<SpecItem>):OftStateBuilder {
         if (specItems.length > 0) {
             this.oftState.selectedIndex = 0;
-            this.oftState.selectedPath = specItems[this.oftState.selectedIndex].path;
         } else {
             this.oftState.selectedIndex = null;
-            this.oftState.selectedPath = [];
         }
         Object.entries(metaModel).forEach(([filterName, _]: [string, any]) => {
             this.oftState.selectedFilters.set(filterName, new SelectionFilter(filterName, []));
@@ -41,15 +39,6 @@ export class OftStateBuilder {
 
     public setSelectedIndex(selectedIndex: number): OftStateBuilder {
         this.oftState.selectedIndex = selectedIndex;
-        return this;
-    }
-
-    public setPosition(value: number):void {
-        this.oftState.scrollPosition = value;
-    }
-
-    public setSelectedPath(selectedPath: Array<string>): OftStateBuilder {
-        this.oftState.selectedPath = selectedPath;
         return this;
     }
 

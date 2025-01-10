@@ -24,7 +24,8 @@ import {
     ChangeListener,
     FilterChangeEvent,
     FocusChangeEvent,
-    OftStateController
+    OftStateController,
+    SelectionChangeEvent
 } from "./oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
 import {Log} from "@main/utils/log";
@@ -57,10 +58,15 @@ export class SpecItemsController {
         this.focusChangeListener(event as FocusChangeEvent);
     }
 
+    private selectionChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
+        this.showSpecItem((event as SelectionChangeEvent).index);
+    }
+
     public init(specItems: Array<SpecItem>): void {
         this.log.info("init ", specItems.map((specItem: SpecItem) => specItem.index).join(", "));
         this.oftStateController.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
         this.oftStateController.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
+        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.selectionChangeListenerFacade);
 
         specItems.forEach((specItem: SpecItem) => {
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
@@ -140,12 +146,6 @@ export class SpecItemsController {
             SpecItemsController.getSpecItemsMatchingFilters(this.specItemToElement, selectedFilters);
 
         this.showOnlySelectedSpecItemElements(filteredSpecItems, focusChangeEvent.index);
-
-        // scroll to last position before focusing
-        if (focusChangeEvent.scrollPosition != undefined) {
-            this.log.info("Scroll to ", focusChangeEvent.scrollPosition);
-            this.specItemsElement.scrollTop(focusChangeEvent.scrollPosition);
-        }
     }
 
 

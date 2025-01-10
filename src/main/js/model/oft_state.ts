@@ -30,11 +30,8 @@ export enum CoverType {
 export class OftState {
     public constructor(
         private _selectedIndex: number | null = null,
-        private _scrollPosition: number | undefined = undefined,
-        private _selectedPath: Array<string> = [],
         private _selectedFilters: Map<FilterName, Filter> = new Map<FilterName, Filter>(),
         private _focusIndex: number | null = null,
-        private _focusPath: Array<string> = [],
         private _unfocusedFilters: Map<FilterName, Filter> = new Map<FilterName, Filter>(),
         private _coverType: CoverType = CoverType.covering,
     ) {
@@ -43,11 +40,8 @@ export class OftState {
     public clone(): OftState {
         return new OftState(
             this._selectedIndex,
-            this._scrollPosition,
-            this._selectedPath,
             this._selectedFilters,
             this._focusIndex,
-            this._focusPath,
             this._unfocusedFilters,
             this._coverType
         );
@@ -61,28 +55,12 @@ export class OftState {
         this._selectedIndex = value;
     }
 
-    public get selectedPath(): Array<string> {
-        return this._selectedPath;
-    }
-
-    public set selectedPath(value: Array<string>) {
-        this._selectedPath = value;
-    }
-
     public get selectedFilters(): Map<FilterName, Filter> {
         return this._selectedFilters;
     }
 
     public set selectedFilters(value: Map<FilterName, Filter>) {
         this._selectedFilters = value;
-    }
-
-    get scrollPosition(): number | undefined {
-        return this._scrollPosition;
-    }
-
-    set scrollPosition(value: number | undefined) {
-        this._scrollPosition = value;
     }
 
     get focusIndex(): number | null {
@@ -92,15 +70,6 @@ export class OftState {
     set focusIndex(value: number | null) {
         this._focusIndex = value;
     }
-
-    get focusPath(): Array<string> {
-        return this._focusPath;
-    }
-
-    set focusPath(value: Array<string>) {
-        this._focusPath = value;
-    }
-
     get unfocusedFilters(): Map<FilterName, Filter> {
         return this._unfocusedFilters;
     }

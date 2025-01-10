@@ -44,7 +44,6 @@ export class SelectionChangeEvent extends ChangeEvent {
 
     constructor(
         public readonly index: number | null,
-        public readonly path: Array<string> = [],
         public readonly isFocusItem: boolean = false,
     ) {
         super(SelectionChangeEvent.TYPE);
@@ -53,7 +52,7 @@ export class SelectionChangeEvent extends ChangeEvent {
 
 class SelectionChangeEventFactory implements ChangeEventFactory {
     build(oftState: OftState): ChangeEvent {
-        return new SelectionChangeEvent(oftState.selectedIndex, oftState.selectedPath, false);
+        return new SelectionChangeEvent(oftState.selectedIndex, false);
     }
 } // SelectionChangeEventFactory
 
@@ -67,7 +66,6 @@ export class FocusChangeEvent extends ChangeEvent {
         public readonly index: number | null,
         public readonly coverType: CoverType = CoverType.covering,
         public readonly selectedFilters: Map<FilterName, Filter>,
-        public readonly scrollPosition: number | undefined = undefined,
     ) {
         super(FocusChangeEvent.TYPE);
     }
@@ -75,7 +73,7 @@ export class FocusChangeEvent extends ChangeEvent {
 
 class FocusChangeEventFactory implements ChangeEventFactory {
     build(oftState: OftState): ChangeEvent {
-        return new FocusChangeEvent(oftState.focusIndex, oftState.coverType, oftState.selectedFilters, oftState.scrollPosition);
+        return new FocusChangeEvent(oftState.focusIndex, oftState.coverType, oftState.selectedFilters);
     }
 } // FocusChangeEventFactory
 
@@ -145,51 +143,51 @@ export class OftStateController {
     //
     // selected SpecItem
 
-    public selectItem(index: number, path: Array<string>, scrollPosition: number | undefined = undefined): void {
+    public selectItem(index: number | undefined = undefined): void {
         this.log.info("Selecting item with index: " + index);
-        this.oftState.selectedIndex = index;
-        this.oftState.selectedPath = path;
-        if (scrollPosition != undefined) this.oftState.scrollPosition = scrollPosition;
-        this.notifyChange(new SelectionChangeEvent(index, path));
+        if (index != undefined) this.oftState.selectedIndex = index;
+        if (this.oftState.selectedIndex == null) return;
+        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex));
+    }
 
+    public selectAndShow(index: number | undefined = undefined): void {
+        this.log.info("Selecting item with index: " + index);
+        if (index != undefined) this.oftState.selectedIndex = index;
+        if (this.oftState.selectedIndex == null) return;
+        if (this.oftState.selectedIndex != this.oftState.focusIndex) {
+            this.oftState.selectedFilters.clear();
+        }
+        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters, this.oftState.selectedIndex));
     }
 
     public unselectItem(): void {
         this.oftState.selectedIndex = null;
-        this.oftState.selectedPath = [];
-        this.notifyChange(new SelectionChangeEvent(null, []));
+        this.notifyChange(new SelectionChangeEvent(null));
     }
 
     //
     // FocusItem
 
     public focusItem(index: number,
-                     path: Array<string>,
                      coverType: CoverType,
-                     filters: Map<FilterName, Filter> | null = null,
-                     scrollPosition: number): void {
-        if (this.createFocus(index, path, coverType, filters, scrollPosition) ||
+                     filters: Map<FilterName, Filter> | null = null): void {
+        if (this.createFocus(index, coverType, filters) ||
             this.adjustFocus(index, coverType, filters)) {
-            this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters, undefined));
-            this.notifyChange(new SelectionChangeEvent(index, path, true));
+            this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+            this.notifyChange(new SelectionChangeEvent(index, true));
         }
     }
 
     private createFocus(index: number,
-                        path: Array<string>,
                         coverType: CoverType,
-                        filters: Map<FilterName, Filter> | null = null,
-                        scrollPosition: number): boolean {
+                        filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex == index) return false;
         this.oftState.focusIndex = index;
-        this.oftState.focusPath = path;
         this.oftState.coverType = coverType;
         this.oftState.selectedIndex = null;
-        this.oftState.selectedPath = [];
         this.oftState.unfocusedFilters = this.oftState.selectedFilters;
         this.oftState.unfocusedFilters.delete(IndexFilter.FILTER_NAME);
         if (filters != null) this.oftState.selectedFilters = filters;
-        this.oftState.scrollPosition = scrollPosition;
         this.log.info("focusing item", this.oftState);
         return true;
     }
@@ -199,25 +197,26 @@ export class OftStateController {
                         filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex != index) return false;
         this.oftState.coverType = coverType;
-        if (filters != null) this.oftState.selectedFilters = filters;
+        if (filters != null) {
+            filters.forEach((value: Filter, key: FilterName) => {
+                this.oftState.selectedFilters.set(key, value)
+            });
+        }
         this.log.info("adjust focus", this.oftState);
         return true;
     }
 
-    public unFocusItem(index: number, path: Array<string>): void {
+    public unFocusItem(index: number): void {
         if (this.oftState.focusIndex != index) return;
         if (this.oftState.focusIndex == null) return;
 
         this.oftState.selectedIndex = index;
-        this.oftState.selectedPath = path;
         this.oftState.focusIndex = null;
-        this.oftState.focusPath = [];
         this.oftState.coverType = CoverType.covering;
         this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
         this.oftState.selectedFilters = this.oftState.unfocusedFilters;
-        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters, this.oftState.scrollPosition));
-        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, this.oftState.selectedPath, false));
-        this.oftState.scrollPosition = undefined;
+        this.notifyChange(new FocusChangeEvent(this.oftState.focusIndex, this.oftState.coverType, this.oftState.selectedFilters));
+        this.notifyChange(new SelectionChangeEvent(this.oftState.selectedIndex, false));
     }
 
 
@@ -230,6 +229,12 @@ export class OftStateController {
         });
         this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters, this.oftState.selectedIndex));
     }
+
+    public clearFilters() {
+        this.oftState.selectedFilters.clear();
+        this.notifyChange(new FilterChangeEvent(this.oftState.selectedFilters, this.oftState.selectedIndex));
+    }
+
 
     public getSelectedFilters(): Map<FilterName, Filter> {
         return this.oftState.selectedFilters;
