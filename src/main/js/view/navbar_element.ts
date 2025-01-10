@@ -1,27 +1,30 @@
 import {Log} from "@main/utils/log";
 import {ButtonElement} from "@main/view/button_element";
+import {IElement} from "@main/view/element";
 
 type ChangeListener = (id: string, state: boolean) => void;
 
-export class NavbarElement {
+export class NavbarElement implements IElement {
     public constructor(
         private element: JQuery<HTMLElement>,
     ) {
-        this.navbarElement = this.element.find('div.nav-bar');
+        this.log.info("NavbarElement for ", element);
+        this.navbarElement = this.element.hasClass('nav-bar') ? this.element : this.element.find('.nav-bar');
     }
 
     private readonly navbarElement: JQuery<HTMLElement>;
     private readonly buttons: Map<string, ButtonElement> = new Map<string, ButtonElement>();
     private readonly changeListeners: Map<string, ChangeListener> = new Map<string, ChangeListener>();
-    private isActive: boolean = false;
+    private _isActive: boolean = false;
 
     private log: Log = new Log("Navbar_element");
 
     public init(): NavbarElement {
-        this.log.info("NavbarElement initialized");
+        this.log.info("NavbarElement init ", this.navbarElement);
         this.navbarElement.find('.nav-btn').each((index: number, element: HTMLElement) => {
             const buttonElement = $(element);
             const id: string = element.id !== "" ? element.id : `${index}`;
+            this.log.info("NavbarElement initialize for ", id);
             const button = new ButtonElement(buttonElement, (state: boolean) => this.notifyChange(id, state));
             this.buttons.set(id, button);
             button.init();
@@ -31,7 +34,7 @@ export class NavbarElement {
     }
 
     public activate(): void {
-        this.isActive = true;
+        this._isActive = true;
         this.buttons.forEach((button: ButtonElement) => button.activate());
         this.navbarElement.prop('disabled', false);
     }
@@ -39,8 +42,14 @@ export class NavbarElement {
     public deactivate(): void {
         this.navbarElement.prop('disabled', true);
         this.buttons.forEach((button: ButtonElement) => button.deactivate());
-        this.isActive = false;
+        this._isActive = false;
     }
+
+    public isActive(): boolean {
+        return this._isActive;
+    }
+
+
 
     public setChangeListener(id: string, changeListener: ChangeListener): void {
         this.log.info(`Set change listener for ${id} ${this.buttons.has(id)}`);
@@ -59,10 +68,10 @@ export class NavbarElement {
     // Private methods
 
     private notifyChange(id: string, state: boolean): void {
+        this.log.info(`Notify change for ${id} with state ${state}`);
         if (!this.isActive) return;
         const changeListener: ChangeListener | undefined = this.changeListeners.get(id);
         if (changeListener !== undefined) {
-            this.log.info(`Notify change for ${id} with state ${state}`);
             changeListener(id, state);
         }
     }

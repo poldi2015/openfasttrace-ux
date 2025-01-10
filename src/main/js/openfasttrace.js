@@ -26,6 +26,7 @@ import {FiltersElement} from "@main/view/filters_element";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {SearchElement} from "@main/view/search_element";
 import {DetailsElementFactory} from "@main/view/details_element";
+import {SpecItemsElement} from "@main/view/spec_items_element";
 
 function _init() {
     const filters = window.metadata.filters;
@@ -41,6 +42,7 @@ function _init() {
     Migrate.init_tabs();
 
     new SpecItemsController(oftStateController, filters.type).init(specItems);
+    new SpecItemsElement(oftStateController).init().activate();
 
     initHeader();
     initFooter();

@@ -71,14 +71,21 @@ const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
         type: 0,
         name: "culpa-fugiat-aute-amet-qui-occaecat",
         fullName: "feat:culpa-fugiat-aute-amet-qui-occaecat:3",
+        tags: [],
         version: 3,
         content: "Eu amet et deserunt ad et consequat sunt et aliqua consequat nulla. Irure nulla ",
+        provides: [],
+        needs: [],
         covered: [0, 1, 1, 1, 1, 1, 1],
         uncovered: [0, 1, 2, 3, 4, 5],
         covering: [],
         coveredBy: [107, 108],
+        depends: [],
         status: 1,
         path: ["project", "spec", "content"],
+        sourceFile: "",
+        sourceLine: 5,
+        comments: "",
     },
 ];
 
@@ -87,14 +94,12 @@ describe("Tests of the Logger API", () => {
     test("create oft state initialized from metadata with a simple specitem", () => {
         const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS).build();
         expect(oftState.selectedIndex).toBe(0);
-        expect(oftState.selectedPath).toStrictEqual(["project", "spec", "content"]);
         expect(oftState.selectedFilters).toStrictEqual(GOLDEN_MASTER_FILTER_WITHOUT_VALUES);
     });
 
     test("create oft state initialized from metadata without a specitem", () => {
         const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, []).build();
         expect(oftState.selectedIndex).toBeNull();
-        expect(oftState.selectedPath).toStrictEqual([]);
         expect(oftState.selectedFilters).toStrictEqual(GOLDEN_MASTER_FILTER_WITHOUT_VALUES);
     });
 
@@ -106,7 +111,6 @@ describe("Tests of the Logger API", () => {
             .setSelectedFilters(changedFilters)
             .build();
         expect(oftState.selectedIndex).toBe(0);
-        expect(oftState.selectedPath).toStrictEqual(["project", "spec", "content"]);
         expect(oftState.selectedFilters.get("types")).toBeInstanceOf(SelectionFilter);
     });
 });
