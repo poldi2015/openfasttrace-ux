@@ -19,17 +19,12 @@
 */
 import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
-import {
-    ChangeEvent,
-    ChangeListener,
-    FilterChangeEvent,
-    FocusChangeEvent,
-    OftStateController
-} from "@main/controller/oft_state_controller";
+import {OftStateController} from "@main/controller/oft_state_controller";
 import {sameArrayValues} from "@main/utils/collections";
 import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
+import {ChangeEvent, ChangeListener, FilterChangeEvent, FocusChangeEvent} from "@main/model/change_event";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -193,7 +188,7 @@ export class FilterElement implements IFilterElement {
      * @param {JQuery} selectElement th select element
      */
     private selectionChanged(selectElement: JQuery): void {
-        this.log.info("selectionChanged ", this.id, " ", this.selectionIndexes);
+        this.log.info("selectionChanged", this.id, " ", this.selectionIndexes);
         this.selectionIndexes = this.toSelectionIndexes(selectElement);
         this.toggleOff(this.selectionIndexes.length == 0);
         const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.selectionIndexes)]]);
