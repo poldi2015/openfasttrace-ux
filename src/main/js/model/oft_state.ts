@@ -70,6 +70,15 @@ export class OftState {
     set focusIndex(value: number | null) {
         this._focusIndex = value;
     }
+
+    public isFocused(): boolean {
+        return this._focusIndex != null;
+    }
+
+    public isFocusSelected(): boolean {
+        return this._focusIndex != null && this.selectedIndex == null;
+    }
+
     get unfocusedFilters(): Map<FilterName, Filter> {
         return this._unfocusedFilters;
     }
