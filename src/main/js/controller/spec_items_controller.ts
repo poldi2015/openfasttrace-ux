@@ -19,18 +19,18 @@
 */
 import {SpecItemElement} from '@main/view/spec_item_element';
 import {SpecItem} from "@main/model/specitems";
+import {CoverType} from "@main/model/oft_state";
+import {Log} from "@main/utils/log";
+import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
+import {Filter, FilterModel} from "@main/model/filter";
+import {OftStateController} from "@main/controller/oft_state_controller";
 import {
     ChangeEvent,
     ChangeListener,
     FilterChangeEvent,
     FocusChangeEvent,
-    OftStateController,
     SelectionChangeEvent
-} from "./oft_state_controller";
-import {CoverType} from "@main/model/oft_state";
-import {Log} from "@main/utils/log";
-import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
-import {Filter, FilterModel} from "@main/model/filter";
+} from '@main/model/change_event';
 
 const FOCUS_SPECITEM_ELEMENT_ID: string = "#focusitem";
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
@@ -73,7 +73,7 @@ export class SpecItemsController {
             this.insertSpecItemAt(specItemElement);
             this.specItemToElement.push([specItem, specItemElement]);
             this.specItems.set(specItem.index, specItem);
-            if (this.specItemToElement.length === 1) specItemElement.select();
+            //if (this.specItemToElement.length === 1) specItemElement.select();
         });
     }
 

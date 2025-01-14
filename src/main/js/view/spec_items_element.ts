@@ -16,6 +16,8 @@ export class SpecItemsElement implements IElement {
 
     public init(): SpecItemsElement {
         this.navbarElement.setChangeListener("btn-scroll-to-selection", () => this.scrollToSelection());
+        this.navbarElement.setChangeListener("btn-history-back", () => this.changeOftStateToPreviousState());
+        this.navbarElement.setChangeListener("btn-history-forward", () => this.changeOftStateToNextState());
         this.navbarElement.init();
         return this;
     }
@@ -40,7 +42,15 @@ export class SpecItemsElement implements IElement {
 
     private scrollToSelection(): void {
         this.log.info("selectAndSohw");
-        this.oftState.selectItem();
+        this.oftState.showSelectedItem();
+    }
+
+    private changeOftStateToPreviousState() {
+        this.oftState.toPreviousState();
+    }
+
+    private changeOftStateToNextState() {
+        this.oftState.toNextState();
     }
 
 }
