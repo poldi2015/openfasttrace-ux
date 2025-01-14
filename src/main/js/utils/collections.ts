@@ -17,14 +17,13 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+
 /**
  * Add an entry to a possible undefined array.
  *
  * @param array The possible undefined array
  * @param entry The item to add
  */
-
-
 export function pushTo<T>(array: Array<T> | undefined, entry: T): Array<T> {
     array = array ?? [];
     array.push(entry);

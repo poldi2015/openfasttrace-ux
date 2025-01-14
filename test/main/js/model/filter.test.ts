@@ -8,14 +8,21 @@ const SampleSpecItem: SpecItem = {
     type: 1,
     name: "sample-spec-item",
     fullName: "req:sample-spect-item:2",
+    tags: [],
     version: 2,
     content: "Sample SpecItem content",
+    provides: [],
+    needs: [],
     covered: [2, 3, 4],
     uncovered: [3, 4, 5],
     covering: [7, 8, 9],
     coveredBy: [1, 2, 3],
+    depends: [],
     status: 0,
     path: ["sample", "spec", "item"],
+    sourceFile: "",
+    sourceLine: 0,
+    comments: ""
 }
 
 describe("filters SelectionFilter", () => {

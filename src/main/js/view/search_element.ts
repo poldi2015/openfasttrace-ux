@@ -1,13 +1,8 @@
-import {
-    ChangeEvent,
-    ChangeListener,
-    FilterChangeEvent,
-    FocusChangeEvent,
-    OftStateController
-} from "@main/controller/oft_state_controller";
+import {OftStateController} from "@main/controller/oft_state_controller";
 import {Log} from "@main/utils/log";
 import {Filter, NameFilter, NameFilterTarget} from "@main/model/filter";
 import {FilterName} from "@main/model/oft_state";
+import {ChangeEvent, ChangeListener, FilterChangeEvent, FocusChangeEvent} from "@main/model/change_event";
 
 export class SearchElement {
     constructor(

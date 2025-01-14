@@ -18,10 +18,11 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {SpecItemElement} from "@main/view/spec_item_element";
-import {OftStateController, SelectionChangeEvent} from "@main/controller/oft_state_controller";
+import {OftStateController} from "@main/controller/oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
 import {FilterModel} from "@main/model/filter";
+import {SelectionChangeEvent} from "@main/model/change_event";
 
 const COVERING_TEXT: string = "<<<<  is covering    <<<<";
 const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
@@ -112,6 +113,7 @@ export class FocusSpecItemElement extends SpecItemElement {
     }
 
     private updateCoverTypeElement(): void {
+        this.log.info("updateCoverTypeElement", this.specItem.index);
         this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? COVERING_TEXT : IS_COVERED_BY_TEXT);
     }
 

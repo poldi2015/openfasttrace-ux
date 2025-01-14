@@ -37,7 +37,7 @@ declare global {
 /**
  * List of all available filters with selectable entries.
  *
- * The FilterModels are poplated by the generated window.metadata.
+ * The FilterModels are populated by the generated window.metadata.
  */
 export type FilterModels = Record<string, Array<FilterModel>>;
 

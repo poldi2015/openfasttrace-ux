@@ -1,13 +1,9 @@
 import {IElement} from "@main/view/element";
 import {SpecItem, SpecItemStatus} from "@main/model/specitems";
-import {
-    ChangeEvent,
-    ChangeListener,
-    OftStateController,
-    SelectionChangeEvent
-} from "@main/controller/oft_state_controller";
 import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
+import {OftStateController} from "@main/controller/oft_state_controller";
+import {ChangeEvent, ChangeListener, SelectionChangeEvent} from "@main/model/change_event";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";

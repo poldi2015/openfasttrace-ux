@@ -17,16 +17,12 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {
-    ChangeEvent,
-    ChangeListener,
-    OftStateController,
-    SelectionChangeEvent,
-} from "@main/controller/oft_state_controller";
+import {OftStateController} from "@main/controller/oft_state_controller";
 import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, SpecItemStatus} from "@main/model/specitems";
+import {ChangeEvent, ChangeListener, SelectionChangeEvent} from "@main/model/change_event";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -49,6 +45,7 @@ export class SpecItemElement {
     protected parentElement: JQuery | null = null;
     protected readonly elementId: string;
     protected selected: boolean = false;
+    private _isActive: boolean = false;
 
     protected log: Log = new Log("SpecItemElement");
 
@@ -78,9 +75,11 @@ export class SpecItemElement {
     }
 
     public activate(): void {
+        if (this.isActive()) return;
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
         this.element.show();
+        this._isActive = true;
     }
 
     /**
@@ -90,20 +89,22 @@ export class SpecItemElement {
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.removeChangeListener(this.changeListener);
         this.parentElement.children(`#${this.elementId}`).remove();
-        this.oftStateController.removeChangeListener(this.changeListener);
+        this._isActive = false;
     }
 
     public deactivate(): void {
+        if (!this.isActive()) return;
         if (this.parentElement == null) throw Error('No parentElement');
         this.oftStateController.removeChangeListener(this.changeListener);
         this.element.hide();
+        this._isActive = false;
     }
 
     /**
      * @return true of the element is not made invisible
      */
     public isActive() {
-        return this.parentElement != null && this.element.is(':visible');
+        return this.parentElement != null && this._isActive;
     }
 
     public getScrollPosition(): number | undefined {
@@ -182,6 +183,7 @@ export class SpecItemElement {
         if (this.parentElement == null) return;
         this.selected = this.specItem.index == event.index;
         if (this.selected) {
+            this.log.info("selectionChangeListener selected", event.index);
             this.element.addClass(SELECT_CLASS);
             this.element.removeClass(MOUSE_ENTER_CLASS);
             this.element.removeClass(MOUSE_LEAVE_CLASS);
