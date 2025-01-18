@@ -2,7 +2,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {Log} from "@main/utils/log";
 import {Filter, NameFilter, NameFilterTarget} from "@main/model/filter";
 import {FilterName} from "@main/model/oft_state";
-import {ChangeEvent, ChangeListener, FilterChangeEvent, FocusChangeEvent} from "@main/model/change_event";
+import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
 
 export class SearchElement {
     constructor(
@@ -15,12 +15,8 @@ export class SearchElement {
     private formElement: HTMLElement | null = null;
     private inputElement: HTMLInputElement | null = null;
 
-    private filterChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
-        this.filterChangeListener((event as FilterChangeEvent).selectedFilters);
-    }
-
-    private focusChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
-        this.filterChangeListener((event as FocusChangeEvent).selectedFilters);
+    private filterOrFocusChangeListener: ChangeListener = (event: ChangeEvent): void => {
+        event.handleFilterChange((filters, _) => this.filterChanged(filters));
     }
 
     public init(): SearchElement {
@@ -33,8 +29,7 @@ export class SearchElement {
      * Enable the search element, ready to be used in the UI.
      */
     public activate(): void {
-        this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
-        this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
+        this.oftState.addChangeListener(this.filterOrFocusChangeListener, EventType.Filters); // Also covers focus Change
         if (this.inputElement) this.inputElement.disabled = false;
     }
 
@@ -43,10 +38,12 @@ export class SearchElement {
      */
     public deactivate(): void {
         if (this.inputElement) this.inputElement.disabled = true;
-        this.oftState.removeChangeListener(this.focusChangeListenerFacade); // remove focus listener
-        this.oftState.removeChangeListener(this.filterChangeListenerFacade);
+        this.oftState.removeChangeListener(this.filterOrFocusChangeListener);
     }
 
+
+    //
+    // private members
 
     private addSearchForm(): void {
         const searchForm: JQuery<HTMLElement> = $("#search");
@@ -85,11 +82,6 @@ export class SearchElement {
         this.oftState.selectFilters(filters);
     }
 
-    private changeValue(value: string): void {
-        const currentValue: string | undefined = this.inputElement?.value.startsWith("+") ? this.inputElement?.value.substring(5).trimStart() : this.inputElement?.value;
-        if (this.inputElement != null && value != currentValue) this.inputElement.value = value;
-    }
-
     /**
      * Called when the filters changed their selection.
      *
@@ -97,12 +89,17 @@ export class SearchElement {
      *
      * @param selectedFilters filters to be selected (includes the selection of all filters not only this one)
      */
-    private filterChangeListener(selectedFilters: Map<FilterName, Filter>): void {
+    private filterChanged(selectedFilters: Map<FilterName, Filter>): void {
         if (!selectedFilters.has(NameFilter.FILTER_NAME)) {
             this.changeValue("");
         } else {
             this.changeValue((selectedFilters.get(NameFilter.FILTER_NAME) as NameFilter).acceptedName);
         }
+    }
+
+    private changeValue(value: string): void {
+        const currentValue: string | undefined = this.inputElement?.value.startsWith("+") ? this.inputElement?.value.substring(5).trimStart() : this.inputElement?.value;
+        if (this.inputElement != null && value != currentValue) this.inputElement.value = value;
     }
 
 } // SearchElement

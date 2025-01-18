@@ -21,15 +21,9 @@ import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {OftStateBuilder} from "./oft_state_builder";
 import {Log} from "@main/utils/log";
 import {Filter, IndexFilter} from "@main/model/filter";
-import {
-    ChangeEvent,
-    ChangeEventFactory,
-    ChangeListener,
-    FilterChangeEvent,
-    FocusChangeEvent,
-    SelectionChangeEvent
-} from "@main/model/change_event";
-import {HistoryItem, OftStateHistory} from "@main/model/oft_state_history";
+import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
+import {OftStateHistory} from "@main/model/oft_state_history";
+import {enumValues} from "@main/utils/collections";
 
 
 /**
@@ -41,11 +35,11 @@ export class OftStateController {
     public constructor(
         private readonly oftState: OftState = new OftStateBuilder().build(),
         private readonly oftStateHistory = new OftStateHistory(),
-        private readonly changeEventFactories: Map<string, ChangeEventFactory> = ChangeEventFactory.createEventFactories()
     ) {
     }
 
-    private changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
+    private changeListeners: Map<EventType, Array<ChangeListener>> = new Map<EventType, Array<ChangeListener>>();
+    private isInitialized: boolean = false;
 
     private log: Log = new Log("OftStateController");
 
@@ -55,11 +49,10 @@ export class OftStateController {
      * Communicates the current state by emitting all change event types to registered listeners.
      */
     public init(): void {
-        // Bootstrap already connected listeners.
-        this.oftStateHistory.init(this.oftState, this.changeEventFactories);
-        this.changeEventFactories.forEach((factory: ChangeEventFactory, _: string) => {
-            this.sendChangeEvent(factory.build(this.oftState));
-        });
+        const initialChangeEvent: ChangeEvent = this.createChangeEvent();
+        this.oftStateHistory.init(initialChangeEvent);
+        this.sendChangeEvent(initialChangeEvent); // Bootstrap already connected listeners.
+        this.isInitialized = true;
     }
 
 
@@ -74,28 +67,17 @@ export class OftStateController {
      *
      * This method must only be called when it can be ensured that the given indexed item is not filtered out.
      *
-     * @param index the index of a not filtered item.
+     * @param index the index of a not filtered item or empty to scroll to the current selection
      */
-    public selectItem(index: number): void {
-        this.log.info("Selecting item with index: " + index);
+    public selectItem(index: number | null = this.oftState.selectedIndex): void {
+        this.log.info("selectItem ", index);
         if (index != this.oftState.selectedIndex) {
             this.oftState.selectedIndex = index;
-            this.notifyChange(SelectionChangeEvent.TYPE);
+            this.notifyChangeWithHistory(EventType.Selection);
         } else {
             // Just trigger scrolling to the current index
-            this.notifyChangeWithoutHistory(SelectionChangeEvent.TYPE);
+            this.notifyChangeWithoutHistory(EventType.Selection);
         }
-    }
-
-    /**
-     * scrolls to the selected item when one is selected.
-     *
-     * State is not changed.
-     */
-    public showSelectedItem() {
-        if (this.oftState.selectedIndex == null) return;
-        this.log.info("showSelectedItem", this.oftState.selectedIndex);
-        this.notifyChangeWithoutHistory(SelectionChangeEvent.TYPE);
     }
 
     /**
@@ -103,17 +85,18 @@ export class OftStateController {
      *
      * @param index the new selection
      */
-    public selectAndShow(index: number): void {
-        this.log.info("Selecting item with index: " + index);
+    public selectAndShowItem(index: number): void {
+        this.log.info("selectAndShowItem", index);
         if (index != this.oftState.focusIndex) {
             // Disable filters if item is not the focused one which is always visible.
             this.oftState.selectedFilters.clear();
         }
         if (this.oftState.selectedIndex != index) {
             this.oftState.selectedIndex = index;
-            this.notifyChange(FilterChangeEvent.TYPE);
+            this.oftState.selectedFilters = new Map<FilterName, Filter>();
+            this.notifyChangeWithHistory(EventType.Selection, EventType.Filters);
         } else {
-            this.notifyChangeWithoutHistory(FilterChangeEvent.TYPE);
+            this.notifyChangeWithoutHistory(EventType.Selection);
         }
     }
 
@@ -122,12 +105,9 @@ export class OftStateController {
      */
     public unselectItem(): void {
         this.log.info("unselectItem", this.oftState.selectedIndex);
-        if (this.oftState.selectedIndex != null) {
-            this.oftState.selectedIndex = null;
-            this.notifyChange(SelectionChangeEvent.TYPE);
-        } else {
-            this.notifyChangeWithoutHistory(SelectionChangeEvent.TYPE);
-        }
+        if (this.oftState.selectedIndex == null) return;
+        this.oftState.selectedIndex = null;
+        this.notifyChangeWithHistory(EventType.Selection);
     }
 
     //
@@ -146,7 +126,7 @@ export class OftStateController {
         this.log.info("focusItem", index);
         if (this.createFocus(index, coverType, filters) ||
             this.adjustFocus(index, coverType, filters)) {
-            this.notifyChange(FocusChangeEvent.TYPE, SelectionChangeEvent.TYPE);
+            this.notifyChangeWithHistory(EventType.Focus, EventType.Filters);
         }
     }
 
@@ -188,7 +168,7 @@ export class OftStateController {
         this.oftState.coverType = CoverType.covering;
         this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
         this.oftState.selectedFilters = this.oftState.unfocusedFilters;
-        this.notifyChange(FocusChangeEvent.TYPE, SelectionChangeEvent.TYPE);
+        this.notifyChangeWithHistory(EventType.Focus, EventType.Filters, EventType.Selection);
     }
 
 
@@ -207,9 +187,9 @@ export class OftStateController {
             filters.forEach((value: Filter, key: FilterName) => {
                 this.oftState.selectedFilters.set(key, value);
             });
-            this.notifyChange(FilterChangeEvent.TYPE);
+            this.notifyChangeWithHistory(EventType.Filters);
         } else {
-            this.notifyChangeWithoutHistory(FilterChangeEvent.TYPE);
+            this.notifyChangeWithoutHistory(EventType.Filters);
         }
     }
 
@@ -221,9 +201,9 @@ export class OftStateController {
     public clearFilters() {
         if (this.oftState.selectedFilters.size > 0) {
             this.oftState.selectedFilters.clear();
-            this.notifyChange(FilterChangeEvent.TYPE);
+            this.notifyChangeWithHistory(EventType.Filters);
         } else {
-            this.notifyChangeWithoutHistory(FilterChangeEvent.TYPE);
+            this.notifyChangeWithoutHistory(EventType.Filters);
         }
     }
 
@@ -238,17 +218,19 @@ export class OftStateController {
     /**
      * switch the state to the previous (older) state.
      */
-    public toPreviousState() {
-        const historyItem: HistoryItem = this.oftStateHistory.toPreviousState();
-        historyItem.changeEvents.forEach((changeEvent: ChangeEvent) => this.sendChangeEvent(changeEvent));
+    public toPreviousState(): void {
+        const changeEvent: ChangeEvent | null = this.oftStateHistory.toPreviousState();
+        if (changeEvent == null) return;
+        this.sendChangeEvent(changeEvent);
     }
 
     /**
      * switch the state to the next (newer) state.
      */
     public toNextState() {
-        const historyItem: HistoryItem = this.oftStateHistory.toNextState();
-        historyItem.changeEvents.forEach((changeEvent: ChangeEvent) => this.sendChangeEvent(changeEvent));
+        const changeEvent: ChangeEvent | null = this.oftStateHistory.toNextState();
+        if (changeEvent == null) return;
+        this.sendChangeEvent(changeEvent);
     }
 
 
@@ -260,15 +242,28 @@ export class OftStateController {
      *
      * Send an initial event
      *
-     * @param eventType the type of the event
+     * @param eventTypes the type of the event
      * @param listener the listener
+     * // TODO remove eventTypes
      */
-    public addChangeListener(eventType: string, listener: ChangeListener): void {
-        const listeners: Array<ChangeListener> | undefined = this.changeListeners.has(eventType) ?
-            this.changeListeners.get(eventType) : new Array<ChangeListener>();
-        listeners!.push(listener);
-        this.changeListeners.set(eventType, listeners!);
-        this.initialChangeEventListenerNotification(eventType, listener);
+    public addChangeListener(listener: ChangeListener, ...eventTypes: Array<EventType>): void {
+        eventTypes.forEach((eventType: EventType) => {
+            const listeners: Array<ChangeListener> | undefined = this.changeListeners.has(eventType) ?
+                this.changeListeners.get(eventType) : new Array<ChangeListener>();
+            listeners!.push(listener);
+            this.changeListeners.set(eventType, listeners!);
+        });
+        this.initializeListener(listener);
+    }
+
+    /**
+     * Sends a change event to a newly added listener with all event types when listener is added after initialization.
+     *
+     * @param listener the listener to inform
+     */
+    private initializeListener(listener: ChangeListener): void {
+        if (!this.isInitialized) return;
+        listener(new ChangeEvent(enumValues(EventType), this.oftState.clone()));
     }
 
     /**
@@ -277,9 +272,9 @@ export class OftStateController {
      * @param listener The listener to remove
      */
     public removeChangeListener(listener: ChangeListener): void {
-        const changeListeners: Map<string, Array<ChangeListener>> = new Map<string, Array<ChangeListener>>();
-        this.changeListeners.forEach((listeners, eventType, _) => {
-            changeListeners.set(eventType, listeners.filter((item) => item != listener));
+        const changeListeners: Map<EventType, Array<ChangeListener>> = new Map();
+        this.changeListeners.forEach((listeners, eventTypes, _) => {
+            changeListeners.set(eventTypes, listeners.filter((item) => item != listener));
         });
         this.changeListeners = changeListeners;
     }
@@ -292,10 +287,10 @@ export class OftStateController {
      *
      * @param eventTypes The events to be issued.
      */
-    private notifyChange(...eventTypes: Array<string>): void {
-        this.log.info("notifyChange", ...eventTypes);
-        const historyItem: HistoryItem = this.oftStateHistory.pushState(eventTypes, this.oftState);
-        historyItem.changeEvents.forEach((changeEvent: ChangeEvent) => this.sendChangeEvent(changeEvent));
+    private notifyChangeWithHistory(...eventTypes: Array<EventType>): void {
+        this.log.info("notifyChangeWithHistory", ...eventTypes);
+        const changeEvent: ChangeEvent = this.oftStateHistory.pushEvent(this.createChangeEvent(...eventTypes));
+        this.sendChangeEvent(changeEvent);
     }
 
     /**
@@ -303,12 +298,21 @@ export class OftStateController {
      *
      * @param eventTypes the types of event to issue
      */
-    private notifyChangeWithoutHistory(...eventTypes: Array<string>): void {
+    private notifyChangeWithoutHistory(...eventTypes: Array<EventType>): void {
         this.log.info("notifyChangeWithoutHistory", ...eventTypes);
-        eventTypes.forEach((eventType: string) => {
-            const changeEvent: ChangeEvent = this.changeEventFactories.get(eventType)!.build(this.oftState);
-            this.sendChangeEvent(changeEvent);
-        });
+        const changeEvent: ChangeEvent = this.createChangeEvent(...eventTypes);
+        this.sendChangeEvent(changeEvent);
+    }
+
+    /**
+     * Creates an instance of {@link EventType} initialized with the current state and the given list of event types.
+     *
+     * @param eventTypes list of event types or empty if all event types should be used
+     * @return A {@link ChangeEvent}
+     */
+    public createChangeEvent(...eventTypes: Array<EventType>): ChangeEvent {
+        const types: Array<EventType> = eventTypes.length == 0 ? enumValues(EventType) : Array.of(...eventTypes);
+        return new ChangeEvent(types, this.oftState.clone());
     }
 
     /**
@@ -318,20 +322,13 @@ export class OftStateController {
      */
     private sendChangeEvent(changeEvent: ChangeEvent): void {
         this.log.info("sendChangeEvent", changeEvent);
-        this.changeListeners.get(changeEvent.type)?.forEach((listener: ChangeListener) => {
-            listener(changeEvent);
-        })
-    }
+        const listeners: Set<ChangeListener> = new Set(
+            Array.of(...this.changeListeners)
+                .filter(([eventType, _]: [EventType, Array<ChangeListener>]) => changeEvent.types.includes(eventType))
+                .flatMap(([_, listener]: [EventType, Array<ChangeListener>]) => listener)
+        );
 
-    /**
-     * Send initial event when listener is added.
-     *
-     * @param eventType the event to send
-     * @param listener the listener to inform
-     */
-    public initialChangeEventListenerNotification(eventType: string, listener: ChangeListener): void {
-        const changeEvent: ChangeEvent | undefined = this.changeEventFactories.get(eventType)?.build(this.oftState);
-        if (changeEvent != undefined) listener(changeEvent);
+        listeners.forEach((listener: ChangeListener) => listener(changeEvent));
     }
 
 } // OftState

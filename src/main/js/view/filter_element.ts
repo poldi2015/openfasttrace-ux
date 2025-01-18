@@ -24,7 +24,7 @@ import {sameArrayValues} from "@main/utils/collections";
 import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
-import {ChangeEvent, ChangeListener, FilterChangeEvent, FocusChangeEvent} from "@main/model/change_event";
+import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -46,7 +46,7 @@ export class FilterElementFactory {
  *  The filter is configured by a {@link FilterModel} that is part of the global metadata.
  *
  *  State changes are communicated via the {@link OftStateController}. The FilterElement issues changes to the filter
- *  selection via {@link OftStateController.selectFilters}. By listening to {@link FilterChangeEvent} and {@link FocusChangeEvent}
+ *  selection via {@link OftStateController.selectFilters}. By listening to filter change events
  *  it reacts to changes to the filters issued by other components.
  */
 export class FilterElement implements IFilterElement {
@@ -73,12 +73,8 @@ export class FilterElement implements IFilterElement {
 
     private readonly log: Log = new Log("FilterElement");
 
-    private filterChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
-        this.filterChangeListener((event as FilterChangeEvent).selectedFilters);
-    }
-
-    private focusChangeListenerFacade: ChangeListener = (event: ChangeEvent): void => {
-        this.filterChangeListener((event as FocusChangeEvent).selectedFilters);
+    private filtersChangeListener: ChangeListener = (event: ChangeEvent): void => {
+        event.handleFilterChange((filters, _) => this.filtersChanged(filters));
     }
 
     /**
@@ -97,9 +93,8 @@ export class FilterElement implements IFilterElement {
      */
     public activate(): void {
         this.selectElement.removeAttr("disabled");
-        this.selectElement.on('change', () => this.selectionChanged(this.selectElement));
-        this.oftState.addChangeListener(FilterChangeEvent.TYPE, this.filterChangeListenerFacade);
-        this.oftState.addChangeListener(FocusChangeEvent.TYPE, this.focusChangeListenerFacade);
+        this.selectElement.on('change', () => this.notifySelectionChanged(this.selectElement));
+        this.oftState.addChangeListener(this.filtersChangeListener, EventType.Filters);
         this.navbarElement?.activate();
     }
 
@@ -110,8 +105,7 @@ export class FilterElement implements IFilterElement {
         this.navbarElement?.deactivate();
         this.selectElement.attr("disabled", "disabled");
         this.selectElement.off('change');
-        this.oftState.removeChangeListener(this.focusChangeListenerFacade);
-        this.oftState.removeChangeListener(this.filterChangeListenerFacade);
+        this.oftState.removeChangeListener(this.filtersChangeListener);
     }
 
     /**
@@ -187,11 +181,9 @@ export class FilterElement implements IFilterElement {
      *
      * @param {JQuery} selectElement th select element
      */
-    private selectionChanged(selectElement: JQuery): void {
+    private notifySelectionChanged(selectElement: JQuery): void {
         this.log.info("selectionChanged", this.id, " ", this.selectionIndexes);
-        this.selectionIndexes = this.toSelectionIndexes(selectElement);
-        this.toggleOff(this.selectionIndexes.length == 0);
-        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.selectionIndexes)]]);
+        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.toSelectionIndexes(selectElement))]]);
         this.oftState.selectFilters(filters);
     }
 
@@ -236,7 +228,7 @@ export class FilterElement implements IFilterElement {
      *
      * @param selectedFilters filters to be selected (includes the selection of all filters not only this one)
      */
-    private filterChangeListener(selectedFilters: Map<FilterName, Filter>): void {
+    private filtersChanged(selectedFilters: Map<FilterName, Filter>): void {
         this.log.info("filterChangeListener ", selectedFilters);
         const changedSelectionIndexes: SelectedFilterIndexes = this.getSelectionIndexes(selectedFilters.get(this.id));
         this.setSelections(changedSelectionIndexes);
@@ -252,14 +244,12 @@ export class FilterElement implements IFilterElement {
     private setSelections(changedIndexed: Array<number>): void {
         // Prevent OftState events received by change to the UI
         if (sameArrayValues(this.selectionIndexes, changedIndexed)) return;
-        this.log.info("changedSelectionIndexes ", changedIndexed);
+        this.log.info("setSelections for", this.id, "changedIndexes", changedIndexed);
         this.selectionIndexes = changedIndexed;
-        this.log.info("initSelection ", this.id, " ", changedIndexed);
         this.selectElement.children("option").each((index: number, element: HTMLElement) => {
             $(element).prop("selected", changedIndexed.includes(index));
         });
-        //this.toggleOff(selectedIndexes.length == 0);
-        this.selectElement.trigger("change");
+        this.toggleOff(changedIndexed.length == 0);
     }
 
     /**

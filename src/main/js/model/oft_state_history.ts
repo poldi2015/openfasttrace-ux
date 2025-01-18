@@ -1,19 +1,12 @@
-import {OftState} from "@main/model/oft_state";
-import {ChangeEvent, ChangeEventFactory} from "@main/model/change_event";
+import {ChangeEvent} from "@main/model/change_event";
 import {Log} from "@main/utils/log";
 
 /**
  * One entry in the {@lnik OftStateHistory}.
  */
 export class HistoryItem {
-    constructor(public readonly eventTypes: Array<string>,
-                public readonly oftState: OftState,
-                public readonly eventFactories: Map<string, ChangeEventFactory>) {
-        this.changeEvents = eventTypes.map((type: string) => eventFactories.get(type)!.build(oftState));
+    constructor(public readonly changeEvent: ChangeEvent) {
     }
-
-    public readonly changeEvents: Array<ChangeEvent>;
-
 } // HistoryItem
 
 /**
@@ -34,81 +27,79 @@ export class OftStateHistory {
                 public readonly maxSize: number = 500) {
     }
 
-    private eventFactories: Map<string, ChangeEventFactory> = new Map();
-
     private log: Log = new Log("OftStateHistory");
 
     /**
-     * Initializes the eventFactories
-     * @param oftState state of an initial history
-     * @param eventFactories Helper to converting an eventType with an {@link OftState} as input to an {@link ChangeEvent}.
-     * @private
+     * Initializes the eventFactories.
+     *
+     * @param changeEvent The event that created the initial state
      */
-    public init(oftState: OftState, eventFactories: Map<string, ChangeEventFactory>) {
+    public init(changeEvent: ChangeEvent) {
         this.log.info("init", this.history.length, this.currentPosition);
-        this.eventFactories = eventFactories;
         if (this.history.length == 0) {
-            const initialHistoryItem: HistoryItem = new HistoryItem(Array.from(eventFactories.keys()), oftState, this.eventFactories);
-            this.log.info("Adding initial state", initialHistoryItem);
-            this.history.push(initialHistoryItem);
+            this.log.info("Adding initial state", changeEvent);
+            this.history.push(new HistoryItem(changeEvent));
         }
     }
 
     /**
      * Adds a new history index at the given position.
      *
-     * @param eventTypes events that are issued by this new state
-     * @param oftState the state to add
-     * @param position the position, defaulting to the last added
+     * @param changeEvent change that leads to the new state.
+     * @param position the position in this history where to place the event, defaulting to the last added
      * @return the added {@link HistoryItem}
      */
-    public pushState(eventTypes: Array<string>, oftState: OftState, position: number = this.currentPosition): HistoryItem {
-        this.log.info("pushState", position, eventTypes);
-        const historyItem: HistoryItem = new HistoryItem(eventTypes, oftState, this.eventFactories);
+    public pushEvent(changeEvent: ChangeEvent, position: number = this.currentPosition): ChangeEvent {
+        this.log.info("pushState", position, changeEvent);
+        const historyItem: HistoryItem = new HistoryItem(changeEvent);
         this.history.splice(position, 0, historyItem);
         this.limitHistorySize(position);
         this.currentPosition = position;
-        return historyItem;
+        return changeEvent;
     }
 
     /**
-     * Pulls out a state from this history at the given position.
+     * Pulls out a {@link ChangeEvent} from this history at the given position.
      *
      * @param position the position. default to the last added
-     * @return the polled {@link HistoryItem}
+     * @return the pulled {@link ChangeEvent}
      */
-    public pullState(position: number = this.currentPosition): HistoryItem {
+    public pullState(position: number = this.currentPosition): ChangeEvent {
         if (this.history.length == 1) {
             this.currentPosition = 0;
-            return this.history[0];
+            return this.history[0].changeEvent;
         } else {
             this.currentPosition = position;
-            return this.history.splice(position, 1)[0];
+            return this.history.splice(position, 1)[0].changeEvent;
         }
     }
 
     /**
-     * switches the current state to a previous (older state) and returns the corresponding {@link HistoryItem}.
+     * switches the history to the previous (older) entry and returns a {@link ChangeEvent} representing the state change.
      *
-     * @return previous {@link HistoryItem}
+     * @return {@link ChangeEvent} executing the state change or null if in the latest state
      */
-    public toPreviousState(): HistoryItem {
-        if (this.currentPosition < (this.history.length - 1)) this.currentPosition++;
-        this.log.info("toPreviousState", this.currentPosition, this.history[this.currentPosition].eventTypes, this.history.length);
-        return this.history[this.currentPosition];
+    public toPreviousState(): ChangeEvent | null {
+        if (this.currentPosition >= this.history.length) return null;
+        const fromEntry: HistoryItem = this.history[this.currentPosition];
+        this.currentPosition++;
+        const toEntry: HistoryItem = this.history[this.currentPosition];
+        const changeEvent: ChangeEvent = new ChangeEvent(fromEntry.changeEvent.types, toEntry.changeEvent.oftState);
+        this.log.info("toPreviousState", this.currentPosition, this.history.length, changeEvent);
+        return changeEvent;
     }
 
     /**
-     * switch the current state to the state on state newer than1 the current state an d returns the corresponding {@link HistoryItem}.
+     * switch the history to the next (newer) entry  and returns a {@link ChangeEvent} representing the state change.
      *
-     * If there is no newer state returns the current state.
-     *
-     * @return newer {@link HistoryItem}
+     * @return {@link ChangeEvent} executing the state change or null if in the latest state
      */
-    public toNextState(): HistoryItem {
-        if (this.currentPosition > 1) this.currentPosition--;
-        this.log.info("toNextState", this.currentPosition, this.history[this.currentPosition].eventTypes, this.history.length);
-        return this.history[this.currentPosition];
+    public toNextState(): ChangeEvent | null {
+        if (this.currentPosition < 1) return null
+        this.currentPosition--;
+        const changeEvent: ChangeEvent = this.history[this.currentPosition].changeEvent;
+        this.log.info("toNextState", this.currentPosition, this.history.length, changeEvent);
+        return changeEvent;
     }
 
     /**
