@@ -36,3 +36,9 @@ export function sameArrayValues<T>(a: Array<T>, b: Array<T>): boolean {
     const setB: Set<T> = new Set(b);
     return a.length == b.length && [...setA].every(value => setB.has(value));
 }
+
+type EnumType = Record<number, string>;
+
+export function enumValues<T extends EnumType>(enumType: T): (T[keyof T])[] {
+    return Object.values(enumType) as (T[keyof T])[];
+}

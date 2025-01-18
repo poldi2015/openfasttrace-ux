@@ -20,11 +20,11 @@ export class NavbarElement implements IElement {
     private log: Log = new Log("Navbar_element");
 
     public init(): NavbarElement {
-        this.log.info("NavbarElement init ", this.navbarElement);
+        this.log.info("init");
         this.navbarElement.find('.nav-btn').each((index: number, element: HTMLElement) => {
             const buttonElement = $(element);
             const id: string = element.id !== "" ? element.id : `${index}`;
-            this.log.info("NavbarElement initialize for ", id);
+            this.log.info("ButtonElement.id", id);
             const button = new ButtonElement(buttonElement, (state: boolean) => this.notifyChange(id, state));
             this.buttons.set(id, button);
             button.init();

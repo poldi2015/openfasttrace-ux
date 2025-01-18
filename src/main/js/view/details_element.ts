@@ -3,7 +3,8 @@ import {SpecItem, SpecItemStatus} from "@main/model/specitems";
 import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {ChangeEvent, ChangeListener, SelectionChangeEvent} from "@main/model/change_event";
+import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
+import {OftState} from "@main/model/oft_state";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";
@@ -48,7 +49,7 @@ export class DetailsElement implements IDetailsElement {
     protected log: Log = new Log("DetailsElement");
 
     private changeListener: ChangeListener = (event: ChangeEvent): void => {
-        this.selectionChangeListener(event as SelectionChangeEvent);
+        event.handleSelectionChange((selectedIndex, oftState) => this.selectionChangeListener(selectedIndex, oftState));
     }
 
     public init(): IDetailsElement {
@@ -58,7 +59,7 @@ export class DetailsElement implements IDetailsElement {
 
     public activate(): void {
         this.tableElement.removeAttr("disabled");
-        this.oftState.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
+        this.oftState.addChangeListener(this.changeListener, EventType.Focus, EventType.Selection);
     }
 
     public deactivate(): void {
@@ -138,19 +139,20 @@ export class DetailsElement implements IDetailsElement {
     private addHyperlinkClickEvent(containerElement: JQuery<HTMLElement>) {
         this.log.info("set hyperlink", $("a._specitem-hyperlink"));
         containerElement.find("a._specitem-hyperlink").on("click", (event) => {
-            //this.log.info("BUM",event.target);
             event.preventDefault();
             const url: string | null = event.target.getAttribute("href");
             if (url) {
                 this.log.info("HYPERLINK", url);
                 const index: number = Number.parseInt(url);
-                this.oftState.selectAndShow(index);
+                this.oftState.selectAndShowItem(index);
             }
         })
     }
 
-    private selectionChangeListener(event: SelectionChangeEvent) {
-        this.updateTable(event.index != null ? this.specItems[event.index!] : null);
+    private selectionChangeListener(selectedIndex: number | null, oftState: OftState) {
+        this.log.info("selectionChangeListener index", selectedIndex, "focus", oftState.focusIndex);
+        const newIndex: number | null = selectedIndex != null ? selectedIndex : oftState.focusIndex;
+        this.updateTable(newIndex != null ? this.specItems[newIndex!] : null);
     }
 
 } // DetailsElement

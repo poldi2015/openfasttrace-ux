@@ -22,7 +22,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
 import {FilterModel} from "@main/model/filter";
-import {SelectionChangeEvent} from "@main/model/change_event";
+import {Log} from "@main/utils/log";
 
 const COVERING_TEXT: string = "<<<<  is covering    <<<<";
 const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
@@ -35,25 +35,19 @@ export class FocusSpecItemElement extends SpecItemElement {
         typeFilterModel: Array<FilterModel>
     ) {
         super(specItem, oftStateController, typeFilterModel);
-        this.log.info("Creating FocusSpecItemElement");
-    }
-
-    /**
-     * UnFocus this item and with that hide focus item.
-     */
-    public unFocus(): void {
-        this.log.info("Unfocusing item");
-        // TODO: restore scroll position
-        this.oftStateController.unFocusItem(this.specItem.index);
+        this.log = new Log("FocusSpecItemElement");
+        this.log.info("new FocusSpecItemElement");
     }
 
 
     /**
-     * If focus item is already selected the cover type is switched via {@link switchCoverType}.
+     * Sets the coverType to show.
+     *
+     * @param coverType the new coverType
      */
-    public select(): boolean {
-        if (this.parentElement == null) return false;
-        return this.switchCoverType() ? true : super.select();
+    public cover(coverType: CoverType) {
+        this.log.info("cover index", this.specItem.index);
+        this.updateCoverTypeElement(coverType);
     }
 
 
@@ -61,12 +55,29 @@ export class FocusSpecItemElement extends SpecItemElement {
     // private members
 
     /**
+     * UnFocus this item and with that hide focus item.
+     */
+    protected notifyFocus(_: CoverType): void {
+        this.log.info("notifyFocus unfocus index", this.specItem.index);
+        this.oftStateController.unFocusItem(this.specItem.index);
+    }
+
+    /**
+     * If focus item is already selected the cover type is switched via {@link notifySwitchCoverType}.
+     */
+    protected notifySelection(): boolean {
+        if (!this.isActive()) return false;
+        return this.notifySwitchCoverType() ? true : super.notifySelection();
+    }
+
+
+    /**
      * Switch the coverType of this item and in case item is already selected.
      */
-    private switchCoverType(): boolean {
+    private notifySwitchCoverType(): boolean {
         if (this.parentElement == null) return false;
         if (!this.selected) return false;
-        this.coverType = (() => {
+        const coverType: CoverType = (() => {
             switch (this.coverType) {
                 case CoverType.covering:
                     return CoverType.coveredBy;
@@ -76,8 +87,8 @@ export class FocusSpecItemElement extends SpecItemElement {
                     throw new Error(`Unknown coverType: ${this.coverType}`);
             }
         })();
-        this.log.info("Switching coverType to ", this.coverType);
-        this.focus(this.coverType);
+        this.log.info("switchCoverType coverType to ", coverType);
+        super.notifyFocus(coverType);
         return true;
     }
 
@@ -112,29 +123,11 @@ export class FocusSpecItemElement extends SpecItemElement {
         }
     }
 
-    private updateCoverTypeElement(): void {
-        this.log.info("updateCoverTypeElement", this.specItem.index);
+    private updateCoverTypeElement(coverType: CoverType): void {
+        this.log.info("updateCoverTypeElement index", this.specItem.index, "coverType", coverType, "changed", coverType != this.coverType);
+        if (coverType == this.coverType) return;
+        this.coverType = coverType;
         this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? COVERING_TEXT : IS_COVERED_BY_TEXT);
     }
-
-    protected override addListenersToTemplate(template: JQuery): JQuery {
-        template = super.addListenersToTemplate(template);
-        template.off("click");
-        template.on("click", () => this.select());
-        template.off("dblclick");
-        template.on("dblclick", () => this.unFocus());
-
-        return template;
-    }
-
-
-    //
-    // Event listeners
-
-    protected selectionChangeListener(event: SelectionChangeEvent) {
-        this.updateCoverTypeElement();
-        super.selectionChangeListener(event);
-    }
-
 
 } // FocusSpecItemElement

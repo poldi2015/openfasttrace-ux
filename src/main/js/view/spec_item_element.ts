@@ -22,7 +22,6 @@ import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, SpecItemStatus} from "@main/model/specitems";
-import {ChangeEvent, ChangeListener, SelectionChangeEvent} from "@main/model/change_event";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -38,6 +37,7 @@ export class SpecItemElement {
         const typeFilterModel: FilterModel = typeFilterModels[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name;
         this.element = this.createTemplate();
+        this.log = new Log("SpecItemElement");
     }
 
     protected readonly typeLabel: string;
@@ -47,12 +47,7 @@ export class SpecItemElement {
     protected selected: boolean = false;
     private _isActive: boolean = false;
 
-    protected log: Log = new Log("SpecItemElement");
-
-    private changeListener: ChangeListener = (event: ChangeEvent): void => {
-        this.selectionChangeListener(event as SelectionChangeEvent);
-    }
-
+    protected log: Log;
 
     /**
      * Inserts the specitem at a specific position into the children of the parentElement.
@@ -65,21 +60,11 @@ export class SpecItemElement {
         if (index === -1 || parentElement.is(':empty')) {
             parentElement.append(this.element);
         } else if (index === 0) {
-            this.log.info(`Add ${this.specItem.name} as first element`);
             parentElement.find('div:eq(1)').before(this.element);
         } else {
             parentElement.find(`div:eq(${index})`).after(this.element);
         }
         this.parentElement = parentElement;
-        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
-    }
-
-    public activate(): void {
-        if (this.isActive()) return;
-        if (this.parentElement == null) throw Error('No parentElement');
-        this.oftStateController.addChangeListener(SelectionChangeEvent.TYPE, this.changeListener);
-        this.element.show();
-        this._isActive = true;
     }
 
     /**
@@ -87,15 +72,20 @@ export class SpecItemElement {
      */
     public remove(): void {
         if (this.parentElement == null) throw Error('No parentElement');
-        this.oftStateController.removeChangeListener(this.changeListener);
         this.parentElement.children(`#${this.elementId}`).remove();
         this._isActive = false;
+    }
+
+    public activate(): void {
+        if (this.isActive()) return;
+        if (this.parentElement == null) throw Error('No parentElement');
+        this.element.show();
+        this._isActive = true;
     }
 
     public deactivate(): void {
         if (!this.isActive()) return;
         if (this.parentElement == null) throw Error('No parentElement');
-        this.oftStateController.removeChangeListener(this.changeListener);
         this.element.hide();
         this._isActive = false;
     }
@@ -116,28 +106,56 @@ export class SpecItemElement {
     }
 
     /**
-     * Dispatches a selection of this element to the OftStateController.
-     *
-     * @return true if element is attached to a parent and can be selected
+     * Place the selection focus on this item.
      */
-    public select(): boolean {
-        this.log.info("select ", this.specItem.index, " ", this.specItem.path);
-        if (this.parentElement == null) return false;
-        this.oftStateController.selectItem(this.specItem.index);
-        return true;
+    public select(): void {
+        this.log.info("select", this.specItem.index);
+        if (!this.isActive()) return;
+        if (this.selected) return;
+        this.selected = true;
+        this.element.addClass(SELECT_CLASS);
+        this.element.removeClass(MOUSE_ENTER_CLASS);
+        this.element.removeClass(MOUSE_LEAVE_CLASS);
+    }
+
+    /**
+     * Remove selection focus from this item.
+     */
+    public unselect(): void {
+        this.log.info("unselect index", this.specItem.index);
+        if (!this.isActive()) return;
+        if (!this.selected) return;
+        this.selected = false;
+        this.element.removeClass(SELECT_CLASS);
     }
 
 
     //
     // private members
 
+    /**
+     * Dispatches a selection of this element to the OftStateController.
+     *
+     * @return true if element is attached to a parent and can be selected
+     */
+    protected notifySelection(): boolean {
+        if (!this.isActive()) return false;
+        if (this.selected) {
+            this.log.info("notifySelection already selected");
+            return true;
+        }
+        this.log.info("notifySelection index", this.specItem.index);
+        this.oftStateController.selectItem(this.specItem.index);
+        return true;
+    }
+
 
     /**
-     * Set this element as the focus element.
+     * Set this element as the focus element or switch coverType
      */
-    protected focus(coverType: CoverType = CoverType.coveredBy): void {
-        if (this.parentElement == null) return;
-        this.log.info("Focus filters ", this.specItem);
+    protected notifyFocus(coverType: CoverType = CoverType.coveredBy): void {
+        if (!this.isActive()) return;
+        this.log.info("notifyFocus index", this.specItem.index);
 
         // Filter by covering or coveredBy
         const acceptedIndexes: Array<number> = (() => {
@@ -158,7 +176,7 @@ export class SpecItemElement {
         })();
 
         const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes)]]);
-        this.oftStateController.focusItem(this.specItem.index, CoverType.coveredBy, filters);
+        this.oftStateController.focusItem(this.specItem.index, coverType, filters);
     }
 
     private static toElementId(index: number): string {
@@ -176,19 +194,6 @@ export class SpecItemElement {
         if (!this.selected) {
             this.element.addClass(MOUSE_LEAVE_CLASS);
             this.element.removeClass(MOUSE_ENTER_CLASS);
-        }
-    }
-
-    protected selectionChangeListener(event: SelectionChangeEvent): void {
-        if (this.parentElement == null) return;
-        this.selected = this.specItem.index == event.index;
-        if (this.selected) {
-            this.log.info("selectionChangeListener selected", event.index);
-            this.element.addClass(SELECT_CLASS);
-            this.element.removeClass(MOUSE_ENTER_CLASS);
-            this.element.removeClass(MOUSE_LEAVE_CLASS);
-        } else {
-            this.element.removeClass(SELECT_CLASS);
         }
     }
 
@@ -229,19 +234,28 @@ export class SpecItemElement {
 
     protected addListenersToTemplate(template: JQuery): JQuery {
         template.on({
-            click: () => {
-                if (!this.selected) {
-                    this.log.info("Selecting");
-                    this.select();
-                } else {
-                    this.log.info("Already selected");
-                }
-            },
-            dblclick: () => this.focus(),
+            click: (event: JQuery.ClickEvent) => this.clickListener(event),
+            dblclick: (event: JQuery.DoubleClickEvent) => this.dblClickListener(event),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
         return template;
+    }
+
+    private clickTimer: NodeJS.Timeout | null = null;
+
+    private clickListener(event: JQuery.ClickEvent) {
+        event.preventDefault();
+        this.clickTimer = setTimeout(() => {
+            this.notifySelection();
+            this.clickTimer = null;
+        }, 250);
+    }
+
+    private dblClickListener(event: JQuery.DoubleClickEvent) {
+        event.preventDefault();
+        if (this.clickTimer != null) clearTimeout(this.clickTimer!);
+        this.notifyFocus();
     }
 
 } // TObject

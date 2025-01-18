@@ -42,7 +42,7 @@ export class SpecItemsElement implements IElement {
 
     private scrollToSelection(): void {
         this.log.info("selectAndSohw");
-        this.oftState.showSelectedItem();
+        this.oftState.selectItem();
     }
 
     private changeOftStateToPreviousState() {
@@ -53,4 +53,4 @@ export class SpecItemsElement implements IElement {
         this.oftState.toNextState();
     }
 
-}
+} // SpecItemsElement
