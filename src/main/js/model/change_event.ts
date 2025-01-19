@@ -1,5 +1,6 @@
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {Filter} from "@main/model/filter";
+import {enumIds, enumNames} from "@main/utils/collections";
 
 /**
  * Changed element by a change of the {@link OftState}.
@@ -9,6 +10,16 @@ export enum EventType {
     Filters,
     Focus
 } // EventType
+
+/**
+ * String names of the {@link EventType} values;
+ */
+export const eventTypeValues: Array<number> = enumNames(EventType);
+
+/**
+ * Numeric IDs of the {@link EventType} values;
+ */
+export const eventTypeIds: Array<number> = enumIds(EventType);
 
 /**
  * Signature of change listeners registered to OftStateController.
