@@ -22,6 +22,7 @@ import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, SpecItemStatus} from "@main/model/specitems";
+import {Deferred} from "@main/utils/async";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -233,28 +234,26 @@ export class SpecItemElement {
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {
+        const deferred = new Deferred(150);
         template.on({
-            click: (event: JQuery.ClickEvent) => this.clickListener(event),
-            dblclick: (event: JQuery.DoubleClickEvent) => this.dblClickListener(event),
+            click: (event: JQuery.ClickEvent) => this.clickListener(deferred, event),
+            dblclick: (event: JQuery.DoubleClickEvent) => this.dblClickListener(deferred, event),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
         return template;
     }
 
-    private clickTimer: NodeJS.Timeout | null = null;
-
-    private clickListener(event: JQuery.ClickEvent) {
+    private clickListener(deferred: Deferred, event: JQuery.ClickEvent) {
         event.preventDefault();
-        this.clickTimer = setTimeout(() => {
+        deferred.run(() => {
             this.notifySelection();
-            this.clickTimer = null;
-        }, 250);
+        });
     }
 
-    private dblClickListener(event: JQuery.DoubleClickEvent) {
+    private dblClickListener(deferred: Deferred, event: JQuery.DoubleClickEvent) {
         event.preventDefault();
-        if (this.clickTimer != null) clearTimeout(this.clickTimer!);
+        deferred.cancel();
         this.notifyFocus();
     }
 
