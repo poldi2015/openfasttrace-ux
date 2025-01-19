@@ -17,7 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-import {pushTo} from "@main/utils/collections";
+import {enumIds, enumNames, pushTo, sameArrayValues} from "@main/utils/collections";
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 
@@ -28,5 +28,37 @@ describe("Test pushTo API", () => {
 
     test('pushTo() undefined array', () => {
         expect(pushTo(undefined, 5)).toStrictEqual([5]);
+    });
+});
+
+describe("test sameArrayValues", () => {
+    test('samArrayValues returns true if both array contain same values', () => {
+        expect(sameArrayValues(["A", "B", "C"], ["C", "A", "B"])).toBeTruthy();
+    });
+
+    test('samArrayValues returns false if both array contain different values', () => {
+        expect(sameArrayValues([5, 3, 2], [3, 2])).toBeFalsy();
+    });
+});
+
+describe(("enumNames"), () => {
+    test("numNames returns the names of number indexed enum type as array", () => {
+        enum A {
+            B,
+            C,
+        }
+
+        expect(enumNames(A)).toStrictEqual(["B", "C"]);
+    });
+});
+
+describe(("enumIds"), () => {
+    test("enumIds returns the numbered IDs of on an enum type as array", () => {
+        enum A {
+            B = 0,
+            C = 5,
+        }
+
+        expect(enumIds(A)).toStrictEqual([0, 5]);
     });
 });
