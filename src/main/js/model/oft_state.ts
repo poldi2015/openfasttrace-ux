@@ -40,11 +40,19 @@ export class OftState {
     public clone(): OftState {
         return new OftState(
             this._selectedIndex,
-            this._selectedFilters,
+            new Map(this._selectedFilters),
             this._focusIndex,
-            this._unfocusedFilters,
+            new Map(this._unfocusedFilters),
             this._coverType
         );
+    }
+
+    public copyFrom(other: OftState) {
+        this._selectedIndex = other._selectedIndex;
+        this._selectedFilters = new Map(other._selectedFilters);
+        this._focusIndex = other._focusIndex;
+        this._unfocusedFilters = new Map(other._unfocusedFilters);
+        this._coverType = other._coverType;
     }
 
     public get selectedIndex(): number | null {
