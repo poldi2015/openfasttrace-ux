@@ -19,7 +19,6 @@
 */
 import '@css/openfasttrace.scss';
 import {ExpandableElements} from "./view/expandable_elements.ts";
-import * as Migrate from "@main/migrate.js";
 import {SpecItemsController} from "@main/controller/spec_items_controller";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {FiltersElement} from "@main/view/filters_element";
@@ -39,7 +38,6 @@ function _init() {
     new FiltersElement(filters, oftStateController).init();
 
     new SearchElement(oftStateController).init().activate();
-    Migrate.init_tabs();
 
     new SpecItemsController(oftStateController, filters.type).init(specItems);
     new SpecItemsElement(oftStateController).init().activate();
