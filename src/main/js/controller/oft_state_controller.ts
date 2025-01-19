@@ -21,9 +21,8 @@ import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {OftStateBuilder} from "./oft_state_builder";
 import {Log} from "@main/utils/log";
 import {Filter, IndexFilter} from "@main/model/filter";
-import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
+import {ChangeEvent, ChangeListener, EventType, eventTypeIds} from "@main/model/change_event";
 import {OftStateHistory} from "@main/model/oft_state_history";
-import {enumValues} from "@main/utils/collections";
 
 
 /**
@@ -107,7 +106,7 @@ export class OftStateController {
         this.log.info("unselectItem", this.oftState.selectedIndex);
         if (this.oftState.selectedIndex == null) return;
         this.oftState.selectedIndex = null;
-        this.notifyChangeWithHistory(EventType.Selection);
+        this.notifyChangeWithoutHistory(EventType.Selection);
     }
 
     //
@@ -183,13 +182,17 @@ export class OftStateController {
      * @param filters the filters to change or add
      */
     public selectFilters(filters: Map<FilterName, Filter> = new Map()): void {
+        this.log.info("selectFilters filters", filters);
         if (filters.size > 0) {
             filters.forEach((value: Filter, key: FilterName) => {
                 this.oftState.selectedFilters.set(key, value);
             });
-            this.notifyChangeWithHistory(EventType.Filters);
+            this.log.info("selectFilters oftState.", this.oftState.selectedFilters);
+            // Selection is needed for switch to previous state as filter may void the selection
+            this.notifyChangeWithHistory(EventType.Filters, EventType.Selection);
         } else {
-            this.notifyChangeWithoutHistory(EventType.Filters);
+            // Selection is needed for switch to previous state as filter may void the selection
+            this.notifyChangeWithoutHistory(EventType.Filters, EventType.Selection);
         }
     }
 
@@ -208,10 +211,6 @@ export class OftStateController {
     }
 
 
-    public getSelectedFilters(): Map<FilterName, Filter> {
-        return this.oftState.selectedFilters;
-    }
-
     //
     // History
 
@@ -219,8 +218,10 @@ export class OftStateController {
      * switch the state to the previous (older) state.
      */
     public toPreviousState(): void {
+        this.log.info("toPreviousState");
         const changeEvent: ChangeEvent | null = this.oftStateHistory.toPreviousState();
         if (changeEvent == null) return;
+        this.oftState.copyFrom(changeEvent.oftState);
         this.sendChangeEvent(changeEvent);
     }
 
@@ -228,8 +229,10 @@ export class OftStateController {
      * switch the state to the next (newer) state.
      */
     public toNextState() {
+        this.log.info("toNextState");
         const changeEvent: ChangeEvent | null = this.oftStateHistory.toNextState();
         if (changeEvent == null) return;
+        this.oftState.copyFrom(changeEvent.oftState);
         this.sendChangeEvent(changeEvent);
     }
 
@@ -263,7 +266,7 @@ export class OftStateController {
      */
     private initializeListener(listener: ChangeListener): void {
         if (!this.isInitialized) return;
-        listener(new ChangeEvent(enumValues(EventType), this.oftState.clone()));
+        listener(new ChangeEvent(eventTypeIds, this.oftState.clone()));
     }
 
     /**
@@ -311,7 +314,7 @@ export class OftStateController {
      * @return A {@link ChangeEvent}
      */
     public createChangeEvent(...eventTypes: Array<EventType>): ChangeEvent {
-        const types: Array<EventType> = eventTypes.length == 0 ? enumValues(EventType) : Array.of(...eventTypes);
+        const types: Array<EventType> = eventTypes.length == 0 ? eventTypeIds : Array.of(...eventTypes);
         return new ChangeEvent(types, this.oftState.clone());
     }
 
