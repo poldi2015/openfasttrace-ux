@@ -182,7 +182,7 @@ export class FilterElement implements IFilterElement {
      * @param {JQuery} selectElement th select element
      */
     private notifySelectionChanged(selectElement: JQuery): void {
-        this.log.info("selectionChanged", this.id, " ", this.selectionIndexes);
+        this.log.info("selectionChanged", this.id, " ", this.toSelectionIndexes(selectElement));
         const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.toSelectionIndexes(selectElement))]]);
         this.oftState.selectFilters(filters);
     }
@@ -229,7 +229,7 @@ export class FilterElement implements IFilterElement {
      * @param selectedFilters filters to be selected (includes the selection of all filters not only this one)
      */
     private filtersChanged(selectedFilters: Map<FilterName, Filter>): void {
-        this.log.info("filterChangeListener ", selectedFilters);
+        this.log.info("filtersChanged index=", this.id, "filters", selectedFilters);
         const changedSelectionIndexes: SelectedFilterIndexes = this.getSelectionIndexes(selectedFilters.get(this.id));
         this.setSelections(changedSelectionIndexes);
     }
@@ -242,9 +242,9 @@ export class FilterElement implements IFilterElement {
      * @param {Array<number>} changedIndexed List of selected entry indexes
      */
     private setSelections(changedIndexed: Array<number>): void {
+        this.log.info("setSelections for", this.id, "changedIndexes", changedIndexed, "hasChanges", sameArrayValues(this.selectionIndexes, changedIndexed));
         // Prevent OftState events received by change to the UI
         if (sameArrayValues(this.selectionIndexes, changedIndexed)) return;
-        this.log.info("setSelections for", this.id, "changedIndexes", changedIndexed);
         this.selectionIndexes = changedIndexed;
         this.selectElement.children("option").each((index: number, element: HTMLElement) => {
             $(element).prop("selected", changedIndexed.includes(index));
