@@ -31,6 +31,12 @@ export function pushTo<T>(array: Array<T> | undefined, entry: T): Array<T> {
     return array;
 }
 
+/**
+ * Returns true if two arrays have the same values independent of the order of the entries.
+ *
+ * @param a First array
+ * @param b Second array
+ */
 export function sameArrayValues<T>(a: Array<T>, b: Array<T>): boolean {
     const setA: Set<T> = new Set(a);
     const setB: Set<T> = new Set(b);
@@ -39,6 +45,19 @@ export function sameArrayValues<T>(a: Array<T>, b: Array<T>): boolean {
 
 type EnumType = Record<number, string>;
 
-export function enumValues<T extends EnumType>(enumType: T): (T[keyof T])[] {
-    return Object.values(enumType) as (T[keyof T])[];
+/**
+ *
+ * @param enumType an enum type
+ * @return Array of strings of the names of the enum entries
+ */
+export function enumNames<T extends EnumType>(enumType: T): (T[keyof T])[] {
+    return Object.values(enumType).filter(name => typeof name === "string") as (T[keyof T])[];
+}
+
+/**
+ * @param enumType an enum type
+ * @return Array of number ids of the enum entries
+ */
+export function enumIds<T extends EnumType>(enumType: T): Array<number> {
+    return Object.keys(enumType).filter(key => !isNaN(Number(key))).map((entry: string) => Number(entry));
 }
