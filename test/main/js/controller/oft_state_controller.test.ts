@@ -1,3 +1,22 @@
+/*
+  OpenFastTrace UX
+
+ Copyright (C) 2024-2025 itsallcode.org, Bernd Haberstumpf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public
+ License along with this program.  If not, see
+ <http://www.gnu.org/licenses/gpl-3.0.html>.
+*/
 import {beforeEach, describe, expect, vi} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {OftStateController} from "@main/controller/oft_state_controller";
@@ -5,8 +24,8 @@ import {OftStateHistory} from "@main/model/oft_state_history";
 import {createEvent, createEventWithState, createFilter, createSampleHistory} from "../samples/events";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {ChangeEvent, EventType} from "@main/model/change_event";
-import {SelectionFilter} from "../../../../src/main/js/model/filter";
-import {OftState} from "../../../../src/main/js/model/oft_state";
+import {SelectionFilter} from "@main/model/filter";
+import {OftState} from "@main/model/oft_state";
 
 describe(("OftStateController"), () => {
 
