@@ -1,7 +1,7 @@
 /*
   OpenFastTrace UX
 
- Copyright (C) 2016 - 2024 itsallcode.org
+ Copyright (C) 2024-2025 itsallcode.org, Bernd Haberstumpf
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as
@@ -17,6 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');                  // build ts
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');         // remove build directory
