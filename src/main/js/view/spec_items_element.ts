@@ -23,15 +23,18 @@ import {NavbarElement} from "@main/view/navbar_element";
 import {Log} from "@main/utils/log";
 
 const CONTENT_NAV_BAR_ID = "#content-nav-bar";
+const CONTENT_SPEC_ITEM_COUNT = "#specitem-count";
 
 export class SpecItemsElement implements IElement {
     constructor(private oftState: OftStateController) {
         this.navbarElement = new NavbarElement($(CONTENT_NAV_BAR_ID));
+        this.specItemCountElement = $(CONTENT_SPEC_ITEM_COUNT);
     }
 
     private readonly navbarElement: NavbarElement;
+    private readonly specItemCountElement: JQuery<HTMLElement> = $(CONTENT_SPEC_ITEM_COUNT);
 
-    private log = new Log("SpecItemsElement");
+    private log: Log = new Log("SpecItemsElement");
 
     public init(): SpecItemsElement {
         this.navbarElement.setChangeListener("btn-scroll-to-selection", () => this.scrollToSelection());
@@ -50,17 +53,20 @@ export class SpecItemsElement implements IElement {
         this.navbarElement.deactivate();
     }
 
-
     public isActive(): boolean {
         return this.navbarElement.isActive();
     }
 
+    public updateNumberOfItems(numberOfItems: number): void {
+        this.log.info("updateShownItems number:", numberOfItems);
+        this.specItemCountElement.text(numberOfItems);
+    }
 
     //
     // private members
 
     private scrollToSelection(): void {
-        this.log.info("selectAndSohw");
+        this.log.info("scrollToSelection");
         this.oftState.selectItem();
     }
 
