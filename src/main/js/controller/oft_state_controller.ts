@@ -167,6 +167,7 @@ export class OftStateController {
         this.oftState.coverType = CoverType.covering;
         this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
         this.oftState.selectedFilters = this.oftState.unfocusedFilters;
+        this.oftState.unfocusedFilters = new Map();
         this.notifyChangeWithHistory(EventType.Focus, EventType.Filters, EventType.Selection);
     }
 
