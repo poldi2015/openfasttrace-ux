@@ -91,7 +91,7 @@ module.exports = {
             ],
         }),
         new MiniCssExtractPlugin({
-            filename: 'css/openfasttrace_view.css', // Output CSS file
+            filename: 'css/oft-ux.css', // Output CSS file
         }),
     ],
     optimization: {
