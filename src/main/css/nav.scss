@@ -61,7 +61,7 @@
 }
 
 .nav-btn {
-  @extend ._icon-image;
+  @extend %icon-image;
   margin-left: 5px;
 }
 
