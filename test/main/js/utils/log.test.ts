@@ -26,12 +26,12 @@
  it under the terms of the GNU General Public License as
  published by the Free Software Foundation, either version 3 of the
  License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,7 +43,7 @@ import {test} from "@test/fixtures/fixtures";
 describe("Tests of the Logger API", () => {
     test("Write a single log message", ({logs}) => {
         log.info('test', "Hallo");
-        expect(logs).toHaveReturnedWith('test Hallo');
+        expect(logs).toHaveBeenCalledWith('test', 'Hallo');
     });
 
     test("Use a tagged Logger, tag by default is shown", ({logs}) => {
@@ -57,7 +57,7 @@ describe("Tests of the Logger API", () => {
         const log = new Log("Tag");
         showLogTags();
         log.info('test', "Hallo");
-        expect(logs).toHaveReturnedWith("| Tag | test Hallo");
+        expect(logs).toHaveBeenCalledWith("|", "Tag", "|", "test", "Hallo");
     });
 
     test("Use a tagged Logger, enable selected tags", ({logs}) => {
@@ -68,8 +68,8 @@ describe("Tests of the Logger API", () => {
         log1.info('test', "Hallo1");
         log2.info('test', "Hallo2");
         expect(logs).toBeCalledTimes(1);
-        expect(logs).toHaveReturnedWith("| Tag1 | test Hallo1");
-        expect(logs).not.toHaveReturnedWith("| Tag2 | test Hallo2");
+        expect(logs).toHaveBeenCalledWith("|", "Tag1", "|", "test", "Hallo1");
+        expect(logs).not.toHaveBeenCalledWith("|", "Tag2", "|", "test", "Hallo2");
     });
 
     test("Two tagged loggers have applied two hidden logs", ({logs}) => {
@@ -81,6 +81,6 @@ describe("Tests of the Logger API", () => {
     test("Two tagged loggers part of all log Tags", ({logs}) => {
         new Log("Tag1");
         new Log("Tag2");
-        expect(knownLogTags()).toEqual(["Tag1","Tag2"]);
+        expect(knownLogTags()).toEqual(["Tag1", "Tag2"]);
     });
 });
