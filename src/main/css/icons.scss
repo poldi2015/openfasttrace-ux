@@ -23,7 +23,7 @@
 // Icons
 
 
-._icon-image {
+%icon-image {
   border: none;
   width: 24px;
   height: 24px;
@@ -39,7 +39,7 @@
 // Header
 
 span.sidebar-logo {
-  @extend ._icon-image;
+  @extend %icon-image;
 }
 
 #logo {
