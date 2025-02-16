@@ -25,19 +25,21 @@ import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
 import {Filter, FilterModel} from "@main/model/filter";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType,} from '@main/model/change_event';
+import {SpecItemsElement} from "@main/view/spec_items_element";
 
 const FOCUS_SPECITEM_ELEMENT_ID: string = "#focusitem";
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
 
 export class SpecItemsController {
     constructor(private oftStateController: OftStateController,
+                private specItemsElement: SpecItemsElement,
                 private typeFilterModel: Array<FilterModel>) {
-        this.specItemsElement = $(SPECITEMS_ELEMENT_ID);
+        this._specItemsElement = $(SPECITEMS_ELEMENT_ID);
     }
 
     private log: Log = new Log("SpecItemsController");
 
-    private readonly specItemsElement: JQuery<HTMLElement>;
+    private readonly _specItemsElement: JQuery<HTMLElement>;
 
     private focusSpecItemElement: FocusSpecItemElement | null = null;
     private selectedIndex: number | null = null;
@@ -91,7 +93,7 @@ export class SpecItemsController {
     }
 
     private insertSpecItemAt(specItem: SpecItemElement, index: number = -1): void {
-        specItem.insertToAt(this.specItemsElement, index);
+        specItem.insertToAt(this._specItemsElement, index);
         specItem.activate();
         this.specItemElements.push(specItem);
     }
@@ -222,7 +224,7 @@ export class SpecItemsController {
                 if (specItemElement.specItem.index == selectedIndex) this.oftStateController.unselectItem();
             }
         });
-        //this.scrollToSpecItem(selectedIndex);
+        this.specItemsElement.updateNumberOfItems(specItemElements.length);
     }
 
     /**
@@ -259,8 +261,8 @@ export class SpecItemsController {
         const specItemElement: SpecItemElement = this.specItemElements[index];
         if (!specItemElement.isActive()) return false;
 
-        const scrollTop: number | undefined = this.specItemsElement.scrollTop();
-        const visibleHeight: number | undefined = this.specItemsElement.outerHeight();
+        const scrollTop: number | undefined = this._specItemsElement.scrollTop();
+        const visibleHeight: number | undefined = this._specItemsElement.outerHeight();
         if (scrollTop == undefined || visibleHeight == undefined) return false;
         const scrollBottom: number = scrollTop! + visibleHeight!;
 
@@ -271,7 +273,7 @@ export class SpecItemsController {
         if (elementScrollPosition >= scrollTop && elementScrollPosition <= scrollBottom) return true;
 
         this.log.info("Scroll to", elementScrollPosition);
-        this.specItemsElement.scrollTop(elementScrollPosition);
+        this._specItemsElement.scrollTop(elementScrollPosition);
         return true;
 
     }

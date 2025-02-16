@@ -1,4 +1,5 @@
 /*
+  @license
   OpenFastTrace UX
 
  Copyright (C) 2024-2025 itsallcode.org, Bernd Haberstumpf
@@ -39,8 +40,10 @@ function _init() {
 
     new SearchElement(oftStateController).init().activate();
 
-    new SpecItemsController(oftStateController, filters.type).init(specItems);
-    new SpecItemsElement(oftStateController).init().activate();
+    const specItemsElement = new SpecItemsElement(oftStateController);
+    specItemsElement.init().activate();
+    new SpecItemsController(oftStateController, specItemsElement, filters.type).init(specItems);
+
 
     initHeader();
     initFooter();
