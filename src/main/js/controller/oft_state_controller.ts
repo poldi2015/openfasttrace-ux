@@ -48,7 +48,7 @@ export class OftStateController {
      * Communicates the current state by emitting all change event types to registered listeners.
      */
     public init(): void {
-        const initialChangeEvent: ChangeEvent = this.createChangeEvent();
+        const initialChangeEvent: ChangeEvent = this.createChangeEvent(EventType.Selection, EventType.Filters, EventType.Focus);
         this.oftStateHistory.init(initialChangeEvent);
         this.sendChangeEvent(initialChangeEvent); // Bootstrap already connected listeners.
         this.isInitialized = true;
