@@ -50,3 +50,8 @@ export interface SpecItem {
     sourceLine: number,
     comments: string,
 }
+
+export const TYPE_FIELD_NAME: string = "type";
+export const TYPED_FIELD_NAMES : Array<string> = [TYPE_FIELD_NAME,"provides","needs","covered","uncovered","covering","coveredBy","depends"];
+export const TAG_FIELD_NAMES : Array<string> = ["tags"];
+export const STATUS_FIELD_NAMES : Array<string> = ["status"];

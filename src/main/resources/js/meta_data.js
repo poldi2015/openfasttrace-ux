@@ -6,52 +6,52 @@
             item_covered: 300,
             item_uncovered: 200,
         },
-        filters: {
+        fields: {
             type: [
                 {
-                    label: "feat",
+                    id: "feat",
                     name: "Feature",
                     tooltip: "A feature is a distinct functionality of the software.",
                     item_count: 30,
                 },
                 {
-                    label: "req",
+                    id: "req",
                     name: "Requirement",
                     tooltip: "A customer requirement.",
                     item_count: 50,
                 },
                 {
-                    label: "arch",
+                    id: "arch",
                     name: "Architecture",
                     tooltip: "A requirement within an architecture document.",
                     item_count: 100,
                 },
                 {
-                    label: "dsn",
+                    id: "dsn",
                     name: "Detailed Design",
                     tooltip: "A requirement within an design document.",
                     item_count: 100,
                 },
                 {
-                    label: "impl",
+                    id: "impl",
                     name: "Implementation",
                     tooltip: "Tracing to source code.",
                     item_count: 20,
                 },
                 {
-                    label: "utest",
+                    id: "utest",
                     name: "Unit Test",
                     tooltip: "An Unit Test implementation.",
                     item_count: 50,
                 },
                 {
-                    label: "itest",
+                    id: "itest",
                     name: "Integration Test",
                     tooltip: "An Integration Test implementation.",
                     item_count: 50,
                 },
                 {
-                    label: "stest",
+                    id: "stest",
                     name: "System Test",
                     tooltip: "Tests based on customer requirements.",
                     item_count: 50,
@@ -59,42 +59,49 @@
             ],
             uncovered: [
                 {
+                    id: "req",
                     name: "Requirement",
                     tooltip: "Missing requirements.",
                     color: "red",
                     item_count: 2,
                 },
                 {
+                    id: "arch",
                     name: "Architecture",
                     tooltip: "Missing architecture.",
                     color: "red",
                     item_count: 2,
                 },
                 {
+                    id: "dsn",
                     name: "Detailed Design",
                     tooltip: "Missing detailed design.",
                     color: "red",
                     item_count: 20,
                 },
                 {
+                    id: "impl",
                     name: "Implementation",
                     tooltip: "Missing implementation.",
                     color: "red",
                     item_count: 34,
                 },
                 {
+                    id: "utest",
                     name: "Unit Tests",
                     tooltip: "Missing unit tests.",
                     color: "red",
                     item_count: 8,
                 },
                 {
+                    id: "itest",
                     name: "Integration Tests",
                     tooltip: "Missing integration tests.",
                     color: "red",
                     item_count: 40,
                 },
                 {
+                    id: "stest",
                     name: "System Tests",
                     tooltip: "Missing system tests.",
                     color: "red",
@@ -103,12 +110,14 @@
             ],
             status: [
                 {
+                    id: "APPROVED",
                     name: "Accepted",
                     tooltip: "Item is an accepted traceable element.",
                     color: "green",
                     item_count: 50,
                 },
                 {
+                    id: "DRAFT",
                     name: "Draft",
                     tooltip: "Item is not part of tracing.",
                     color: "red",
@@ -117,30 +126,30 @@
             ],
             tags: [
                 {
-                    name: "v0.1",
+                    id: "v0.1",
                     tooltip: "Version 0.1",
                     color: "green",
                     item_count: 50,
                 },
                 {
-                    name: "v1.0",
+                    id: "v1.0",
                     tooltip: "Version 1.0",
                     color: "green",
                     item_count: 50,
                 },
                 {
-                    name: "v2.0",
+                    id: "v2.0",
                     tooltip: "Version 2.0",
                     color: "green",
                     item_count: 50,
                 },
                 {
-                    name: "frontend",
+                    id: "frontend",
                     tooltip: "Web Page",
                     item_count: 50,
                 },
                 {
-                    name: "backend",
+                    id: "backend",
                     tooltip: "Cloud software",
                     item_count: 50,
                 },

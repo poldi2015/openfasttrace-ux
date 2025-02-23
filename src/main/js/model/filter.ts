@@ -35,24 +35,6 @@ declare global {
 // FilterModel
 
 /**
- * List of all available filters with selectable entries.
- *
- * The FilterModels are populated by the generated window.metadata.
- */
-export type FilterModels = Record<string, Array<FilterModel>>;
-
-/**
- * A single filter
- */
-export interface FilterModel {
-    label?: string;
-    name: string,
-    tooltip: string,
-    color?: string,
-    item_count: number,
-}
-
-/**
  * Apply a filter to a SpecItem.
  */
 export abstract class Filter {
@@ -63,7 +45,7 @@ export abstract class Filter {
      * @return true if the filter matches the specItem
      */
     public abstract matches(specItem: SpecItem): boolean;
-}
+} // Filter
 
 /**
  * A Filter that filters SpecItems based on a list of selected entries.
@@ -90,8 +72,10 @@ export class SelectionFilter extends Filter {
             .filter(([key, _]: [string, any]) => key == filterName)
             .map(([_, value]: [string, any]) => {
                 if (Array.isArray(value)) {
+                    // Covering filter: covers, coveredBy etc.
                     return value as Array<number>;
                 } else if (typeof value == "number") {
+                    // Type and Status
                     return [value];
                 }
                 return [];

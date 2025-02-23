@@ -17,35 +17,18 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-/*
-  OpenFastTrace UX
-
- Copyright (C) 2016 - 2024 itsallcode.org
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as
- published by the Free Software Foundation, either version 3 of the
- License, or (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public
- License along with this program.  If not, see
- <http://www.gnu.org/licenses/gpl-3.0.html>.
-*/
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
-import {FilterModel, FilterModels, SelectionFilter} from "@main/model/filter";
+import {SelectionFilter} from "@main/model/filter";
 import {OftState} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
+import {FieldConfigurations, IField} from "@main/model/project";
 
-const SAMPLE_METADATA: FilterModels = {
+const SAMPLE_METADATA: FieldConfigurations = {
     types: [
         {
+            id:"feat",
             label: "feat",
             name: "Feature",
             tooltip: "A feature is a distinct functionality of the software.",
@@ -54,6 +37,7 @@ const SAMPLE_METADATA: FilterModels = {
     ],
     coverages: [
         {
+            id:"req",
             name: "Requirement",
             tooltip: "Missing requirements.",
             color: "red",
@@ -62,6 +46,7 @@ const SAMPLE_METADATA: FilterModels = {
     ],
     status: [
         {
+            id:"status",
             name: "Accepted",
             tooltip: "Item is an accepted traceable element.",
             color: "green",
@@ -70,6 +55,7 @@ const SAMPLE_METADATA: FilterModels = {
     ],
     tags: [
         {
+            id:"v0.1",
             name: "v0.1",
             tooltip: "Version 0.1",
             color: "green",
@@ -81,7 +67,7 @@ const SAMPLE_METADATA: FilterModels = {
 const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, SelectionFilter> = new Map(
     Object
         .entries(SAMPLE_METADATA)
-        .map(([key, _value]: [string, Array<FilterModel>]): [string, SelectionFilter] => [key, new SelectionFilter(key, [])])
+        .map(([key, _value]: [string, Array<IField>]): [string, SelectionFilter] => [key, new SelectionFilter(key, [])])
 );
 
 const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [

@@ -19,14 +19,14 @@
 */
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {FilterModels} from "@main/model/filter";
+import {FieldConfigurations, IField} from "@main/model/project";
 
 /**
- * Populates the Filter UI with the corresponding filter elements based on the {@link FilterModels}.
+ * Populates the Filter UI with the corresponding filter elements based on the {@link FieldConfigurations}.
  */
 export class FiltersElement {
     constructor(
-        private readonly filterModels: FilterModels,
+        private readonly filterModels: Map<String, Array<IField>>,
         private readonly oftState: OftStateController,
         private readonly filterElementFactory: FilterElementFactory = new FilterElementFactory()) {
     }
@@ -37,7 +37,7 @@ export class FiltersElement {
     public init(): void {
         $(".filter").each((_, element: HTMLElement) => {
             let id: string = element?.id ?? "";
-            const filterElement: IFilterElement = this.filterElementFactory.build(id ? id : "", element, this.filterModels[id], this.oftState);
+            const filterElement: IFilterElement = this.filterElementFactory.build(id ? id : "", element, this.filterModels.get(id)!!, this.oftState);
             filterElement.init().activate();
         });
     }
