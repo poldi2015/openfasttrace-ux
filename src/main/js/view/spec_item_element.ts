@@ -18,11 +18,12 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
+import {Filter, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, SpecItemStatus} from "@main/model/specitems";
 import {Deferred} from "@main/utils/async";
+import {IField} from "@main/model/project";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -32,13 +33,15 @@ export class SpecItemElement {
     public constructor(
         readonly specItem: SpecItem,
         protected readonly oftStateController: OftStateController,
-        protected readonly typeFilterModels: Array<FilterModel>
+        protected readonly typeFilterModels: Array<IField>
     ) {
-        this.elementId = SpecItemElement.toElementId(specItem.index);
-        const typeFilterModel: FilterModel = typeFilterModels[this.specItem.type];
-        this.typeLabel = typeFilterModel.label ?? typeFilterModel.name;
-        this.element = this.createTemplate();
         this.log = new Log("SpecItemElement");
+        this.log.info("constructor", specItem.index);
+        this.elementId = SpecItemElement.toElementId(specItem.index);
+        this.log.info("SpecItemElement.constructor", typeFilterModels);
+        const typeFilterModel: IField = typeFilterModels[this.specItem.type];
+        this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
+        this.element = this.createTemplate();
     }
 
     protected readonly typeLabel: string;
@@ -217,7 +220,7 @@ export class SpecItemElement {
     }
 
     protected createCoverageTemplate(): string {
-        return this.typeFilterModels.map((type: FilterModel, index: number): string => {
+        return this.typeFilterModels.map((type: IField, index: number): string => {
             switch (this.specItem.covered[index]) {
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
