@@ -27,8 +27,8 @@ import {OftState} from "@main/model/oft_state";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";
-const DETAILS_STATUS_ID = "#details_status";
-const DETAILS_NEEDS_ID = "#details_needs";
+const DETAILS_STATUS_ID = "#details-status";
+const DETAILS_NEEDS_ID = "#details-needs";
 const DETAILS_COVERS_ID = "#details-covers";
 const DETAILS_TAGS_ID = "#details-tags";
 const DETAILS_SOURCE_ID = "#details-source";
