@@ -26,7 +26,7 @@ import {Filter} from "@main/model/filter";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType,} from '@main/model/change_event';
 import {SpecItemsElement} from "@main/view/spec_items_element";
-import {IField} from "@main/model/project";
+import {Project} from "@main/model/project";
 
 const FOCUS_SPECITEM_ELEMENT_ID: string = "#focusitem";
 const SPECITEMS_ELEMENT_ID: string = "#specitems";
@@ -34,7 +34,7 @@ const SPECITEMS_ELEMENT_ID: string = "#specitems";
 export class SpecItemsController {
     constructor(private oftStateController: OftStateController,
                 private specItemsElement: SpecItemsElement,
-                private typeFilterModel: Array<IField>) {
+                private project: Project) {
         this._specItemsElement = $(SPECITEMS_ELEMENT_ID);
     }
 
@@ -78,7 +78,7 @@ export class SpecItemsController {
         return new SpecItemElement(
             specItem,
             this.oftStateController,
-            this.typeFilterModel
+            this.project
         );
     }
 
@@ -89,7 +89,7 @@ export class SpecItemsController {
             specItem,
             coverType,
             this.oftStateController,
-            this.typeFilterModel
+            this.project
         );
     }
 

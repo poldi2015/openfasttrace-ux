@@ -62,13 +62,13 @@ function _init() {
 
     const specItemsElement = new SpecItemsElement(oftStateController);
     specItemsElement.init().activate();
-    new SpecItemsController(oftStateController, specItemsElement, project.getTypeFieldModel()).init(specItems);
+    new SpecItemsController(oftStateController, specItemsElement, project).init(specItems);
 
     initHeader(project);
     initFooter(project);
 
     console.log("SPECITEMS", specItems[300]);
-    new DetailsElementFactory().build(specItems, project.types, project.tags, oftStateController).init().activate();
+    new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
 
     oftStateController.init();
 }
