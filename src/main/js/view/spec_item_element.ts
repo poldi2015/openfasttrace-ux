@@ -204,13 +204,16 @@ export class SpecItemElement {
     protected createTemplate(): JQuery {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
+        const title: string = this.specItem.title != this.specItem.name ? `<b>${this.specItem.title}</b><br><br>` : '';
+
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.typeLabel}:${this.specItem.name}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
+                    <div class="_specitem-name">[${this.specItem.id}]</div>${draft}
                     <div class="_specitem-status">${coverageTemplate}</div>
                 </div>
                 <div class="_specitem-body">
+                    ${title}
                     ${this.specItem.content}                
                 </div>                
             </div>             

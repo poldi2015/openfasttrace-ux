@@ -119,7 +119,7 @@ export class DetailsElement implements IDetailsElement {
 
 
     private createNavHeaderLabel(specItem: SpecItem): string {
-        return `[${specItem.name}]`;
+        return specItem.title != specItem.name ? `${specItem.title} [${specItem.id}]` : `[${specItem.id}]`;
     }
 
     private createDraftValue(specItem: SpecItem): string {
@@ -150,7 +150,7 @@ export class DetailsElement implements IDetailsElement {
     private replaceHyperlinkedSpecItems(dependenciesElement: JQuery<HTMLElement>, specItemIndexes: Array<number>): void {
         dependenciesElement.find("a._specitem-hyperlink").off("click");
         dependenciesElement.html(specItemIndexes.map((index: number) =>
-            `[<a class="_specitem-hyperlink" href="${index}">${this.specItems[index].name}</a>]`
+            `[<a class="_specitem-hyperlink" href="${index}">${this.specItems[index].title}</a>]`
         ).join(", "));
         this.addHyperlinkClickEvent(dependenciesElement);
     }

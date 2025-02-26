@@ -25,8 +25,9 @@ import {IndexFilter, NameFilter, SelectionFilter} from "@main/model/filter";
 const SampleSpecItem: SpecItem = {
     index: 1,
     type: 1,
+    title: "sample-spec-item",
     name: "sample-spec-item",
-    fullName: "req:sample-spect-item:2",
+    id: "req:sample-spect-item:2",
     tags: [],
     version: 2,
     content: "Sample SpecItem content",
