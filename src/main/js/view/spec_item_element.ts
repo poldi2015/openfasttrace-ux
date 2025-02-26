@@ -21,9 +21,9 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {Filter, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
-import {SpecItem, SpecItemStatus} from "@main/model/specitems";
+import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
 import {Deferred} from "@main/utils/async";
-import {IField} from "@main/model/project";
+import {IField, Project} from "@main/model/project";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -33,13 +33,13 @@ export class SpecItemElement {
     public constructor(
         readonly specItem: SpecItem,
         protected readonly oftStateController: OftStateController,
-        protected readonly typeFilterModels: Array<IField>
+        protected readonly project: Project
     ) {
         this.log = new Log("SpecItemElement");
         this.log.info("constructor", specItem.index);
         this.elementId = SpecItemElement.toElementId(specItem.index);
-        this.log.info("SpecItemElement.constructor", typeFilterModels);
-        const typeFilterModel: IField = typeFilterModels[this.specItem.type];
+        this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
+        const typeFilterModel: IField = project.getTypeFieldModel()[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
         this.element = this.createTemplate();
     }
@@ -223,7 +223,7 @@ export class SpecItemElement {
     }
 
     protected createCoverageTemplate(): string {
-        return this.typeFilterModels.map((type: IField, index: number): string => {
+        return this.project.getTypeFieldModel().map((type: IField, index: number): string => {
             switch (this.specItem.covered[index]) {
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
@@ -236,7 +236,9 @@ export class SpecItemElement {
     }
 
     protected createDraftTemplate(): string {
-        return this.specItem.status === SpecItemStatus.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
+        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0])[this.specItem.status].name;
+        return this.specItem.status != STATUS_ACCEPTED_INDEX && statusName != undefined ?
+            `<div class="_specitem-draft">(${statusName})</div>` : '';
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {

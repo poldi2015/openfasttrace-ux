@@ -22,7 +22,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {CoverType} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
 import {Log} from "@main/utils/log";
-import {IField} from "@main/model/project";
+import {Project} from "@main/model/project";
 
 const COVERING_TEXT: string = "<<<<  is covering    <<<<";
 const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
@@ -32,9 +32,9 @@ export class FocusSpecItemElement extends SpecItemElement {
         specItem: SpecItem,
         public coverType: CoverType,
         oftStateController: OftStateController,
-        typeFilterModel: Array<IField>
+        project: Project
     ) {
-        super(specItem, oftStateController, typeFilterModel);
+        super(specItem, oftStateController, project);
         this.log = new Log("FocusSpecItemElement");
         this.log.info("new FocusSpecItemElement");
     }

@@ -117,8 +117,22 @@
                     item_count: 50,
                 },
                 {
+                    id: "PROPOSED",
+                    name: "Proposed",
+                    tooltip: "Item is not part of tracing.",
+                    color: "red",
+                    item_count: 2,
+                },
+                {
                     id: "DRAFT",
                     name: "Draft",
+                    tooltip: "Item is not part of tracing.",
+                    color: "red",
+                    item_count: 2,
+                },
+                {
+                    id: "REJECTED",
+                    name: "Rejected",
                     tooltip: "Item is not part of tracing.",
                     color: "red",
                     item_count: 2,
