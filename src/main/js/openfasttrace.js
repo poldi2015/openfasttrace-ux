@@ -74,7 +74,7 @@ function _init() {
 }
 
 function initHeader(project) {
-    $("#project-name").append(project.name);
+    $("#project-name").append(project.projectName);
 }
 
 function initFooter(project) {

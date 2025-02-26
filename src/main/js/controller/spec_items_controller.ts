@@ -225,7 +225,7 @@ export class SpecItemsController {
                 if (specItemElement.specItem.index == selectedIndex) this.oftStateController.unselectItem();
             }
         });
-        this.specItemsElement.updateNumberOfItems(specItemElements.length);
+        this.specItemsElement.updateNumberOfItems(specItemElements.length, this.focusSpecItemElement != null);
     }
 
     /**
