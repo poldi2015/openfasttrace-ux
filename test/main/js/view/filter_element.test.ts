@@ -60,7 +60,7 @@ describe("Tests  for FilterElement", () => {
         const oftStateBuilder: OftStateBuilder = new OftStateBuilder()
             .setSelectedFilters(new Map<string, SelectionFilter>([['type', new SelectionFilter('type', [1])]]));
         const oftState: OftStateController = new OftStateController(oftStateBuilder.build());
-        const filterElement = new FilterElement("type", selectElement, FILTER_MODELS_SAMPLE["type"], oftState);
+        const filterElement = new FilterElement("type", selectElement, FILTER_MODELS_SAMPLE.get("type")!!, oftState);
         filterElement.init();
         expect(body).toMatchHTML(GOLDEN_SAMPLE_FILTER_MODEL);
     });
