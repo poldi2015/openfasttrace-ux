@@ -148,8 +148,9 @@ class SpecItem {
             {
                 index: ${this.index},
                 type: ${this.type},
+                title: "${this.name}", 
                 name: "${this.name}",
-                fullName: "${TYPE_LABELS[this.type]}:${this.name}:${this.version}",
+                id: "${TYPE_LABELS[this.type]}:${this.name}:${this.version}",
                 tags: [${this.tags.join(',')}],
                 version: ${this.version},
                 content: ${this.generateContent()},

@@ -23,9 +23,9 @@ import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {SelectionFilter} from "@main/model/filter";
 import {OftState} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
-import {FieldConfigurations, IField} from "@main/model/project";
+import {IField} from "@main/model/project";
 
-const SAMPLE_METADATA: FieldConfigurations = {
+const SAMPLE_METADATA: Map<string, Array<IField>> = new Map(Object.entries({
     types: [
         {
             id:"feat",
@@ -62,7 +62,7 @@ const SAMPLE_METADATA: FieldConfigurations = {
             item_count: 50,
         },
     ]
-};
+}));
 
 const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, SelectionFilter> = new Map(
     Object
@@ -74,8 +74,9 @@ const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
     {
         index: 0,
         type: 0,
+        title: "culpa-fugiat-aute-amet-qui-occaecat",
         name: "culpa-fugiat-aute-amet-qui-occaecat",
-        fullName: "feat:culpa-fugiat-aute-amet-qui-occaecat:3",
+        id: "feat:culpa-fugiat-aute-amet-qui-occaecat:3",
         tags: [],
         version: 3,
         content: "Eu amet et deserunt ad et consequat sunt et aliqua consequat nulla. Irure nulla ",

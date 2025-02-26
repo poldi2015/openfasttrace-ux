@@ -32,8 +32,9 @@ export enum SpecItemStatus {
 export interface SpecItem {
     index: number,
     type: number,
+    title: string,
     name: string,
-    fullName: string,
+    id: string,
     tags: Array<number>,
     version: number,
     content: string,

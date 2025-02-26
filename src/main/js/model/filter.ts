@@ -121,13 +121,13 @@ export class NameFilter extends Filter {
 
     public matches(specItem: SpecItem): boolean {
         if (this.acceptedName == "") return true;
-        const specItemValue: string = this.nameFilterTarget == NameFilterTarget.name ? specItem.fullName : specItem.content;
+        const specItemValues: Array<string> = this.nameFilterTarget == NameFilterTarget.name ?
+            Array.of(specItem.title, specItem.id) :
+            Array.of(specItem.content);
 
-        if (this.isRegExp) {
-            return specItemValue.match(this.acceptedName) != null;
-        } else {
-            return specItemValue.includes(this.acceptedName.toLowerCase());
-        }
+        return specItemValues.map((value: string): boolean =>
+            this.isRegExp ? value.match(this.acceptedName) != null : value.includes(this.acceptedName.toLowerCase())
+        ).some((value: boolean) => value);
     }
 
 } // NameFilter
