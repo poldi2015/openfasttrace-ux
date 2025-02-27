@@ -86,6 +86,10 @@
   @include _specitem-badge(var(--col-specitem-badge-color-uncovered));
 }
 
+._specitem-missing {
+  @include _specitem-badge(var(--col-specitem-badge-color-missing));
+}
+
 ._specitem-draft {
   float: left;
   color: var(--col-specitem-type);
