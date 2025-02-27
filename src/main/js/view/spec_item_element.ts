@@ -225,6 +225,8 @@ export class SpecItemElement {
     protected createCoverageTemplate(): string {
         return this.project.getTypeFieldModel().map((type: IField, index: number): string => {
             switch (this.specItem.covered[index]) {
+                case 3:
+                    return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
                 case 1:
