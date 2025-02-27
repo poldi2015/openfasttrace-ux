@@ -119,7 +119,9 @@ export class DetailsElement implements IDetailsElement {
 
 
     private createNavHeaderLabel(specItem: SpecItem): string {
-        return specItem.title != specItem.name ? `${specItem.title} [${specItem.id}]` : `[${specItem.id}]`;
+        return specItem.title != specItem.name ?
+            `#${specItem.index} ${specItem.title} [${specItem.id}]` :
+            `#${specItem.index} [${specItem.id}]`;
     }
 
     private createStatusValue(specItem: SpecItem): string {
