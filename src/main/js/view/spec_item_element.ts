@@ -22,7 +22,6 @@ import {Filter, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
-import {Deferred} from "@main/utils/async";
 import {IField, Project} from "@main/model/project";
 
 const SELECT_CLASS: string = '_specitem-selected';
@@ -208,14 +207,18 @@ export class SpecItemElement {
 
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
-                <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.specItem.id}]</div>${draft}
-                    <div class="_specitem-status">${coverageTemplate}</div>
+                <div style="position:relative">    
+                    <div class="_specitem-pin _img-button-pin">
+                    </div>
+                    <div class="_specitem-header">
+                        <div class="_specitem-name">[${this.specItem.id}]</div>${draft}
+                        <div class="_specitem-status">${coverageTemplate}</div>
+                    </div>
+                    <div class="_specitem-body">
+                        ${title}
+                        ${this.specItem.content}                
+                    </div>                
                 </div>
-                <div class="_specitem-body">
-                    ${title}
-                    ${this.specItem.content}                
-                </div>                
             </div>             
         `);
 
@@ -244,27 +247,15 @@ export class SpecItemElement {
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {
-        const deferred = new Deferred(150);
         template.on({
-            click: (event: JQuery.ClickEvent) => this.clickListener(deferred, event),
-            dblclick: (event: JQuery.DoubleClickEvent) => this.dblClickListener(deferred, event),
+            click: () => this.notifySelection(),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
+        });
+        template.find('._specitem-pin').on({
+            click: () => this.notifyFocus()
         });
         return template;
     }
 
-    private clickListener(deferred: Deferred, event: JQuery.ClickEvent) {
-        event.preventDefault();
-        deferred.run(() => {
-            this.notifySelection();
-        });
-    }
-
-    private dblClickListener(deferred: Deferred, event: JQuery.DoubleClickEvent) {
-        event.preventDefault();
-        deferred.cancel();
-        this.notifyFocus();
-    }
-
-} // TObject
+} // SpecItemElement

@@ -101,14 +101,18 @@ export class FocusSpecItemElement extends SpecItemElement {
         const coverType: string = this.createCoverTypeTemplate();
         const template: JQuery = $(`
             <div class="specitem _focuspecitem" id="${this.elementId}">
-                <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.typeLabel}:${this.specItem.title}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
-                    <div class="_specitem-status">${coverageTemplate}&nbsp;&nbsp;Close</div>                    
-                </div>
-                <div class="_specitem-body">
-                    ${this.specItem.content}                
-                </div>
-                ${coverType}                
+                <div style="position:relative">    
+                    <div class="_specitem-pin _img-button-unpin">
+                    </div>
+                    <div class="_specitem-header">
+                        <div class="_specitem-name">[${this.typeLabel}:${this.specItem.title}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
+                        <div class="_specitem-status">${coverageTemplate}</div>                    
+                    </div>
+                    <div class="_specitem-body">
+                        ${this.specItem.content}                
+                    </div>
+                </div>                
+                ${coverType}
             </div>             
         `);
 
