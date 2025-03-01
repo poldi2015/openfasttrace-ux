@@ -59,6 +59,13 @@
             ],
             uncovered: [
                 {
+                    id: "feat",
+                    name: "Feature",
+                    tooltip: "Missing feature.",
+                    color: "red",
+                    item_count: 2,
+                },
+                {
                     id: "req",
                     name: "Requirement",
                     tooltip: "Missing requirements.",
