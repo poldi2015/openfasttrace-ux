@@ -6,6 +6,7 @@
   "scripts": {
     "watch": "webpack --config webpack/main/webpack.dev.js --color --watch",
     "build": "webpack --config webpack/main/webpack.dev.js --color --no-watch",
+    "deploy": "webpack --config webpack/main/webpack.deploy.js --color --no-watch",
     "test": "vitest --config vitest/main/vitest.config.ts",
     "release": "webpack --config webpack/main/webpack.prod.js --color --no-watch",
     "tools": "webpack --config webpack/tools/webpack.tools.js --color --no-watch",
@@ -45,7 +46,9 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
     "webpack-merge": "^6.0.1",
-    "webpack-stream": "^7.0.0"
+    "webpack-shell-plugin-next": "^2.3.2",
+    "webpack-stream": "^7.0.0",
+    "zip-webpack-plugin": "^4.0.3"
   },
   "dependencies": {
     "@types/node": "^22.10.7",
