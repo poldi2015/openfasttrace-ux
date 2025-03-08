@@ -18,6 +18,8 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
+@use "button";
+
 #specitems-tab {
   height: calc(100vh - 340px);
   overflow: hidden;
@@ -34,6 +36,8 @@
   display: block;
   cursor: default;
   border-radius: 2px;
+  border-bottom: dotted #cdd5dc;
+  border-bottom-width: 1px;
 }
 
 ._specitem-header {
@@ -84,6 +88,10 @@
   @include _specitem-badge(var(--col-specitem-badge-color-uncovered));
 }
 
+._specitem-missing {
+  @include _specitem-badge(var(--col-specitem-badge-color-missing));
+}
+
 ._specitem-draft {
   float: left;
   color: var(--col-specitem-type);
@@ -102,6 +110,28 @@
 ._specitem-mouse-leave:not(._specitem-selected,._focuspecitem) {
   background-color: transparent;
 }
+
+._specitem-pin {
+  @extend %btn-floating;
+  visibility: hidden;
+  top: 50%;
+  left: 50%;
+}
+
+.specitem:hover ._specitem-pin {
+  visibility: visible;
+  animation: fadeOut 350ms ease-in 2s forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 80%;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 
 #focusitem {
   margin: 0 0 5px;

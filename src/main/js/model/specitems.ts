@@ -24,16 +24,12 @@ declare global {
     }
 }
 
-export enum SpecItemStatus {
-    Accepted = 0,
-    Draft = 1
-}
-
 export interface SpecItem {
     index: number,
     type: number,
+    title: string,
     name: string,
-    fullName: string,
+    id: string,
     tags: Array<number>,
     version: number,
     content: string,
@@ -44,9 +40,15 @@ export interface SpecItem {
     covering: Array<number>,
     coveredBy: Array<number>,
     depends: Array<number>,
-    status: SpecItemStatus,
+    status: number,
     path: Array<string>,
     sourceFile: string,
     sourceLine: number,
     comments: string,
 }
+
+export const TYPE_FIELD_NAME: string = "type";
+export const TYPED_FIELD_NAMES : Array<string> = [TYPE_FIELD_NAME,"provides","needs","covered","uncovered","covering","coveredBy","depends"];
+export const TAG_FIELD_NAMES : Array<string> = ["tags"];
+export const STATUS_FIELD_NAMES : Array<string> = ["status"];
+export const STATUS_ACCEPTED_INDEX: number = 0;

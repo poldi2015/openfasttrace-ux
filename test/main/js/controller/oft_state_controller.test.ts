@@ -35,8 +35,12 @@ describe(("OftStateController"), () => {
         oftStateController.addChangeListener(listener, EventType.Selection, EventType.Filters, EventType.Focus);
     }
 
-    function createOftStateControllerWithEmptyHistory(): OftStateController {
+    function createOftStateControllerWithSampleHistory(): OftStateController {
         return new OftStateController(new OftStateBuilder().build(), sampleHistory);
+    }
+
+    function createOftStateControllerWithEmptyHistory(): OftStateController {
+        return new OftStateController(new OftStateBuilder().build());
     }
 
     beforeEach(async () => {
@@ -78,7 +82,7 @@ describe(("OftStateController"), () => {
         // Switch back to initial state
         oftStateController.toPreviousState();
         expect(listener.mock.calls.length).toBe(3);
-        expect(listener.mock.results[2].value).toEqual(createEventWithState(new OftState(), EventType.Selection));
+        expect(listener.mock.results[2].value).toEqual(createEvent(EventType.Selection));
     });
 
     test("Emit a filter change event and a switch to previous state issues 3 event (init,filter,switch to initial) with last one", () => {
@@ -96,11 +100,11 @@ describe(("OftStateController"), () => {
         // Switch back to initial state
         oftStateController.toPreviousState();
         expect(listener.mock.calls.length).toBe(3);
-        expect(listener.mock.results[2].value).toEqual(createEventWithState(new OftState(), EventType.Filters, EventType.Selection));
+        expect(listener.mock.results[2].value).toEqual(createEvent(EventType.Filters, EventType.Selection));
     });
 
     test("Emit a focus change event and a switch to previous state issues 3 event (init,filter,focus,switch to filter) with last one", () => {
-        const oftStateController: OftStateController = createOftStateControllerWithEmptyHistory();
+        const oftStateController: OftStateController = createOftStateControllerWithSampleHistory();
         listenAll(oftStateController);
         oftStateController.init();
 
@@ -123,7 +127,7 @@ describe(("OftStateController"), () => {
     });
 
     test("Emit a selection, focus change, switch cover and unFocus", () => {
-        const oftStateController: OftStateController = createOftStateControllerWithEmptyHistory();
+        const oftStateController: OftStateController = createOftStateControllerWithSampleHistory();
         listenAll(oftStateController);
         oftStateController.init();
 
@@ -151,7 +155,7 @@ describe(("OftStateController"), () => {
 
 
     test("Switch back from unFocus to focused, emit a selection, focus change, switch cover and unFocus", () => {
-        const oftStateController: OftStateController = createOftStateControllerWithEmptyHistory();
+        const oftStateController: OftStateController = createOftStateControllerWithSampleHistory();
         listenAll(oftStateController);
         oftStateController.init();
 
@@ -176,7 +180,7 @@ describe(("OftStateController"), () => {
     });
 
     test("Switch previous unFocus then back to focused", () => {
-        const oftStateController: OftStateController = createOftStateControllerWithEmptyHistory();
+        const oftStateController: OftStateController = createOftStateControllerWithSampleHistory();
         listenAll(oftStateController);
         oftStateController.init();
 

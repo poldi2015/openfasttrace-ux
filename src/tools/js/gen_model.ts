@@ -145,27 +145,28 @@ class SpecItem {
 
     public generateCode() {
         return `
-        {
-            index: ${this.index},
-            type: ${this.type},
-            name: "${this.name}",
-            fullName: "${TYPE_LABELS[this.type]}:${this.name}:${this.version}",
-            tags: [${this.tags.join(',')}],
-            version: ${this.version},
-            content: ${this.generateContent()},
-            provides: [${this.provides.join(',')}],
-            needs: [${this.needs.join(',')}],
-            covered: [${this.covered.join(',')}],
-            uncovered: [${this.uncovered.join(',')}],
-            covering: [${this.covering.join(',')}],
-            coveredBy: [${this.coveredBy.join(',')}],
-            depends: [${this.depends.join(',')}],             
-            status: ${this.status},
-            path: ["${this.path.join('","')}"],
-            sourceFile: "${this.path.join('/')}.md",
-            sourceLine: ${this.lineNumber},
-            comments: ${this.comments},                        
-        },`
+            {
+                index: ${this.index},
+                type: ${this.type},
+                title: "${this.name}", 
+                name: "${this.name}",
+                id: "${TYPE_LABELS[this.type]}:${this.name}:${this.version}",
+                tags: [${this.tags.join(',')}],
+                version: ${this.version},
+                content: ${this.generateContent()},
+                provides: [${this.provides.join(',')}],
+                needs: [${this.needs.join(',')}],
+                covered: [${this.covered.join(',')}],
+                uncovered: [${this.uncovered.join(',')}],
+                covering: [${this.covering.join(',')}],
+                coveredBy: [${this.coveredBy.join(',')}],
+                depends: [${this.depends.join(',')}],             
+                status: ${this.status},
+                path: ["${this.path.join('","')}"],
+                sourceFile: "${this.path.join('/')}.md",
+                sourceLine: ${this.lineNumber},
+                comments: ${this.comments},                        
+            },`
     }
 
     public static generateSpecItems(type: number, startIndex: number, size: number, nodes: Map<string, FileNode>): Array<SpecItem> {
@@ -298,8 +299,16 @@ for (let i: number = 0; i < NUMBER_OF_TYPES; i++) {
 let generatedCode: string = `
 (function (window,undefined) {
     window.specitem = {
-        specitems: [
-            ${items.map((item) => item.generateCode()).join("")}
+        project: {
+            projectName: '2025-02-17T23.26.33.1223',
+            types: ["${TYPE_LABELS.join('", "')}"],
+            tags: [],
+            status: ["Accepted", "Draft"],
+            item_count: ${items.length},
+            item_covered: 0,
+            item_uncovered: 0,
+        },
+        specitems: [${items.map((item) => item.generateCode()).join("")}
         ]
     }
 })(window);
