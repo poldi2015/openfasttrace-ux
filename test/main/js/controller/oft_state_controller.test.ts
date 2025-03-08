@@ -114,12 +114,12 @@ describe(("OftStateController"), () => {
         oftStateController.focusItem(3, CoverType.covering, new Map());
         expect(listener.mock.calls.length).toBe(3);
         const focusState1 = new OftState(null, new Map(), 3, typeFilter1, CoverType.covering);
-        expect(listener.mock.results[2].value).toEqual(createEventWithState(focusState1, EventType.Focus, EventType.Filters));
+        expect(listener.mock.results[2].value).toEqual(createEventWithState(focusState1, EventType.Selection, EventType.Focus, EventType.Filters));
 
         // Switch back to filter state
         oftStateController.toPreviousState();
         expect(listener.mock.calls.length).toBe(4);
-        expect(listener.mock.results[3].value).toEqual(createEventWithState(listenerState1, EventType.Focus, EventType.Filters));
+        expect(listener.mock.results[3].value).toEqual(createEventWithState(listenerState1, EventType.Selection, EventType.Focus, EventType.Filters));
     });
 
     test("Emit a selection, focus change, switch cover and unFocus", () => {
@@ -140,7 +140,7 @@ describe(("OftStateController"), () => {
         oftStateController.focusItem(3, CoverType.coveredBy, new Map());
         expect(listener.mock.calls.length).toBe(4);
         const focusState1 = new OftState(null, new Map(), 3, typeFilter1, CoverType.coveredBy);
-        expect(listener.mock.results[3].value).toEqual(createEventWithState(focusState1, EventType.Focus, EventType.Filters));
+        expect(listener.mock.results[3].value).toEqual(createEventWithState(focusState1, EventType.Selection, EventType.Focus, EventType.Filters));
 
         // Switch back to filter state
         oftStateController.unFocusItem(3);
