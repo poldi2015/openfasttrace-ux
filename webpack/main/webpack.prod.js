@@ -21,8 +21,9 @@
 const {merge} = require('webpack-merge');
 const webpack = require('webpack');
 const common = require('./webpack.common');
+const ZipPlugin = require("zip-webpack-plugin");
 
-//Configure prod environment by using common configuration and adding some more options
+//Configure prod environment by using ux configuration and adding some more options
 module.exports = merge(common, {
     mode: 'production',
     devtool: false,
@@ -30,6 +31,10 @@ module.exports = merge(common, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production'),
+        }),
+        new ZipPlugin({
+            path: '../publications',
+            filename: 'openfasttrace-ux.zip'
         }),
     ]
 })
