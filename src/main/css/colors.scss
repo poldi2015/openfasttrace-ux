@@ -37,6 +37,7 @@ $light-color-badge-border: #424141;
 $light-color-badge-grey: #f9f9f8;
 $light-color-badge-green: #b7f3b7;
 $light-color-badge-red: #f3c5c5;
+$light-color-badge-orange: #f2dffd;
 
 :root {
   --col-font: #{$light-color-font};
@@ -55,6 +56,7 @@ $light-color-badge-red: #f3c5c5;
   --col-specitem-badge-color-none: #{$light-color-badge-grey};
   --col-specitem-badge-color-covered: #{$light-color-badge-green};
   --col-specitem-badge-color-uncovered: #{$light-color-badge-red};
+  --col-specitem-badge-color-missing: #{$light-color-badge-orange};
 
   --col-specitem-type: #{$light-color-font-light};
   --col-specitem-selected: #{$light-color-specitem-selected};

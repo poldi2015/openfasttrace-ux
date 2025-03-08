@@ -18,9 +18,18 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
-const { merge } = require('webpack-merge');
+const {merge} = require('webpack-merge');
 const webpack = require('webpack');
 const common = require('./webpack.common');
+const ZipPlugin = require("zip-webpack-plugin");
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const path = require('path');
+const {pathToFileURL} = require('url');
+const os = require('os');
+
+const MAVEN_LOCAL_URL = pathToFileURL(path.join(os.homedir(), '.m2/repository')).href;
+const DISTRIBUTION_BUILD_PATH = 'publications';
+const APPLICATION_ARTIFACT = 'openfasttrace-ux.zip';
 
 //Configure dev environment by using common configuration and adding some more options
 module.exports = merge(common, {
@@ -30,6 +39,24 @@ module.exports = merge(common, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
+        }),
+        new ZipPlugin({
+            path: `../${DISTRIBUTION_BUILD_PATH}`,
+            filename: APPLICATION_ARTIFACT,
+        }),
+        new WebpackShellPluginNext({
+            onAfterDone: {
+                scripts: [
+                    `mvn deploy:deploy-file \
+                         -Durl=${MAVEN_LOCAL_URL} \
+                         -Dfile=build/${DISTRIBUTION_BUILD_PATH}/${APPLICATION_ARTIFACT} \
+                         -DgroupId=org.itsallcode \
+                         -DartifactId=openfasttrace-ux \
+                         -Dversion=0.1.0`
+                ],
+                blocking: false,
+                parallel: false
+            }
         }),
     ]
 })
