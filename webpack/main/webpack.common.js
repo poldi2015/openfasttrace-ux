@@ -20,12 +20,12 @@
 
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');                  // build ts
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');         // remove build directory
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');         // remove build directory
 const CopyWebpackPlugin = require('copy-webpack-plugin');               // copy non minimized files
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 //const HtmlWebpackPlugin = require('html-webpack-plugin');  // minimize html
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // minimize css
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 //const ESLintPlugin = require('eslint-webpack-plugin'); // code linter
 
 const __base = path.resolve(__dirname, '../..');
@@ -35,22 +35,22 @@ module.exports = {
     // Javascript and ts minimization source trees
     entry: path.resolve(__src, 'js/openfasttrace.js'),              // Main entry point for minimization
     output: {
-        filename: 'js/openfasttrace.js',                    // Output bundle
-        path: path.resolve(__base, 'build/dist'),        // Output directory
-        clean: true,                                        // Automatically clean build directory
+        filename: 'js/openfasttrace.js',                            // Output bundle
+        path: path.resolve(__base, 'build/dist'),                   // Output directory
+        clean: true,                                                // Automatically clean build directory
     },
-    devtool: 'source-map',                                // separate source map file to deminimize code for debugger
+    devtool: 'source-map',                                          // separate source map file to minimize code for debugger
 
     // Minimization source file compiler
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                use: 'ts-loader', // Use ts-loader for TypeScript files
+                use: 'ts-loader',                                   // Use ts-loader for TypeScript files
                 exclude: /node_modules/,
             },
             {
-                test: /\.js$/, // Use Babel loader for modern JS syntax
+                test: /\.js$/,                                      // Use Babel loader for modern JS syntax
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -62,16 +62,16 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [
-                    MiniCssExtractPlugin.loader, // Extracts CSS into separate files
-                    'css-loader',               // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
-                    'sass-loader',              // Compiles Sass to CSS
+                    MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
+                    'css-loader',                                   // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
+                    'sass-loader',                                  // Compiles Sass to CSS
                 ],
                 exclude: /node_modules/,
             },
         ],
     },
     resolve: {
-        extensions: ['.ts', '.js'], // Resolve these file extensions
+        extensions: ['.ts', '.js'],                                 // Resolve these file extensions
         alias: {
             "@main": path.resolve(__src, "js"),
             "@html": path.resolve(__src, "html"),
@@ -81,32 +81,32 @@ module.exports = {
         },
     },
     plugins: [
-        new CleanWebpackPlugin(), // Clean the output directory before each build
+        new CleanWebpackPlugin(),                                   // Clean the output directory before each build
         new CopyWebpackPlugin({
             patterns: [
-                { from: 'src/main/libs', to: 'libs' }, // Copy all libraries to the dist/libs folder
-                { from: 'src/main/html', to: './html' }, // Copy all libraries to the dist/libs folder
-                //{ from: 'src/main/css', to: './css' }, // Copy all libraries to the dist/libs folder
-                { from: 'src/main/resources', to: './resources' }, // Copy all libraries to the dist/libs folder
+                {from: 'src/main/libs', to: 'libs'},                // Copy all libraries to the dist/libs folder
+                {from: 'src/main/html', to: './html'},              // Copy all libraries to the dist/libs folder
+                //{ from: 'src/main/css', to: './css' },            // Copy all libraries to the dist/libs folder
+                {from: 'src/main/resources', to: './resources'},    // Copy all libraries to the dist/libs folder
             ],
         }),
         new MiniCssExtractPlugin({
-            filename: 'css/oft-ux.css', // Output CSS file
+            filename: 'css/openfasttrace.css',                             // Output CSS file
         }),
     ],
     optimization: {
         minimize: true,
         minimizer: [
-            new TerserPlugin(),                                         // Minify Typescript
-            new CssMinimizerPlugin(),                                   // Minify CSS
+            new TerserPlugin(),                                     // Minify Typescript
+            new CssMinimizerPlugin(),                               // Minify CSS
         ],
     },
 
     // Enable watch mode
     watch: true,
     watchOptions: {
-        ignored: /node_modules/, // Ignore node_modules for performance
-        aggregateTimeout: 300, // Delay rebuild after the first change (ms)
-        poll: 1000, // Use polling (useful for network filesystems)
+        ignored: /node_modules/,                                    // Ignore node_modules for performance
+        aggregateTimeout: 300,                                      // Delay rebuild after the first change (ms)
+        poll: 1000,                                                 // Use polling (useful for network filesystems)
     },
 };

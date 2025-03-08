@@ -19,38 +19,38 @@
 */
 import {FilterElementFactory, IFilterElement} from "@main/view/filter_element";
 import {MockInstance, vi} from "vitest";
-import {FilterModel, FilterModels} from "@main/model/filter";
 import {OftStateController} from "@main/controller/oft_state_controller";
+import {IField} from "@main/model/project";
 
-export const FILTER_MODELS_SAMPLE: FilterModels = {
+export const FILTER_MODELS_SAMPLE: Map<string, Array<IField>> = new Map(Object.entries({
     type: [{
-        label: "fea",
+        id: "fea",
         name: "Feature",
         tooltip: "Tooltip Feature",
         color: "red",
         item_count: 5
     }],
     coverage: [{
-        label: "impl",
+        id: "impl",
         name: "Missing implementation",
         tooltip: "Tooltip Implementation",
         color: "red",
         item_count: 5
     }],
     status: [{
-        label: "accept",
+        id: "accept",
         name: "Accept",
         tooltip: "Tooltip Accept",
         color: "red",
         item_count: 5
     }],
-}
+}));
 
 export class FilterElementMock implements IFilterElement {
     public constructor(
         public readonly id: string,
         public readonly selectElement: HTMLElement,
-        public readonly filterModel: Array<FilterModel>,
+        public readonly filterModel: Array<IField>,
         public readonly oftState: OftStateController
     ) {
     }
@@ -76,7 +76,7 @@ export class FilterElementMock implements IFilterElement {
 } // FilterElementMock
 
 export class FilterElementSpy {
-    constructor(id: string, selectElement: HTMLElement, filterModel: Array<FilterModel>, oftState: OftStateController) {
+    constructor(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController) {
         this.filterElement = new FilterElementMock(id, selectElement, filterModel, oftState);
         this.initSpy = vi.spyOn(this.filterElement, 'init');
         this.activateSpy = vi.spyOn(this.filterElement, 'activate');
@@ -94,7 +94,7 @@ export class FilterElementSpy {
 } // FilterElementSpy
 
 export class FilterElementFactoryMock extends FilterElementFactory {
-    public build(id: string, selectElement: HTMLElement, filterModel: Array<FilterModel>, oftState: OftStateController): IFilterElement {
+    public build(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
         const filterElementSpy: FilterElementSpy = new FilterElementSpy(id, selectElement, filterModel, oftState);
         this.instances.push(filterElementSpy);
         return filterElementSpy.filterElement;

@@ -21,10 +21,11 @@ import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {sameArrayValues} from "@main/utils/collections";
-import {Filter, FilterModel, SelectionFilter} from "@main/model/filter";
+import {Filter, SelectionFilter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
+import {IField} from "@main/model/project";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -35,7 +36,7 @@ export interface IFilterElement extends IElement {
 }
 
 export class FilterElementFactory {
-    public build(id: string, selectElement: HTMLElement, filterModel: Array<FilterModel>, oftState: OftStateController): IFilterElement {
+    public build(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
         return new FilterElement(id, selectElement, filterModel, oftState);
     }
 }
@@ -43,7 +44,7 @@ export class FilterElementFactory {
 /**
  *  FilterElement provide one of the filter list in a side drawer.
  *
- *  The filter is configured by a {@link FilterModel} that is part of the global metadata.
+ *  The filter is configured by a {@link IField} that is part of the global metadata.
  *
  *  State changes are communicated via the {@link OftStateController}. The FilterElement issues changes to the filter
  *  selection via {@link OftStateController.selectFilters}. By listening to filter change events
@@ -53,7 +54,7 @@ export class FilterElement implements IFilterElement {
     public constructor(
         public readonly id: string,
         selectElement: HTMLElement,
-        private readonly filterModel: Array<FilterModel>,
+        private readonly filterModel: Array<IField>,
         private readonly oftState: OftStateController
     ) {
         this.selectElement = $(selectElement);
@@ -126,7 +127,7 @@ export class FilterElement implements IFilterElement {
      */
     private appendFilterValues(): void {
         this.selectElement.prop("size", this.filterModel.length);
-        this.filterModel.forEach((item: FilterModel, index: number) => {
+        this.filterModel.forEach((item: IField, index: number) => {
             const color: string = item.color ? `style="color:${item.color}"` : '';
             const count: string = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
             const id: string = FilterElement.toSelectionId(this.id, index);

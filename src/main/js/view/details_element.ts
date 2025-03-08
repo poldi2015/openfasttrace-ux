@@ -18,17 +18,18 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {IElement} from "@main/view/element";
-import {SpecItem, SpecItemStatus} from "@main/model/specitems";
+import {SpecItem, STATUS_FIELD_NAMES, TAG_FIELD_NAMES} from "@main/model/specitems";
 import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
 import {OftState} from "@main/model/oft_state";
+import {IField, Project} from "@main/model/project";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";
-const DETAILS_STATUS_ID = "#details_status";
-const DETAILS_NEEDS_ID = "#details_needs";
+const DETAILS_STATUS_ID = "#details-status";
+const DETAILS_NEEDS_ID = "#details-needs";
 const DETAILS_COVERS_ID = "#details-covers";
 const DETAILS_TAGS_ID = "#details-tags";
 const DETAILS_SOURCE_ID = "#details-source";
@@ -49,16 +50,15 @@ export interface IDetailsElement extends IElement {
 } // IDetailsElement
 
 export class DetailsElementFactory {
-    public build(specItems: Array<SpecItem>, types: Array<string>, tags: Array<string>, oftState: OftStateController): IFilterElement {
-        return new DetailsElement(specItems, types, tags, oftState);
+    public build(specItems: Array<SpecItem>, project: Project, oftState: OftStateController): IFilterElement {
+        return new DetailsElement(specItems, project, oftState);
     }
 } // DetailsElementFactory
 
 export class DetailsElement implements IDetailsElement {
     constructor(
         private readonly specItems: Array<SpecItem>,
-        private readonly types: Array<string>,
-        private readonly tags: Array<string>,
+        private readonly project: Project,
         private readonly oftState: OftStateController) {
         this.tableElement = $(DETAILS_TABLE_ID);
     }
@@ -103,7 +103,7 @@ export class DetailsElement implements IDetailsElement {
 
         this.log.info("Updating description for", specItem!.index);
         $(SPECITEM_ID_CLASS).text(this.createNavHeaderLabel(specItem!));
-        $(DETAILS_STATUS_ID).text(this.createDraftValue(specItem!));
+        $(DETAILS_STATUS_ID).text(this.createStatusValue(specItem!));
         $(DETAILS_NEEDS_ID).text(this.createTypesValue(specItem!.needs));
         $(DETAILS_COVERS_ID).text(this.createTypesValue(specItem!.provides));
         $(DETAILS_TAGS_ID).text(this.createTagsValue(specItem!));
@@ -119,24 +119,24 @@ export class DetailsElement implements IDetailsElement {
 
 
     private createNavHeaderLabel(specItem: SpecItem): string {
-        return `[${specItem.name}]`;
+        return specItem.title != specItem.name ?
+            `#${specItem.index} ${specItem.title} [${specItem.id}]` :
+            `#${specItem.index} [${specItem.id}]`;
     }
 
-    private createDraftValue(specItem: SpecItem): string {
-        switch (specItem.status) {
-            case SpecItemStatus.Draft:
-                return "Draft";
-            default:
-                return "Accepted";
-        }
+    private createStatusValue(specItem: SpecItem): string {
+        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0])[specItem.status].name;
+        return statusName != undefined ? statusName : "";
     }
 
     private createTypesValue(types: Array<number>): string {
-        return types.map((index: number) => this.types[index]).join(", ");
+        const typeItems: Array<IField> = this.project.getTypeFieldModel()
+        return types.map((index: number) => typeItems[index].label).join(", ");
     }
 
     private createTagsValue(specItem: SpecItem): string {
-        return specItem.tags.map((index: number) => this.tags[index]).join(", ");
+        const tagFields: Array<IField> = this.project.getFieldModel(TAG_FIELD_NAMES[0]);
+        return specItem.tags.map((index: number) => tagFields[index].name).join(", ");
     }
 
     private createSourceValue(specItem: SpecItem): string {
@@ -150,7 +150,7 @@ export class DetailsElement implements IDetailsElement {
     private replaceHyperlinkedSpecItems(dependenciesElement: JQuery<HTMLElement>, specItemIndexes: Array<number>): void {
         dependenciesElement.find("a._specitem-hyperlink").off("click");
         dependenciesElement.html(specItemIndexes.map((index: number) =>
-            `[<a class="_specitem-hyperlink" href="${index}">${this.specItems[index].name}</a>]`
+            `[<a class="_specitem-hyperlink" href="${index}">${this.specItems[index].title}</a>]`
         ).join(", "));
         this.addHyperlinkClickEvent(dependenciesElement);
     }

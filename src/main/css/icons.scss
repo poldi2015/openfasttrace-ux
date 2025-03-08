@@ -112,3 +112,14 @@ span.sidebar-logo {
 ._search-clear {
   background-image: url("#{paths.$images}/material_clear_search.svg");
 }
+
+//
+// SpecItem
+
+._img-button-pin {
+  background-image: url("#{paths.$images}/material_keep.svg");
+}
+
+._img-button-unpin {
+  background-image: url("#{paths.$images}/material_keep_off.svg");
+}

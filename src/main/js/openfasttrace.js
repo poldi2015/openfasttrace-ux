@@ -19,7 +19,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import '@css/openfasttrace.scss';
-import {ExpandableElements} from "./view/expandable_elements.ts";
+import {ExpandableElements} from "@main/view/expandable_elements.ts";
 import {SpecItemsController} from "@main/controller/spec_items_controller";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {FiltersElement} from "@main/view/filters_element";
@@ -27,43 +27,60 @@ import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {SearchElement} from "@main/view/search_element";
 import {DetailsElementFactory} from "@main/view/details_element";
 import {SpecItemsElement} from "@main/view/spec_items_element";
+import {Project} from "@main/model/project";
+import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
 
 function _init() {
-    const filters = window.metadata.filters;
+    const projectModel = window.specitem.project;
     const specItems = window.specitem.specitems;
-
-    const oftState = new OftStateBuilder().fromModel(filters, specItems).build();
+    console.log(projectModel);
+    const project = new Project(
+        projectModel.projectName,
+        projectModel.types,
+        TYPED_FIELD_NAMES,
+        projectModel.tags,
+        TAG_FIELD_NAMES,
+        projectModel.status,
+        STATUS_FIELD_NAMES,
+        projectModel.item_count,
+        projectModel.item_covered,
+        projectModel.item_uncovered,
+        window.metadata.fields
+    );
+    
+    const oftStateBuilder = new OftStateBuilder().fromModel(project.fieldModels, specItems);
+    if( Number.parseInt(window.location.hash.substring(1)) > 0 ) {
+        oftStateBuilder.setSelectedIndex(Number.parseInt(window.location.hash.substring(1)));
+    }
+    const oftState = oftStateBuilder.build();
     const oftStateController = new OftStateController(oftState);
 
     new ExpandableElements().init();
-    new FiltersElement(filters, oftStateController).init();
+    new FiltersElement(project.fieldModels, oftStateController).init();
 
     new SearchElement(oftStateController).init().activate();
 
     const specItemsElement = new SpecItemsElement(oftStateController);
     specItemsElement.init().activate();
-    new SpecItemsController(oftStateController, specItemsElement, filters.type).init(specItems);
+    new SpecItemsController(oftStateController, specItemsElement, project).init(specItems);
 
+    initHeader(project);
+    initFooter(project);
 
-    initHeader();
-    initFooter();
-
-    const types = filters.type.map((type) => type.name);
-    const tags = filters.tags.map((tag) => tag.name);
     console.log("SPECITEMS", specItems[300]);
-    new DetailsElementFactory().build(specItems, types, tags, oftStateController).init().activate();
+    new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
 
     oftStateController.init();
 }
 
-function initHeader() {
-    $("#project-name").append(window.metadata.project.name);
+function initHeader(project) {
+    $("#project-name").append(project.projectName);
 }
 
-function initFooter() {
-    $("#specitem-total").append(window.metadata.project.item_count);
-    $("#specitem-covered").append(window.metadata.project.item_covered);
-    $("#specitem-uncovered").append(window.metadata.project.item_uncovered);
+function initFooter(project) {
+    $("#specitem-total").append(project.itemCount);
+    $("#specitem-covered").append(project.itemCovered);
+    $("#specitem-uncovered").append(project.itemUncovered);
 }
 
 $(_init);

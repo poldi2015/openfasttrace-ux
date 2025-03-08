@@ -18,11 +18,11 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {Filter, FilterModel, IndexFilter} from "@main/model/filter";
+import {Filter, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
-import {SpecItem, SpecItemStatus} from "@main/model/specitems";
-import {Deferred} from "@main/utils/async";
+import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
+import {IField, Project} from "@main/model/project";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -32,13 +32,15 @@ export class SpecItemElement {
     public constructor(
         readonly specItem: SpecItem,
         protected readonly oftStateController: OftStateController,
-        protected readonly typeFilterModels: Array<FilterModel>
+        protected readonly project: Project
     ) {
-        this.elementId = SpecItemElement.toElementId(specItem.index);
-        const typeFilterModel: FilterModel = typeFilterModels[this.specItem.type];
-        this.typeLabel = typeFilterModel.label ?? typeFilterModel.name;
-        this.element = this.createTemplate();
         this.log = new Log("SpecItemElement");
+        this.log.info("constructor", specItem.index);
+        this.elementId = SpecItemElement.toElementId(specItem.index);
+        this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
+        const typeFilterModel: IField = project.getTypeFieldModel()[this.specItem.type];
+        this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
+        this.element = this.createTemplate();
     }
 
     protected readonly typeLabel: string;
@@ -201,15 +203,22 @@ export class SpecItemElement {
     protected createTemplate(): JQuery {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
+        const title: string = this.specItem.title != this.specItem.name ? `<b>${this.specItem.title}</b><br><br>` : '';
+
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
-                <div class="_specitem-header">
-                    <div class="_specitem-name">[${this.typeLabel}:${this.specItem.name}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
-                    <div class="_specitem-status">${coverageTemplate}</div>
+                <div style="position:relative">    
+                    <div class="_specitem-pin _img-button-pin">
+                    </div>
+                    <div class="_specitem-header">
+                        <div class="_specitem-name">[${this.specItem.id}]</div>${draft}
+                        <div class="_specitem-status">${coverageTemplate}</div>
+                    </div>
+                    <div class="_specitem-body">
+                        ${title}
+                        ${this.specItem.content}                
+                    </div>                
                 </div>
-                <div class="_specitem-body">
-                    ${this.specItem.content}                
-                </div>                
             </div>             
         `);
 
@@ -217,8 +226,10 @@ export class SpecItemElement {
     }
 
     protected createCoverageTemplate(): string {
-        return this.typeFilterModels.map((type: FilterModel, index: number): string => {
+        return this.project.getTypeFieldModel().map((type: IField, index: number): string => {
             switch (this.specItem.covered[index]) {
+                case 3:
+                    return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
                 case 2:
                     return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
                 case 1:
@@ -230,31 +241,21 @@ export class SpecItemElement {
     }
 
     protected createDraftTemplate(): string {
-        return this.specItem.status === SpecItemStatus.Draft ? '<div class="_specitem-draft">(Draft)</div>' : '';
+        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0])[this.specItem.status].name;
+        return this.specItem.status != STATUS_ACCEPTED_INDEX && statusName != undefined ?
+            `<div class="_specitem-draft">(${statusName})</div>` : '';
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {
-        const deferred = new Deferred(150);
         template.on({
-            click: (event: JQuery.ClickEvent) => this.clickListener(deferred, event),
-            dblclick: (event: JQuery.DoubleClickEvent) => this.dblClickListener(deferred, event),
+            click: () => this.notifySelection(),
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
+        });
+        template.find('._specitem-pin').on({
+            click: () => this.notifyFocus()
         });
         return template;
     }
 
-    private clickListener(deferred: Deferred, event: JQuery.ClickEvent) {
-        event.preventDefault();
-        deferred.run(() => {
-            this.notifySelection();
-        });
-    }
-
-    private dblClickListener(deferred: Deferred, event: JQuery.DoubleClickEvent) {
-        event.preventDefault();
-        deferred.cancel();
-        this.notifyFocus();
-    }
-
-} // TObject
+} // SpecItemElement

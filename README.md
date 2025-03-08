@@ -1,23 +1,21 @@
-# <img src="src/main/resources/images/openfasttrace_logo.svg" alt="OFT logo" width="150"/> OpenFastTrace UX [POC]
+# <img src="src/main/resources/images/openfasttrace_logo.svg" alt="OFT logo" width="150"/> OpenFastTrace UX [MVP]
 
 ## What is OpenFastTrace UX?
 
 OpenFastTrace UX (short OFT-UX) is an extension of the [OpenFastTrace](https://github.com/itsallcode/openfasttrace)
-requirement tracing software. It aims to provide a more advanced, user friendly HTML user interface to analyze
-OpenFstTrace
-tracing reports.
+requirement tracing software. It aims to provide a interactive requirement, user friendly HTML user interface to analyze
+OpenFstTrace tracing reports locally.
 
 ## Status
 
-OFT-U at this moment is a proof f concept study on how to design a powerful use interface to analyze requirement traces.
-It provides advanced filtering and navigation capabilities to quickly browse through requirements and other traceable
-artifacts in order to find gaps in the tracing change or just to find necessary documents identifiable by te tracing
-chain.
+This first version of OpenFastTrace UX is a minimal viable product (MVP) version as a proof of the concept 
+of a powerful use interface to analyze requirement traces.  It provides advanced filtering and navigation capabilities 
+to quickly browse through requirements and other traceable artifacts in order to find gaps in the tracing change 
+or just to find necessary documents identifiable by te tracing chain.
 
-The project is in an early stage using a random generated tree of requirements, architecture, tests without connection
-to the output of OpenFastTrace itself.
-
-Only parts of the UI have already been realized.
+In combination with a new version of [OpenFastTrace](https://github.com/itsallcode/openfasttrace/pull/446) and
+[OpenFastTrace Gradle Plugin](https://github.com/itsallcode/openfasttrace-gradle/pull/49) a imeediately usable
+trace browser can be generated for the current project.
 
 ## Project Information
 
