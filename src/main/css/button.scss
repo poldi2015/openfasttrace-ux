@@ -7,34 +7,42 @@
  it under the terms of the GNU General Public License as
  published by the Free Software Foundation, either version 3 of the
  License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+@use "icons";
 
-const {merge} = require('webpack-merge');
-const webpack = require('webpack');
-const common = require('./webpack.common');
-const ZipPlugin = require("zip-webpack-plugin");
+//
+// Floating material design button
 
-//Configure prod environment by using ux configuration and adding some more options
-module.exports = merge(common, {
-    mode: 'production',
-    devtool: false,
+%btn-floating {
+  @extend %icon-image;
 
-    plugins: [
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production'),
-        }),
-        new ZipPlugin({
-            path: '../publications',
-            filename: 'openfasttrace-ux.zip'
-        }),
-    ]
-})
+  // button position
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+
+  // button layout
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 80%;
+  background-color: whitesmoke;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 6px 10px 0 #666;
+  background-size: 60% auto;
+}
+
+%btn-floating:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}

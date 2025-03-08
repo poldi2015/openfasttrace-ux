@@ -21,6 +21,7 @@ import {ChangeEvent, EventType} from "@main/model/change_event";
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {Filter, SelectionFilter} from "@main/model/filter";
 import {HistoryItem} from "@main/model/oft_state_history";
+import {OftStateBuilder} from "@main/controller/oft_state_builder";
 
 /**
  * Creates a sample {@link ChangeEvent} with an empty {@link OftState}.
@@ -28,7 +29,7 @@ import {HistoryItem} from "@main/model/oft_state_history";
  * @param types list of {@link EventType}s.
  */
 export function createEvent(...types: Array<EventType>): ChangeEvent {
-    return new ChangeEvent(types, new OftState());
+    return new ChangeEvent(types, new OftStateBuilder().build());
 }
 
 /**

@@ -24,6 +24,7 @@ import {Log} from "@main/utils/log";
 
 const CONTENT_NAV_BAR_ID = "#content-nav-bar";
 const CONTENT_SPEC_ITEM_COUNT = "#specitem-count";
+const CONTENT_SPEC_ITEM_FOCUS_COUNT = "#specitem-count-focused";
 
 export class SpecItemsElement implements IElement {
     constructor(private oftState: OftStateController) {
@@ -33,6 +34,7 @@ export class SpecItemsElement implements IElement {
 
     private readonly navbarElement: NavbarElement;
     private readonly specItemCountElement: JQuery<HTMLElement> = $(CONTENT_SPEC_ITEM_COUNT);
+    private readonly specItemFocusCountElement: JQuery<HTMLElement> = $(CONTENT_SPEC_ITEM_FOCUS_COUNT);
 
     private log: Log = new Log("SpecItemsElement");
 
@@ -57,9 +59,14 @@ export class SpecItemsElement implements IElement {
         return this.navbarElement.isActive();
     }
 
-    public updateNumberOfItems(numberOfItems: number): void {
+    public updateNumberOfItems(numberOfItems: number, hasFocused: boolean): void {
         this.log.info("updateShownItems number:", numberOfItems);
         this.specItemCountElement.text(numberOfItems);
+        if (hasFocused) {
+            this.specItemFocusCountElement.show();
+        } else {
+            this.specItemFocusCountElement.hide();
+        }
     }
 
     //
