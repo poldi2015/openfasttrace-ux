@@ -302,11 +302,15 @@ let generatedCode: string = `
         project: {
             projectName: '2025-02-17T23.26.33.1223',
             types: ["${TYPE_LABELS.join('", "')}"],
-            tags: [],
+            tags: ["v0.1","v1.0","v2.0","frontend","backend"],
             status: ["Accepted", "Draft"],
             item_count: ${items.length},
             item_covered: 0,
             item_uncovered: 0,
+            type_count: [],
+            uncovered_count: [],
+            status_count: [],
+            tags_count: [],
         },
         specitems: [${items.map((item) => item.generateCode()).join("")}
         ]

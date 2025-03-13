@@ -129,7 +129,7 @@ export class FilterElement implements IFilterElement {
         this.selectElement.prop("size", this.filterModel.length);
         this.filterModel.forEach((item: IField, index: number) => {
             const color: string = item.color ? `style="color:${item.color}"` : '';
-            const count: string = item.item_count ? `&nbsp;&nbsp;(${item.item_count})` : '';
+            const count: string = item.item_count >= 0 ? `&nbsp;&nbsp;(${item.item_count})` : '';
             const id: string = FilterElement.toSelectionId(this.id, index);
             this.selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
         });
