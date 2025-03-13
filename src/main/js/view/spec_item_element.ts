@@ -34,14 +34,15 @@ export class SpecItemElement {
         protected readonly oftStateController: OftStateController,
         protected readonly project: Project
     ) {
-        this.log = new Log("SpecItemElement");
-        this.log.info("constructor", specItem.index);
+        //this.log.info("constructor", specItem.index);
         this.elementId = SpecItemElement.toElementId(specItem.index);
-        this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
+        //this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
         const typeFilterModel: IField = project.getTypeFieldModel()[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
         this.element = this.createTemplate();
     }
+
+    protected log: Log = new Log("SpecItemElement");
 
     protected readonly typeLabel: string;
     protected readonly element;
@@ -49,8 +50,6 @@ export class SpecItemElement {
     protected readonly elementId: string;
     protected selected: boolean = false;
     private _isActive: boolean = false;
-
-    protected log: Log;
 
     /**
      * Inserts the specitem at a specific position into the children of the parentElement.

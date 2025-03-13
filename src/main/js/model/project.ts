@@ -14,7 +14,7 @@ export interface IProjectData {
     projectName: string,
     types: Array<string>,
     tags: Array<string>,
-    status : Array<string>,
+    status: Array<string>,
     item_count: number,
     item_covered: number,
     item_uncovered: number,
@@ -60,7 +60,7 @@ export class Field implements IField {
         if (model != undefined && model.id === this.id) {
             if (model.label != undefined && model.label != model.id) this.label = model.label;
             if (model.name != undefined && model.name != model.id) this.name = model.name;
-            if( this.name == undefined || this.name == this.id ) this.name = this.label;
+            if (this.name == undefined || this.name == this.id) this.name = this.label;
             if (model.tooltip != "") this.tooltip = model.tooltip;
             if (model.color != undefined) this.color = model.color;
             if (model.item_count >= 0) this.item_count = model.item_count;
@@ -77,26 +77,33 @@ export class Project {
         public readonly typedFieldNames: Array<string>,
         public readonly tags: Array<string>,
         public readonly tagFieldNames: Array<string>,
-        public readonly statusNames : Array<string>,
+        public readonly statusNames: Array<string>,
         public readonly statusFieldNames: Array<string>,
         public readonly itemCount: number,
         public readonly itemCovered: number,
         public readonly itemUncovered: number,
+        private readonly fieldCounts: Map<string, Array<number>>,
         configurations: FieldConfigurations
     ) {
         const fieldConfigurations: Map<string, Array<IField>> = new Map(Object.entries(configurations));
-        Project.generateFieldModels(typedFieldNames,types,fieldConfigurations).forEach((value, key) => this.fieldModels.set(key, value));
-        Project.generateFieldModels(tagFieldNames,tags,fieldConfigurations).forEach((value, key) => this.fieldModels.set(key, value));
-        Project.generateFieldModels(statusFieldNames,statusNames,fieldConfigurations).forEach((value, key) => this.fieldModels.set(key, value));
+        Project.generateFieldModels(typedFieldNames, types, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, value));
+        Project.generateFieldModels(tagFieldNames, tags, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, value));
+        Project.generateFieldModels(statusFieldNames, statusNames, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, value));
+
     }
 
     public readonly fieldModels: Map<String, Array<IField>> = new Map();
 
-    public getTypeFieldModel() : Array<IField> {
+    public readonly typeCount: Array<number> = new Array<number>();
+    public readonly uncoveredCount: Array<number> = new Array<number>();
+    public readonly statusCount: Array<number> = new Array<number>();
+    public readonly tagCount: Array<number> = new Array<number>();
+
+    public getTypeFieldModel(): Array<IField> {
         return this.getFieldModel(TYPE_FIELD_NAME);
     }
 
-    public hasField(name:string) : boolean {
+    public hasField(name: string): boolean {
         return this.fieldModels.has(name);
     }
 
@@ -107,20 +114,58 @@ export class Project {
     //
     // private members
 
-    static generateFieldModels(fieldNames: Array<string>, ids: Array<string>, configurations: Map<string, Array<IField>>)
+    /**
+     * Generates the models used e.g. for test selection lists.
+     *
+     * Models are only generated based on fieldNames only if configurations know the field name.
+     *
+     * @param fieldNames possible field names like type, status, tags
+     * @param fieldIds identifier names of field entries
+     * @param configurations meta_data.js metamodel for the project field models
+     * @param fieldCounts the number of items for each field
+     */
+    static generateFieldModels(fieldNames: Array<string>,
+                               fieldIds: Array<string>,
+                               configurations: Map<string, Array<IField>>,
+                               fieldCounts: Map<string, Array<number>>)
         : Map<string, Array<IField>> {
 
-        return new Map(fieldNames.filter((name) => configurations.has(name)).map((name) => [name, Project.createFieldModels(ids, configurations.get(name))]));
+        return new Map(fieldNames
+            .filter((name) => configurations.has(name))
+            .map((name) => [name, Project.createFieldModels(fieldIds, configurations.get(name), fieldCounts.get(name))])
+        );
     }
 
-    static createFieldModels(ids: Array<string>, fieldConfiguration: Array<IField> | undefined): Array<IField> {
+    /**
+     * Generates the field models for one fieldName (e.g. type, status or tags).
+     *
+     * @param fieldIds The ids of all entries in a fieldModel provided by meta_data.js
+     * @param fieldConfiguration The meta_data.js content
+     * @param fieldCounts The number of items for each field
+     */
+    static createFieldModels(fieldIds: Array<string>, fieldConfiguration: Array<IField> | undefined, fieldCounts: Array<number> | undefined): Array<IField> {
         const namedFieldConfiguration: Map<string, IField> = fieldConfiguration != undefined
             ? new Map(fieldConfiguration.map((item) => [item.id, item]))
             : new Map();
-        return ids.map((id) => Project.createFieldModel(id, namedFieldConfiguration.get(id)));
+
+        return fieldIds.map((fieldId) => {
+            const idIndex: number = fieldIds.indexOf(fieldId);
+            const count: number = (fieldCounts != undefined && fieldCounts.length > idIndex) ? fieldCounts[idIndex] : -1;
+            return Project.createFieldModel(fieldId, namedFieldConfiguration.get(fieldId), count);
+        });
     }
 
-    static createFieldModel(id: string, configuration: IField | undefined): IField {
-        return new Field(id).copyFromSameId(configuration);
+    /**
+     * Generates on entry of a field set identified by a field name.
+     *
+     * @param id The Id of the field
+     * @param configuration the model of the field read out of meta_data.js
+     * @param count the number of this entry or -1 if not available
+     */
+    static createFieldModel(id: string, configuration: IField | undefined, count: number): IField {
+        const field: IField = new Field(id).copyFromSameId(configuration);
+        if (count >= 0) field.item_count = count;
+        return field;
     }
+
 } // Project
