@@ -1,10 +1,6 @@
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
-import {
-    STATUS_FIELD_NAMES,
-    TAG_FIELD_NAMES,
-    TYPED_FIELD_NAMES
-} from "@main/model/specitems";
+import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
 import {FieldConfigurations, IField, IProjectData, Project} from "@main/model/project";
 import {metadata} from "@test/samples/meta_data";
 import {project} from "@test/samples/specitem_data";
@@ -24,6 +20,7 @@ describe("Tests for SpecItemMetaData", () => {
             projectData.item_count,
             projectData.item_covered,
             projectData.item_uncovered,
+            new Map(),
             configuration
         );
 

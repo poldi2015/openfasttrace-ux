@@ -31,9 +31,15 @@ import {Project} from "@main/model/project";
 import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
 
 function _init() {
+    console.log("START");
     const projectModel = window.specitem.project;
     const specItems = window.specitem.specitems;
-    console.log(projectModel);
+    const fieldCounts = new Map([
+        ["type", projectModel.type_count],
+        ["uncovered", projectModel.uncovered_count],
+        ["status", projectModel.status_count],
+        ["tags", projectModel.tags_count],
+    ]);
     const project = new Project(
         projectModel.projectName,
         projectModel.types,
@@ -45,11 +51,12 @@ function _init() {
         projectModel.item_count,
         projectModel.item_covered,
         projectModel.item_uncovered,
+        fieldCounts,
         window.metadata.fields
     );
-    
+
     const oftStateBuilder = new OftStateBuilder().fromModel(project.fieldModels, specItems);
-    if( Number.parseInt(window.location.hash.substring(1)) > 0 ) {
+    if (Number.parseInt(window.location.hash.substring(1)) > 0) {
         oftStateBuilder.setSelectedIndex(Number.parseInt(window.location.hash.substring(1)));
     }
     const oftState = oftStateBuilder.build();
@@ -67,10 +74,10 @@ function _init() {
     initHeader(project);
     initFooter(project);
 
-    console.log("SPECITEMS", specItems[300]);
     new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
 
     oftStateController.init();
+    console.log("ACTIVE");
 }
 
 function initHeader(project) {
