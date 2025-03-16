@@ -29,7 +29,7 @@ import {
     sampleChangeEventSelection1,
     sampleFilterState1,
     sampleFocusState1
-} from "../samples/events";
+} from "@test/samples/events";
 
 describe(("OftStateHistory"), () => {
 
