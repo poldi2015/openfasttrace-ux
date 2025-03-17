@@ -17,7 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-
+const webpack = require('webpack');
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');                  // build ts
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');         // remove build directory
@@ -62,7 +62,9 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [
-                    MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
+                    'url-loader',                                   // Use url-loader for images
+                    //'style-loader',                                 // Inject CSS into the DOM
+                    // MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
                     'css-loader',                                   // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
                     'sass-loader',                                  // Compiles Sass to CSS
                 ],
@@ -84,14 +86,25 @@ module.exports = {
         new CleanWebpackPlugin(),                                   // Clean the output directory before each build
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'src/main/libs', to: 'libs'},                // Copy all libraries to the dist/libs folder
+                //{from: 'src/main/libs', to: 'libs'},                // Copy all libraries to the dist/libs folder
                 {from: 'src/main/html', to: './html'},              // Copy all libraries to the dist/libs folder
                 //{ from: 'src/main/css', to: './css' },            // Copy all libraries to the dist/libs folder
-                {from: 'src/main/resources', to: './resources'},    // Copy all libraries to the dist/libs folder
+                {
+                    from: 'src/main/resources',
+                    to: './resources',
+                    globOptions: {
+                        ignore: ['**/*.ts', '**/*.map', '**/*.png', '**/*.svg'],
+                    },
+                },
+                // images are excluded as they are inlined
             ],
         }),
         new MiniCssExtractPlugin({
             filename: 'css/openfasttrace.css',                             // Output CSS file
+        }),
+        new webpack.ProvidePlugin({                                 // Inline JQuery
+            $: 'jquery',                                            // Make jQuery globally available as $
+            jQuery: 'jquery',                                       // Make jQuery globally available as jQuery
         }),
     ],
     optimization: {
