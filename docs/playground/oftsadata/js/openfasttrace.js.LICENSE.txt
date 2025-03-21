@@ -19,13 +19,146 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
-/*!
- * jQuery JavaScript Library v3.7.1
- * https://jquery.com/
- *
- * Copyright OpenJS Foundation and other contributors
- * Released under the MIT license
- * https://jquery.org/license
- *
- * Date: 2023-08-28T13:37Z
- */
+/*! ./filter_element */
+
+/*! ./oft_state_builder */
+
+/*! @css/openfasttrace.scss */
+
+/*! @main/controller/oft_state_builder */
+
+/*! @main/controller/oft_state_controller */
+
+/*! @main/controller/spec_items_controller */
+
+/*! @main/model/change_event */
+
+/*! @main/model/filter */
+
+/*! @main/model/oft_state */
+
+/*! @main/model/oft_state_history */
+
+/*! @main/model/project */
+
+/*! @main/model/specitems */
+
+/*! @main/utils/async */
+
+/*! @main/utils/collections */
+
+/*! @main/utils/log */
+
+/*! @main/view/button_element */
+
+/*! @main/view/details_element */
+
+/*! @main/view/expandable_elements.ts */
+
+/*! @main/view/filters_element */
+
+/*! @main/view/focus_spec_item_element */
+
+/*! @main/view/navbar_element */
+
+/*! @main/view/search_element */
+
+/*! @main/view/spec_item_element */
+
+/*! @main/view/spec_items_element */
+
+/*!**********************************!*\
+  !*** ./src/main/js/utils/log.ts ***!
+  \**********************************/
+
+/*!************************************!*\
+  !*** ./src/main/js/utils/async.ts ***!
+  \************************************/
+
+/*!*************************************!*\
+  !*** ./src/main/js/model/filter.ts ***!
+  \*************************************/
+
+/*!**************************************!*\
+  !*** ./src/main/js/model/project.ts ***!
+  \**************************************/
+
+/*!**************************************!*\
+  !*** ./src/main/js/openfasttrace.js ***!
+  \**************************************/
+
+/*!****************************************!*\
+  !*** ./src/main/js/model/oft_state.ts ***!
+  \****************************************/
+
+/*!****************************************!*\
+  !*** ./src/main/js/model/specitems.ts ***!
+  \****************************************/
+
+/*!*****************************************!*\
+  !*** ./src/main/css/openfasttrace.scss ***!
+  \*****************************************/
+
+/*!******************************************!*\
+  !*** ./src/main/js/utils/collections.ts ***!
+  \******************************************/
+
+/*!*******************************************!*\
+  !*** ./src/main/js/model/change_event.ts ***!
+  \*******************************************/
+
+/*!********************************************!*\
+  !*** ./src/main/js/view/button_element.ts ***!
+  \********************************************/
+
+/*!********************************************!*\
+  !*** ./src/main/js/view/filter_element.ts ***!
+  \********************************************/
+
+/*!********************************************!*\
+  !*** ./src/main/js/view/navbar_element.ts ***!
+  \********************************************/
+
+/*!********************************************!*\
+  !*** ./src/main/js/view/search_element.ts ***!
+  \********************************************/
+
+/*!*********************************************!*\
+  !*** ./src/main/js/view/details_element.ts ***!
+  \*********************************************/
+
+/*!*********************************************!*\
+  !*** ./src/main/js/view/filters_element.ts ***!
+  \*********************************************/
+
+/*!***********************************************!*\
+  !*** ./src/main/js/view/spec_item_element.ts ***!
+  \***********************************************/
+
+/*!************************************************!*\
+  !*** ./src/main/js/model/oft_state_history.ts ***!
+  \************************************************/
+
+/*!************************************************!*\
+  !*** ./src/main/js/view/spec_items_element.ts ***!
+  \************************************************/
+
+/*!*************************************************!*\
+  !*** ./src/main/js/view/expandable_elements.ts ***!
+  \*************************************************/
+
+/*!*****************************************************!*\
+  !*** ./src/main/js/controller/oft_state_builder.ts ***!
+  \*****************************************************/
+
+/*!*****************************************************!*\
+  !*** ./src/main/js/view/focus_spec_item_element.ts ***!
+  \*****************************************************/
+
+/*!********************************************************!*\
+  !*** ./src/main/js/controller/oft_state_controller.ts ***!
+  \********************************************************/
+
+/*!*********************************************************!*\
+  !*** ./src/main/js/controller/spec_items_controller.ts ***!
+  \*********************************************************/
