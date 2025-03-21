@@ -11,7 +11,7 @@ OpenFstTrace tracing reports locally.
 This webpage provides an entry point to playground for trying out the User Interface of Open OpenFastTrace UX
 
 * [OpenFastTrace UX with Sample requirements](playground/sampledata/html/openfasttrace.html)
-* * [OpenFastTrace UX with requirements from the OpenFastTrace repository](playground/oftsadata/html/openfasttrace.html)
+* [OpenFastTrace UX with requirements from the OpenFastTrace repository](playground/oftsadata/html/openfasttrace.html)
 
 ## Contact
 
