@@ -64,7 +64,7 @@ module.exports = {
                 use: [
                     'url-loader',                                   // Use url-loader for images
                     //'style-loader',                                 // Inject CSS into the DOM
-                    // MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
+                    MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
                     'css-loader',                                   // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
                     'sass-loader',                                  // Compiles Sass to CSS
                 ],
