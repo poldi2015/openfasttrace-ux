@@ -25,6 +25,12 @@ This project at the moment is a pure HTML application developed with HTML, SCSS 
 
 # <img src="doc/resources/oft_ux_screenshot.png" alt="OFT UX"/>
 
+## Playground
+
+Openfasttrace UX provides a playground to try out the user interface with sample data:
+
+[OpenFastTrace UX playground](https://poldi2015.github.io/openfasttrace-ux/)
+
 ## Features
 
 ### Tracing tool
