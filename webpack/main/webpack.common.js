@@ -22,7 +22,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');                  // build ts
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');         // remove build directory
 const CopyWebpackPlugin = require('copy-webpack-plugin');               // copy non minimized files
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+//const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 //const HtmlWebpackPlugin = require('html-webpack-plugin');  // minimize html
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -62,13 +62,17 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [
-                    'url-loader',                                   // Use url-loader for images
-                    //'style-loader',                                 // Inject CSS into the DOM
-                    MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
+                    'style-loader',                                 // Inject CSS into the DOM
+                    //MiniCssExtractPlugin.loader,                    // Extracts CSS into separate files
                     'css-loader',                                   // Turns CSS into commonjs, intermediate step needed for webpack to compile CSS
+                    'resolve-url-loader',                           // Resolves relative paths in Sass
                     'sass-loader',                                  // Compiles Sass to CSS
                 ],
                 exclude: /node_modules/,
+            },
+            {
+                test: /\.(svg|png|jpg|gif)$/,
+                type: 'asset/inline',
             },
         ],
     },
@@ -80,15 +84,14 @@ module.exports = {
             "@css": path.resolve(__src, "css"),
             "@libs": path.resolve(__src, "libs"),
             "@resources": path.resolve(__src, "resources"),
+            "@images": path.resolve(__src, "resources/images"),
         },
     },
     plugins: [
         new CleanWebpackPlugin(),                                   // Clean the output directory before each build
         new CopyWebpackPlugin({
             patterns: [
-                //{from: 'src/main/libs', to: 'libs'},                // Copy all libraries to the dist/libs folder
-                {from: 'src/main/html', to: './html'},              // Copy all libraries to the dist/libs folder
-                //{ from: 'src/main/css', to: './css' },            // Copy all libraries to the dist/libs folder
+                {from: 'src/main/openfasttrace.html', to: './',},
                 {
                     from: 'src/main/resources',
                     to: './resources',
@@ -99,9 +102,9 @@ module.exports = {
                 // images are excluded as they are inlined
             ],
         }),
-        new MiniCssExtractPlugin({
-            filename: 'css/openfasttrace.css',                             // Output CSS file
-        }),
+        //new MiniCssExtractPlugin({
+        //    filename: 'css/openfasttrace.css',                             // Output CSS file
+        //}),
         new webpack.ProvidePlugin({                                 // Inline JQuery
             $: 'jquery',                                            // Make jQuery globally available as $
             jQuery: 'jquery',                                       // Make jQuery globally available as jQuery

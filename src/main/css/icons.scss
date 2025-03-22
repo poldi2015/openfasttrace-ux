@@ -17,7 +17,6 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
-@use "paths";
 
 //
 // Icons
@@ -44,11 +43,11 @@ span.sidebar-logo {
 
 #logo {
   height: 16px;
-  content: url("#{paths.$images}/openfasttrace_logo.svg");
+  content: url("~@images/openfasttrace_logo.svg");
 }
 
 #img-help {
-  content: url("#{paths.$images}/material_help.svg");
+  content: url("~@images/material_help.svg");
 }
 
 
@@ -56,70 +55,70 @@ span.sidebar-logo {
 // Sidebars
 
 .img-logo-filters {
-  background-image: url("#{paths.$images}/material_filter.svg");
+  background-image: url("~@images/material_filter.svg");
 }
 
 .img-logo-details {
-  background-image: url("#{paths.$images}/material_article.svg");
+  background-image: url("~@images/material_article.svg");
 }
 
 .img-sidebar-close {
-  background-image: url("#{paths.$images}/material_minus.svg");
+  background-image: url("~@images/material_minus.svg");
 }
 
 //
 // Filters
 
 ._img-filter-all {
-  background-image: url("#{paths.$images}/material_select_all.svg");
+  background-image: url("~@images/material_select_all.svg");
 }
 
 ._img-filter-off {
-  background-image: url("#{paths.$images}/material_filter_off.svg");
+  background-image: url("~@images/material_filter_off.svg");
 }
 
 //
 // Content
 
 #img-logo-content {
-  background-image: url("#{paths.$images}/material_table_view.svg");
+  background-image: url("~@images/material_table_view.svg");
 }
 
 
 #img-expand {
-  background-image: url("#{paths.$images}/material_expand.svg");
+  background-image: url("~@images/material_expand.svg");
 }
 
 #btn-history-back {
-  background-image: url("#{paths.$images}/material_chevron_back.svg");
+  background-image: url("~@images/material_chevron_back.svg");
 }
 
 #btn-history-forward {
-  background-image: url("#{paths.$images}/material_chevron_forward.svg");
+  background-image: url("~@images/material_chevron_forward.svg");
 }
 
 #btn-scroll-to-selection {
-  background-image: url("#{paths.$images}/material_center_focus.svg");
+  background-image: url("~@images/material_center_focus.svg");
 }
 
 //
 // Search
 
 #img-search-client {
-  background-image: url("#{paths.$images}/material_chevron_forward.svg");
+  background-image: url("~@images/material_chevron_forward.svg");
 }
 
 ._search-clear {
-  background-image: url("#{paths.$images}/material_clear_search.svg");
+  background-image: url("~@images/material_clear_search.svg");
 }
 
 //
 // SpecItem
 
 ._img-button-pin {
-  background-image: url("#{paths.$images}/material_keep.svg");
+  background-image: url("~@images/material_keep.svg");
 }
 
 ._img-button-unpin {
-  background-image: url("#{paths.$images}/material_keep_off.svg");
+  background-image: url("~@images/material_keep_off.svg");
 }
