@@ -19,6 +19,9 @@
 */
 
 #filters {
+  overflow: auto;
+  overflow-x: hidden;
+  height: calc(100vh - 140px);
   padding: 10px;
   min-width: 15vw;
   border: none;
