@@ -42,6 +42,11 @@ export class FilterElementFactory {
 }
 
 /**
+ * Maximum number of filter elements to be shown in the UI.
+ */
+const MAX_FILTER_ELEMENT = 8;
+
+/**
  *  FilterElement provide one of the filter list in a side drawer.
  *
  *  The filter is configured by a {@link IField} that is part of the global metadata.
@@ -126,7 +131,7 @@ export class FilterElement implements IFilterElement {
      * Imports option view for a filter element from the global filter_config variable.
      */
     private appendFilterValues(): void {
-        this.selectElement.prop("size", this.filterModel.length);
+        this.selectElement.prop("size", Math.min(this.filterModel.length, MAX_FILTER_ELEMENT));
         this.filterModel.forEach((item: IField, index: number) => {
             const color: string = item.color ? `style="color:${item.color}"` : '';
             const count: string = item.item_count >= 0 ? `&nbsp;&nbsp;(${item.item_count})` : '';
