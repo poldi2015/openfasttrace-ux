@@ -45,13 +45,14 @@
   }
 
   ._search-clear {
-    position: relative;
-    left: -34px;
-    top: -4px;
+    position: absolute;
+    right: 8px;
+    top: 60%;
+    transform: translateY(-50%);
     cursor: pointer;
     border: none;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background-color: transparent;
     background-size: contain;
     background-repeat: no-repeat;
