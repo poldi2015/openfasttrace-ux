@@ -47,7 +47,7 @@
   }
 
   tr:nth-child(even) > td.details-table-value {
-    background-color: white;
+    background-color: var(--col-table-even-value);
   }
 
   colgroup {
