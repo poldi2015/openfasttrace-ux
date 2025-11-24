@@ -27,12 +27,12 @@
   position: relative;
   font-size: 12pt;
   font-weight: bold;
-  color: #656a77;
+  color: var(--col-nav-font);
   padding-left: 8pt;
   padding-right: 4pt;
   height: 35px;
-  background-color: #f0f0f0;
-  border-top: solid 1px #dddcdc;
+  background-color: var(--col-nav-bg);
+  border-top: solid 1px var(--col-nav-border);
 
   display: flex;
   flex-direction: row;
@@ -72,12 +72,34 @@
 }
 
 .nav-btn:hover {
-  background-color: #e8e8de;
+  background-color: var(--col-nav-hover);
 }
 
 .nav-btn-on {
-  background-color: #e8e8de;
+  background-color: var(--col-nav-active);
   border-radius: 2px;
-  box-shadow: inset 1px 1px 2px #bcbcbc;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+// Theme toggle button: no sunken effect in light mode, only hover
+:root.light-theme #btn-theme-toggle.nav-btn-on,
+:root:not(.dark-theme) #btn-theme-toggle.nav-btn-on {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+:root.light-theme #btn-theme-toggle:hover,
+:root:not(.dark-theme) #btn-theme-toggle:hover {
+  background-color: var(--col-nav-hover);
+}
+
+// Theme toggle button: use same hover in dark mode
+:root.dark-theme #btn-theme-toggle.nav-btn-on {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+:root.dark-theme #btn-theme-toggle:hover {
+  background-color: var(--col-nav-hover);
 }
 

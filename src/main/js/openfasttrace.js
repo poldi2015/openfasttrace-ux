@@ -29,9 +29,15 @@ import {DetailsElementFactory} from "@main/view/details_element";
 import {SpecItemsElement} from "@main/view/spec_items_element";
 import {Project} from "@main/model/project";
 import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
+import {ThemeController} from "@main/controller/theme_controller";
+import {HeaderElement} from "@main/view/header_element";
 
 function _init() {
     console.log("START");
+    
+    // Initialize theme controller with dark mode as default
+    const themeController = new ThemeController().init();
+    
     const projectModel = window.specitem.project;
     const specItems = window.specitem.specitems;
     const fieldCounts = new Map([
@@ -71,17 +77,15 @@ function _init() {
     specItemsElement.init().activate();
     new SpecItemsController(oftStateController, specItemsElement, project).init(specItems);
 
-    initHeader(project);
+    // Initialize header with OFT logo, project name, and theme toggle
+    new HeaderElement($("#header"), project.projectName, themeController).init().activate();
+    
     initFooter(project);
 
     new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
 
     oftStateController.init();
     console.log("ACTIVE");
-}
-
-function initHeader(project) {
-    $("#project-name").append(project.projectName);
 }
 
 function initFooter(project) {

@@ -34,6 +34,38 @@
   border-radius: 1px;
 }
 
+// Invert all icons in dark mode for visibility (except the logo)
+:root.dark-theme {
+  %icon-image {
+    filter: invert(1) brightness(0.9);
+  }
+  
+  // Apply inversion to all icons except #logo
+  .img-logo-filters,
+  .img-logo-details,
+  .img-sidebar-close,
+  ._img-filter-all,
+  ._img-filter-off,
+  #img-logo-content,
+  #img-expand,
+  #btn-history-back,
+  #btn-history-forward,
+  #btn-scroll-to-selection,
+  #img-search-client,
+  ._search-clear,
+  ._img-button-pin,
+  ._img-button-unpin,
+  #img-help,
+  #btn-theme-toggle {
+    filter: invert(1) brightness(0.9);
+  }
+  
+  // Keep logo with original colors
+  #logo {
+    filter: none;
+  }
+}
+
 //
 // Header
 
@@ -121,4 +153,22 @@ span.sidebar-logo {
 
 ._img-button-unpin {
   background-image: url("~@images/material_keep_off.svg");
+}
+
+//
+// Theme Toggle
+
+#btn-theme-toggle {
+  @extend %icon-image;
+}
+
+// Light mode: show dark_mode icon (moon)
+:root.light-theme #btn-theme-toggle,
+:root:not(.dark-theme) #btn-theme-toggle {
+  background-image: url("~@images/material_dark_mode.svg");
+}
+
+// Dark mode: show light_mode icon (sun)
+:root.dark-theme #btn-theme-toggle {
+  background-image: url("~@images/material_light_mode.svg");
 }

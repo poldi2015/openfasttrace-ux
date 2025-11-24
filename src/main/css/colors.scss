@@ -18,20 +18,20 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
-$light-color-bg-darker: #f0f0f0;
-$light-color-bg-lighter: #f6f6f6;
+// Light mode colors
+$light-color-bg-darker: #f8f8f8;
+$light-color-bg-lighter: #ffffff;
+$light-color-bg-white: #ffffff;
 $light-color-border: #dddcdc;
-$light-color-icons: #434343;
+$light-color-icons: #2c2c2c;
 $light-color-selected: #d4d9dc;
 $light-color-disabled: #b8b3b3;
-$light-color-font: #656a77;
-$light-color-font-light: #605454;
+$light-color-font: #1a1a1a;
+$light-color-font-light: #3a3a3a;
 $light-color-specitem-selected: #ccd6d6;
-$light-color-specitem-hover: #ebf1f1;
+$light-color-specitem-hover: #f0f5f5;
 $light-color-specitem-focus: #daecda;
 $light-color-specitem-focus-selected: #a2cfc6;
-
-// focus-border: #505050
 
 $light-color-badge-border: #424141;
 $light-color-badge-grey: #f9f9f8;
@@ -39,7 +39,35 @@ $light-color-badge-green: #b7f3b7;
 $light-color-badge-red: #f3c5c5;
 $light-color-badge-orange: #f2dffd;
 
-:root {
+$light-color-nav-hover: #e8e8de;
+
+// Dark mode colors
+$dark-color-bg-darker: #1e1e1e;
+$dark-color-bg-lighter: #252526;
+$dark-color-bg-white: #2d2d30;
+$dark-color-border: #3e3e42;
+$dark-color-icons: #e8e8e8;
+$dark-color-selected: #37373d;
+$dark-color-disabled: #656565;
+$dark-color-font: #cccccc;
+$dark-color-font-light: #b4b4b4;
+$dark-color-specitem-selected: #2a2d2e;
+$dark-color-specitem-hover: #2a2d2e;
+$dark-color-specitem-focus: #1a3d1a;
+$dark-color-specitem-focus-selected: #264d40;
+
+$dark-color-badge-border: #5a5a5a;
+$dark-color-badge-grey: #3c3c3c;
+$dark-color-badge-green: #2d5a2d;
+$dark-color-badge-red: #5a2d2d;
+$dark-color-badge-orange: #4a3d5a;
+
+$dark-color-nav-hover: invert(#3a3a3a);
+$dark-color-nav-active: invert(#404040);
+
+// Light mode colors (default)
+:root,
+:root.light-theme {
   --col-font: #{$light-color-font};
   --col-header-footer: #{$light-color-bg-darker};
   --col-slider: #{$light-color-bg-lighter};
@@ -51,6 +79,7 @@ $light-color-badge-orange: #f2dffd;
 
   --col-table-head: #{$light-color-bg-darker};
   --col-table-odd-value: #{$light-color-bg-lighter};
+  --col-table-even-value: #{$light-color-bg-white};
 
   --col-specitem-badge-border: #{$light-color-badge-border};
   --col-specitem-badge-color-none: #{$light-color-badge-grey};
@@ -65,4 +94,46 @@ $light-color-badge-orange: #f2dffd;
   --col-specitem-focus-selected: #{$light-color-specitem-focus-selected};
   --col-specitem-focus-focus: #{$light-color-specitem-focus-selected};
   --col-specitem-focus-border: #{$light-color-border};
+
+  --col-nav-font: #{$light-color-font};
+  --col-nav-bg: #{$light-color-bg-darker};
+  --col-nav-border: #{$light-color-border};
+  --col-nav-hover: #{$light-color-nav-hover};
+  --col-nav-active: #{$light-color-nav-hover};
+}
+
+// Dark mode using class (takes precedence over media query)
+:root.dark-theme {
+  --col-font: #{$dark-color-font};
+  --col-header-footer: #{$dark-color-bg-darker};
+  --col-slider: #{$dark-color-bg-lighter};
+  --col-separator: #{$dark-color-border};
+  --col-border: #{$dark-color-border};
+  --col-icons: #{$dark-color-icons};
+  --col-selected: #{$dark-color-selected};
+  --col-disabled: #{$dark-color-disabled};
+
+  --col-table-head: #{$dark-color-bg-darker};
+  --col-table-odd-value: #{$dark-color-bg-lighter};
+  --col-table-even-value: #{$dark-color-bg-white};
+
+  --col-specitem-badge-border: #{$dark-color-badge-border};
+  --col-specitem-badge-color-none: #{$dark-color-badge-grey};
+  --col-specitem-badge-color-covered: #{$dark-color-badge-green};
+  --col-specitem-badge-color-uncovered: #{$dark-color-badge-red};
+  --col-specitem-badge-color-missing: #{$dark-color-badge-orange};
+
+  --col-specitem-type: #{$dark-color-font-light};
+  --col-specitem-selected: #{$dark-color-specitem-selected};
+  --col-specitem-hover: #{$dark-color-specitem-hover};
+  --col-specitem-focus: #{$dark-color-specitem-focus};
+  --col-specitem-focus-selected: #{$dark-color-specitem-focus-selected};
+  --col-specitem-focus-focus: #{$dark-color-specitem-focus-selected};
+  --col-specitem-focus-border: #{$dark-color-border};
+
+  --col-nav-font: #{$dark-color-font};
+  --col-nav-bg: #{$dark-color-bg-darker};
+  --col-nav-border: #{$dark-color-border};
+  --col-nav-hover: #{$dark-color-nav-hover};
+  --col-nav-active: #{$dark-color-nav-active};
 }

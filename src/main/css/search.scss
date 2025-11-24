@@ -31,7 +31,8 @@
   ._search-input {
     position: relative;
     font: normal 13px Arial, sans-serif;
-    color: #000;
+    color: var(--col-font);
+    background-color: var(--col-table-even-value);
     width: 235px;
     height: 23px;
     padding-left: 14px;

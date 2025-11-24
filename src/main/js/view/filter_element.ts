@@ -44,7 +44,7 @@ export class FilterElementFactory {
 /**
  * Maximum number of filter elements to be shown in the UI.
  */
-const MAX_FILTER_ELEMENT = 8;
+const MAX_FILTER_ELEMENT = 12;
 
 /**
  *  FilterElement provide one of the filter list in a side drawer.
