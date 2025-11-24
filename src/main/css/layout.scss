@@ -34,6 +34,20 @@ body {
   border: solid 1px var(--col-border);
 }
 
+// Links
+a {
+  color: var(--col-link);
+  text-decoration: none;
+
+  &:visited {
+    color: var(--col-link-visited);
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 // Header, Footer
 
 .header-footer {

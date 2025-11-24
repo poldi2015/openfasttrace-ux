@@ -41,6 +41,9 @@ $light-color-badge-orange: #f2dffd;
 
 $light-color-nav-hover: #e8e8de;
 
+$light-color-link: #0066cc;
+$light-color-link-visited: #551a8b;
+
 // Dark mode colors
 $dark-color-bg-darker: #1e1e1e;
 $dark-color-bg-lighter: #252526;
@@ -64,6 +67,9 @@ $dark-color-badge-orange: #4a3d5a;
 
 $dark-color-nav-hover: invert(#3a3a3a);
 $dark-color-nav-active: invert(#404040);
+
+$dark-color-link: #6699cc;  // 20% more grey-blue for dark mode
+$dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
 
 // Light mode colors (default)
 :root,
@@ -100,6 +106,9 @@ $dark-color-nav-active: invert(#404040);
   --col-nav-border: #{$light-color-border};
   --col-nav-hover: #{$light-color-nav-hover};
   --col-nav-active: #{$light-color-nav-hover};
+
+  --col-link: #{$light-color-link};
+  --col-link-visited: #{$light-color-link-visited};
 }
 
 // Dark mode using class (takes precedence over media query)
@@ -136,4 +145,7 @@ $dark-color-nav-active: invert(#404040);
   --col-nav-border: #{$dark-color-border};
   --col-nav-hover: #{$dark-color-nav-hover};
   --col-nav-active: #{$dark-color-nav-active};
+
+  --col-link: #{$dark-color-link};
+  --col-link-visited: #{$dark-color-link-visited};
 }
