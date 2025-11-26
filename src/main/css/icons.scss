@@ -172,3 +172,9 @@ span.sidebar-logo {
 :root.dark-theme #btn-theme-toggle {
   background-image: url("~@images/material_light_mode.svg");
 }
+
+// Copy icon
+._img-content-copy {
+  @extend %icon-image;
+  background-image: url("~@images/material_content_copy.svg");
+}

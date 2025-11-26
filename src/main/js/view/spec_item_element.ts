@@ -23,6 +23,7 @@ import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
 import {IField, Project} from "@main/model/project";
+import {CopyButtonElement} from "@main/view/copy_button_element";
 
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
@@ -50,6 +51,7 @@ export class SpecItemElement {
     protected readonly elementId: string;
     protected selected: boolean = false;
     private _isActive: boolean = false;
+    private copyButton: CopyButtonElement | null = null;
 
     /**
      * Inserts the specitem at a specific position into the children of the parentElement.
@@ -210,7 +212,11 @@ export class SpecItemElement {
                     <div class="_specitem-pin _img-button-pin">
                     </div>
                     <div class="_specitem-header">
-                        <div class="_specitem-name">[${this.specItem.id}]</div>${draft}
+                        <div class="_specitem-name">[${this.specItem.id}]</div>
+                        <button class="_copy-btn-sm" title="Copy ID to clipboard">
+                            <span class="_img-content-copy"></span>
+                        </button>
+                        ${draft}
                         <div class="_specitem-status">${coverageTemplate}</div>
                     </div>
                     <div class="_specitem-body">
@@ -221,7 +227,7 @@ export class SpecItemElement {
             </div>             
         `);
 
-        return this.addListenersToTemplate(template);
+        return this.addListenersToTemplate(this.addCopyButton(template));
     }
 
     protected createCoverageTemplate(): string {
@@ -254,6 +260,14 @@ export class SpecItemElement {
         template.find('._specitem-pin').on({
             click: () => this.notifyFocus()
         });
+        return template;
+    }
+
+    private addCopyButton(template: JQuery): JQuery {
+        this.copyButton = new CopyButtonElement(
+            template.find('._copy-btn-sm'),
+            () => this.specItem.id
+        ).init();
         return template;
     }
 
