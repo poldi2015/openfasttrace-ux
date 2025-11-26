@@ -21,7 +21,7 @@
 @use "button";
 
 #specitems-tab {
-  height: calc(100vh - 340px);
+  height: calc(100vh - 380px);
   overflow: hidden;
   padding: 5px;
 }
@@ -41,39 +41,49 @@
 }
 
 ._specitem-header {
-  height: 20px;
-  padding: 8px 8px 5px 10px;
+  min-height: 24px;
+  padding: 8px 8px 0 10px;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 ._specitem-name {
   font-weight: bold;
   float: left;
-  height: 15px;
+  height: auto;
   margin-left: 5px;
   padding: 2px 4px 2px 4px;
 }
 
 ._specitem-status {
-  float: right;
-  margin: 3px 3px 3px 3px;
+  margin-left: auto;
+  margin-top: 2px;
 }
 
 ._specitem-body {
   font-size: 14px;
-  margin: 5px 3px 3px 3px;
-  padding: 7px 12px 7px 14px;
+  margin: 0 3px 3px 3px;
+  padding: 8px 12px 7px 14px;
+  clear: both;
 }
 
-// Badges
+// Badges (10% smaller)
 
 @mixin _specitem-badge($color) {
   float: left;
-  height: 15px;
-  margin-left: 5px;
-  padding: 2px 4px 2px 4px;
+  height: auto;
+  min-height: 18px;
+  line-height: 18px;
+  margin-left: 4px;
+  padding: 2px 7px;
   background-color: $color;
   border: 1px solid var(--col-specitem-badge-border);
   border-radius: 3px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
 }
 
 ._specitem-none {
@@ -96,19 +106,30 @@
   float: left;
   color: var(--col-specitem-type);
   font-weight: bold;
-  padding: 2px 4px 2px 4px;
+  padding: 2px 7px;
+  line-height: 18px;
+  min-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
 }
 
 ._specitem-selected {
   background-color: var(--col-specitem-selected) !important;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 ._specitem-mouse-enter:not(._specitem-selected,._focuspecitem) {
   background-color: var(--col-specitem-hover) !important;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  transform: translateX(2px);
 }
 
 ._specitem-mouse-leave:not(._specitem-selected,._focuspecitem) {
   background-color: transparent;
+  transform: translateX(0);
 }
 
 ._specitem-pin {
