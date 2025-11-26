@@ -25,6 +25,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
 import {OftState} from "@main/model/oft_state";
 import {IField, Project} from "@main/model/project";
+import {CopyButtonElement} from "@main/view/copy_button_element";
 
 const SPECITEM_ID_CLASS = ".specitem-id";
 const DETAILS_TABLE_ID = "#details-table";
@@ -61,9 +62,15 @@ export class DetailsElement implements IDetailsElement {
         private readonly project: Project,
         private readonly oftState: OftStateController) {
         this.tableElement = $(DETAILS_TABLE_ID);
+        this.copyButton = new CopyButtonElement(
+            $('#details-copy-btn'),
+            () => this.currentSpecItemId
+        );
     }
 
     private readonly tableElement: JQuery<HTMLElement>;
+    private readonly copyButton: CopyButtonElement;
+    private currentSpecItemId: string | null = null;
 
     protected log: Log = new Log("DetailsElement");
 
@@ -72,6 +79,7 @@ export class DetailsElement implements IDetailsElement {
     }
 
     public init(): IDetailsElement {
+        this.copyButton.init();
         this.deactivate();
         return this;
     }
@@ -98,11 +106,15 @@ export class DetailsElement implements IDetailsElement {
         if (specItem == null) {
             this.log.info("Clearing description");
             this.clearTable();
+            this.currentSpecItemId = null;
+            this.copyButton.setVisible(false);
             return;
         }
 
         this.log.info("Updating description for", specItem!.index);
+        this.currentSpecItemId = specItem!.id;
         $(SPECITEM_ID_CLASS).text(this.createNavHeaderLabel(specItem!));
+        this.copyButton.setVisible(true);
         $(DETAILS_STATUS_ID).text(this.createStatusValue(specItem!));
         $(DETAILS_NEEDS_ID).text(this.createTypesValue(specItem!.needs));
         $(DETAILS_COVERS_ID).text(this.createTypesValue(specItem!.provides));

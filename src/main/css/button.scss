@@ -52,3 +52,65 @@
   transform: translate(-50%, -50%) scale(1.02);
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
 }
+
+//
+// Copy to clipboard button
+
+._copy-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+
+  ._img-content-copy {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.08);
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &._copy-success {
+    opacity: 1;
+    background-color: rgba(89, 142, 167, 0.25);
+  }
+}
+
+// Smaller variant for inline use (e.g., in spec item list)
+._copy-btn-sm {
+  @extend ._copy-btn;
+  width: 18px;
+  height: 18px;
+  padding: 2px;
+  margin-left: 4px;
+  opacity: 0.6;
+
+  ._img-content-copy {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &._copy-success {
+    background-color: rgba(89, 142, 167, 0.2);
+  }
+}
