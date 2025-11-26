@@ -21,32 +21,40 @@
 .expandable {
   border: none;
   width: 100%;
-  margin: 8px 5px 20px 5px;
-  font-size: 12px;
+  margin: 12px 8px 16px 8px;
+  font-size: 13px;
 }
 
 ._expandable-header {
   display: block;
   align-items: center;
-  padding: 5px;
-  border-bottom: 1px dotted;
-  font-size: 14px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--col-border);
+  font-size: 13px;
+  border-radius: 6px 6px 0 0;
+  background-color: rgba(0, 0, 0, 0.02);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
 }
 
 ._expandable-header span {
-  margin-left: 5px;
-  font-weight: bold;
+  margin-left: 4px;
+  font-weight: 600;
   cursor: pointer;
+  user-select: none;
 }
 
 ._expandable-header span::before {
   display: inline-block;
   content: "";
-  margin-right: 8px;
+  margin-right: 10px;
   border-style: solid;
-  border-width: 8px 5px 0 5px;
+  border-width: 7px 5px 0 5px;
   border-color: var(--col-icons) transparent transparent transparent;
-  transition: transform 0.3s;
+  transition: transform 0.25s ease;
 }
 
 ._expandable-header.collapsed span::before {
@@ -55,7 +63,19 @@
 
 ._expandable-content {
   display: none;
-  padding: 0 8px 0 -2px;
+  padding: 8px 12px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 ._expandable-content.visible {

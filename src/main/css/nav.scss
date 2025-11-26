@@ -28,9 +28,8 @@
   font-size: 12pt;
   font-weight: bold;
   color: var(--col-nav-font);
-  padding-left: 8pt;
-  padding-right: 4pt;
-  height: 35px;
+  padding: 10px 12px;
+  min-height: 52px;
   background-color: var(--col-nav-bg);
   border-top: solid 1px var(--col-nav-border);
 
@@ -38,12 +37,13 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 
   span:first-of-type {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    gap: 8px;
   }
 }
 
@@ -62,30 +62,31 @@
 
 .nav-btn {
   @extend %icon-image;
-  margin-left: 5px;
-}
-
-.nav-btn-activator {
-}
-
-.nav-btn-toggler {
+  margin-left: 6px;
+  border-radius: 6px;
+  padding: 8px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  cursor: pointer;
 }
 
 .nav-btn:hover {
   background-color: var(--col-nav-hover);
+  transform: scale(1.05);
+}
+
+.nav-btn:active {
+  transform: scale(0.98);
 }
 
 .nav-btn-on {
   background-color: var(--col-nav-active);
-  border-radius: 2px;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
 }
 
-// Theme toggle button: no sunken effect in light mode, only hover
+// Theme toggle button: clean hover effect
 :root.light-theme #btn-theme-toggle.nav-btn-on,
 :root:not(.dark-theme) #btn-theme-toggle.nav-btn-on {
   background-color: transparent;
-  box-shadow: none;
 }
 
 :root.light-theme #btn-theme-toggle:hover,
@@ -93,10 +94,8 @@
   background-color: var(--col-nav-hover);
 }
 
-// Theme toggle button: use same hover in dark mode
 :root.dark-theme #btn-theme-toggle.nav-btn-on {
   background-color: transparent;
-  box-shadow: none;
 }
 
 :root.dark-theme #btn-theme-toggle:hover {
