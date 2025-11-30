@@ -17,6 +17,7 @@
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
+@use "sass:color";
 
 // Light mode colors
 $light-color-bg-darker: #f8f8f8;
@@ -65,8 +66,8 @@ $dark-color-badge-green: #2d5a2d;
 $dark-color-badge-red: #5a2d2d;
 $dark-color-badge-orange: #4a3d5a;
 
-$dark-color-nav-hover: invert(#3a3a3a);
-$dark-color-nav-active: invert(#404040);
+$dark-color-nav-hover: color.invert(#3a3a3a);
+$dark-color-nav-active: color.invert(#404040);
 
 $dark-color-link: #6699cc;  // 20% more grey-blue for dark mode
 $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
