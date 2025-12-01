@@ -225,7 +225,25 @@ export class SpecItemsController {
                 if (specItemElement.specItem.index == selectedIndex) this.oftStateController.unselectItem();
             }
         });
-        this.specItemsElement.updateNumberOfItems(specItemElements.length, this.focusSpecItemElement != null);
+        this.specItemsElement.updateNumberOfItems(specItemElements.length);
+        this.specItemsElement.updateCoveragePercentage(this.calculateCoveragePercentage(specItemElements));
+        this.specItemsElement.setFocusVisibility(this.focusSpecItemElement != null);
+    }
+
+    /**
+     * Calculate the coverage percentage of the given spec items.
+     *
+     * @param specItemElements The items
+     * @return coverage percentage 0-100
+     * @private
+     */
+    private calculateCoveragePercentage(specItemElements: Array<SpecItemElement>): number {
+        const coveredNumberOfSpecItems = specItemElements.filter((specItemElement: SpecItemElement) =>
+            specItemElement.specItem.uncovered.length === 0
+        ).length;
+        return specItemElements.length > 0
+            ? Math.round((coveredNumberOfSpecItems / specItemElements.length) * 100)
+            : 0;
     }
 
     /**
