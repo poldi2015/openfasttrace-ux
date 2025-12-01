@@ -25,6 +25,7 @@ import {Log} from "@main/utils/log";
 const CONTENT_NAV_BAR_ID = "#content-nav-bar";
 const CONTENT_SPEC_ITEM_COUNT = "#specitem-count";
 const CONTENT_SPEC_ITEM_FOCUS_COUNT = "#specitem-count-focused";
+const CONTENT_SPEC_ITEM_COVERAGE_PERCENTAGE = "#specitem-coverage-percentage";
 
 export class SpecItemsElement implements IElement {
     constructor(private oftState: OftStateController) {
@@ -33,8 +34,9 @@ export class SpecItemsElement implements IElement {
     }
 
     private readonly navbarElement: NavbarElement;
-    private readonly specItemCountElement: JQuery<HTMLElement> = $(CONTENT_SPEC_ITEM_COUNT);
-    private readonly specItemFocusCountElement: JQuery<HTMLElement> = $(CONTENT_SPEC_ITEM_FOCUS_COUNT);
+    private readonly specItemCountElement: JQuery = $(CONTENT_SPEC_ITEM_COUNT);
+    private readonly specItemFocusCountElement: JQuery = $(CONTENT_SPEC_ITEM_FOCUS_COUNT);
+    private readonly specItemCoveragePercentageElement: JQuery = $(CONTENT_SPEC_ITEM_COVERAGE_PERCENTAGE);
 
     private log: Log = new Log("SpecItemsElement");
 
@@ -59,9 +61,19 @@ export class SpecItemsElement implements IElement {
         return this.navbarElement.isActive();
     }
 
-    public updateNumberOfItems(numberOfItems: number, hasFocused: boolean): void {
+    public updateNumberOfItems(numberOfItems: number): void {
         this.log.info("updateShownItems number:", numberOfItems);
         this.specItemCountElement.text(numberOfItems);
+    }
+
+    // New: update only the coverage percentage visualization
+    public updateCoveragePercentage(coveragePercentage: number = 0): void {
+        this.log.info("updateShownItems coverage:", coveragePercentage);
+        this.specItemCoveragePercentageElement.text(`${coveragePercentage}%`);
+    }
+
+    // New: update visibility of the focused-count indicator
+    public setFocusVisibility(hasFocused: boolean): void {
         if (hasFocused) {
             this.specItemFocusCountElement.show();
         } else {
