@@ -38,11 +38,12 @@
   border-radius: 2px;
   border-bottom: dotted var(--col-border);
   border-bottom-width: 1px;
+  padding: 2px 8px 4px 2px;
 }
 
 ._specitem-header {
   min-height: 24px;
-  padding: 8px 8px 0 10px;
+  padding: 8px 8px 6px 10px;
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -50,7 +51,9 @@
 }
 
 ._specitem-name {
-  font-weight: bold;
+  //font-weight: bold;
+  font-size: 16px;
+  color: var(--col-specitem-name);
   float: left;
   height: auto;
   margin-left: 5px;
@@ -69,49 +72,167 @@
   clear: both;
 }
 
-// Badges (10% smaller)
+// Badges - Modern Design
 
 @mixin _specitem-badge($color) {
   float: left;
   height: auto;
-  min-height: 18px;
-  line-height: 18px;
-  margin-left: 4px;
-  padding: 2px 7px;
+  min-height: 20px;
+  line-height: 20px;
+  margin-left: 6px;
+  margin-top: -8px;
+  padding: 3px 10px;
   background-color: $color;
-  border: 1px solid var(--col-specitem-badge-border);
-  border-radius: 3px;
+  border: none;
+  border-radius: 8px;
   font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   display: inline-flex;
   align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+  0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+    0 2px 3px rgba(0, 0, 0, 0.08);
+  }
 }
 
 ._specitem-none {
   @include _specitem-badge(var(--col-specitem-badge-color-none));
+  opacity: 0.7;
 }
 
 ._specitem-covered {
   @include _specitem-badge(var(--col-specitem-badge-color-covered));
+  color: #1a5a1a;
+
+  // Dark mode text color
+  :root.dark-theme & {
+    color: #ccf3cc;
+  }
 }
 
 ._specitem-uncovered {
   @include _specitem-badge(var(--col-specitem-badge-color-uncovered));
+  color: #352e2e;
+
+  // Dark mode text color
+  :root.dark-theme & {
+    color: #f4d6d6;
+  }
 }
 
 ._specitem-missing {
   @include _specitem-badge(var(--col-specitem-badge-color-missing));
+  color: #991b1b;
+  font-weight: 700;
+
+  // Dark mode text color
+  :root.dark-theme & {
+    color: #ffffff;
+  }
+}
+
+._specitem-accepted {
+  float: left;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin-left: 0;
+  margin-right: 8px;
+  margin-top: -8px;
+  padding: 0;
+  background-color: var(--col-specitem-badge-color-covered);
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+  0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  color: #166534;
+
+  :root.dark-theme & {
+    color: #ffffff;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+  }
+}
+
+._specitem-rejected {
+  float: left;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin-left: 0;
+  margin-right: 8px;
+  margin-top: -8px;
+  padding: 0;
+  background-color: var(--col-specitem-badge-color-uncovered);
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+  0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  color: #991b1b;
+
+  :root.dark-theme & {
+    color: #ffffff;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+  }
 }
 
 ._specitem-draft {
   float: left;
   color: var(--col-specitem-type);
-  font-weight: bold;
-  padding: 2px 7px;
-  line-height: 18px;
-  min-height: 18px;
+  font-weight: 600;
+  padding: 3px 10px;
+  line-height: 20px;
+  min-height: 20px;
+  margin-left: 6px;
+  margin-top: -8px;
   display: inline-flex;
   align-items: center;
   font-size: 11px;
+  letter-spacing: 0.3px;
+  border-radius: 12px;
+  background-color: var(--col-specitem-draft-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+  0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+
+  :root.dark-theme & {
+    color: #c7d2fe;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+  }
 }
 
 ._specitem-selected {
