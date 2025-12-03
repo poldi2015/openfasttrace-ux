@@ -231,18 +231,29 @@ export class SpecItemElement {
     }
 
     protected createCoverageTemplate(): string {
-        return this.project.getTypeFieldModel().map((type: IField, index: number): string => {
-            switch (this.specItem.covered[index]) {
-                case 3:
-                    return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
-                case 2:
-                    return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
-                case 1:
-                    return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${type.label}</div>`;
-                default:
-                    return `<div id="${this.elementId}_cov${index}" class="_specitem-none">${type.label}</div>`;
-            }
-        }).join('');
+        // Determine overall acceptance status
+        const isFullyCovered = this.specItem.uncovered.length === 0;
+        const acceptanceBadge = isFullyCovered
+            ? `<div class="_specitem-accepted">✓</div>`
+            : `<div class="_specitem-rejected">✗</div>`;
+
+        // Generate type-specific coverage badges
+        const typeBadges = this.project.getTypeFieldModel()
+            .filter((_type: IField, index: number) => index !== this.specItem.type) // Exclude the item's own type
+            .map((type: IField, index: number): string => {
+                switch (this.specItem.covered[index]) {
+                    case 3: // MISSING - use red color
+                        return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
+                    case 2: // COVERED - use green color
+                        return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
+                    case 1: // UNCOVERED - use red color
+                        return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${type.label}</div>`;
+                    default:
+                        return '';
+                }
+            }).join('');
+
+        return acceptanceBadge + typeBadges;
     }
 
     protected createDraftTemplate(): string {
@@ -272,3 +283,4 @@ export class SpecItemElement {
     }
 
 } // SpecItemElement
+

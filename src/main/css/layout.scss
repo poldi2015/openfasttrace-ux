@@ -73,6 +73,13 @@ a {
   border-bottom: solid 1px var(--col-border);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
+  /*
+    background: linear-gradient(to right, #31355b, #ffffff);
+
+    :root.dark-theme & {
+      background: linear-gradient(to right, #6699cc, #252526);
+    }
+   */
 
   div:first-of-type {
     position: relative;
