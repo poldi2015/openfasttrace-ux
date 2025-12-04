@@ -209,8 +209,6 @@ export class SpecItemElement {
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
                 <div style="position:relative">    
-                    <div class="_specitem-pin _img-button-pin">
-                    </div>
                     <div class="_specitem-header">
                         <div class="_specitem-name">[${this.specItem.id}]</div>
                         <button class="_copy-btn-sm" title="Copy ID to clipboard">
@@ -263,14 +261,22 @@ export class SpecItemElement {
     }
 
     protected addListenersToTemplate(template: JQuery): JQuery {
+        // Single click for selection
         template.on({
             click: () => this.notifySelection(),
+            dblclick: () => this.notifyFocus(), // Double-click to pin/focus
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
-        template.find('._specitem-pin').on({
-            click: () => this.notifyFocus()
+
+        // Single click on acceptance badge to pin/focus
+        template.find('._specitem-accepted, ._specitem-rejected').on({
+            click: (e) => {
+                e.stopPropagation(); // Prevent triggering parent click
+                this.notifyFocus();
+            }
         });
+
         return template;
     }
 
@@ -283,4 +289,3 @@ export class SpecItemElement {
     }
 
 } // SpecItemElement
-
