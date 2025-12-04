@@ -159,6 +159,7 @@
   0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
   color: #166534;
+  cursor: pointer;
 
   :root.dark-theme & {
     color: #ffffff;
@@ -192,6 +193,7 @@
   0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
   color: #991b1b;
+  cursor: pointer;
 
   :root.dark-theme & {
     color: #ffffff;
@@ -253,26 +255,6 @@
   transform: translateX(0);
 }
 
-._specitem-pin {
-  @extend %btn-floating;
-  visibility: hidden;
-  top: 50%;
-  left: 50%;
-}
-
-.specitem:hover ._specitem-pin {
-  visibility: visible;
-  animation: fadeOut 350ms ease-in 2s forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 80%;
-  }
-  to {
-    opacity: 0;
-  }
-}
 
 
 #focusitem {
