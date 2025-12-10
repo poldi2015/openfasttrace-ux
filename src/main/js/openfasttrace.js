@@ -82,7 +82,7 @@ function _init() {
     new HeaderElement($("#header"), project.projectName, themeController).init().activate();
 
     // Initialize tree view in right sidebar
-    new TreeViewElement(specItems, oftStateController).init().activate();
+    new TreeViewElement(specItems, oftStateController, project).init().activate();
     
     initFooter(project);
 
