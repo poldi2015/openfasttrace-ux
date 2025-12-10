@@ -183,3 +183,14 @@ span.sidebar-logo {
   @extend %icon-image;
   background-image: url("~@images/material_content_copy.svg");
 }
+
+// Tree view expand/collapse icons
+.img-tree-expand-all {
+  @extend %icon-image;
+  background-image: url("~@images/material_expand_all.svg");
+}
+
+.img-tree-collapse-all {
+  @extend %icon-image;
+  background-image: url("~@images/material_collapse_all.svg");
+}
