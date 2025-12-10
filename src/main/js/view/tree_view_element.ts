@@ -48,6 +48,7 @@ export class TreeViewElement {
     public init(): TreeViewElement {
         this.buildTree();
         this.renderTree();
+        this.attachExpandCollapseButtons();
         return this;
     }
 
@@ -61,6 +62,35 @@ export class TreeViewElement {
 
     public isActive(): boolean {
         return true;
+    }
+
+    /**
+     * Attaches handlers to the expand/collapse all buttons
+     */
+    private attachExpandCollapseButtons(): void {
+        $('#tree-expand-all').off('click').on('click', () => {
+            this.expandAll();
+        });
+
+        $('#tree-collapse-all').off('click').on('click', () => {
+            this.collapseAll();
+        });
+    }
+
+    /**
+     * Expands all tree nodes
+     */
+    private expandAll(): void {
+        this.treeViewElement.find('.tree-children').show();
+        this.treeViewElement.find('.tree-expand-icon').text('▼');
+    }
+
+    /**
+     * Collapses all tree nodes
+     */
+    private collapseAll(): void {
+        this.treeViewElement.find('.tree-children').hide();
+        this.treeViewElement.find('.tree-expand-icon').text('▶');
     }
 
     /**
