@@ -75,6 +75,7 @@
     width: 16px;
     min-width: 16px;
     display: inline-block;
+    margin-right: 4px;
   }
 
   .tree-node-name {
@@ -143,6 +144,10 @@
 
   .tree-node[data-level="3"] > .tree-node-label {
     padding-left: 56px;
+  }
+
+  .tree-node[data-level="4"] > .tree-node-label {
+    padding-left: 72px;
   }
 }
 
