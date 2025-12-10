@@ -18,7 +18,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {Filter, IndexFilter} from "@main/model/filter";
+import {Filter, IndexFilter, SelectionFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
@@ -157,9 +157,8 @@ export class SpecItemElement {
     /**
      * Set this element as the focus element or switch coverType
      */
-    protected notifyFocus(coverType: CoverType = CoverType.coveredBy): void {
+    protected notifyFocus(coverType: CoverType = CoverType.covering): void {
         if (!this.isActive()) return;
-        this.log.info("notifyFocus index", this.specItem.index);
 
         // Filter by covering or coveredBy
         const acceptedIndexes: Array<number> = (() => {
@@ -179,8 +178,47 @@ export class SpecItemElement {
             }
         })();
 
+        this.log.info("notifyFocus index", this.specItem.index, "coverType", coverType, "acceptedIndexes", acceptedIndexes);
+
         const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes)]]);
         this.oftStateController.focusItem(this.specItem.index, coverType, filters);
+    }
+
+    /**
+     * Set this element as the focus element and filter by the clicked badge's type
+     *
+     * @param badgeElement the clicked badge element containing the type index
+     */
+    protected notifyFocusWithTypeFilter(badgeElement: HTMLElement): void {
+        if (!this.isActive()) return;
+
+        const typeIndex = this.extractBatchTypeIndex(badgeElement);
+
+        // Get covering indexes (items that this item covers)
+        const acceptedIndexes: Array<number> = this.specItem.coveredBy.length > 0 ? this.specItem.coveredBy : [-1];
+
+        // Create filters: index filter for covering items + type filter for the clicked badge
+        const filters: Map<FilterName, Filter> = new Map<FilterName, Filter>();
+        filters.set(IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes));
+        filters.set("type", new SelectionFilter("type", [typeIndex]));
+
+        this.log.info("notifyFocusWithTypeFilter index", this.specItem.index, "typeIndex", typeIndex, "acceptedIndexes", acceptedIndexes);
+
+        this.oftStateController.focusItem(this.specItem.index, CoverType.coveredBy, filters);
+    }
+
+    /**
+     * Extract the type index from the badge element's id attribute
+     * id Format: "to_{specItemIndex}_cov{typeIndex}"
+     *
+     * @param badgeElement The badge element selected (expected that the id has th correct format)
+     * @return The extracted specItem type index
+     * @private
+     */
+    private extractBatchTypeIndex(badgeElement: HTMLElement) {
+        const badgeId = $(badgeElement).attr('id') as String;
+        const typeIndexMatch = badgeId.match(/_cov(\d+)$/) as RegExpMatchArray;
+        return parseInt(typeIndexMatch[1], 10);
     }
 
     private static toElementId(index: number): string {
@@ -237,8 +275,9 @@ export class SpecItemElement {
 
         // Generate type-specific coverage badges
         const typeBadges = this.project.getTypeFieldModel()
-            .filter((_type: IField, index: number) => index !== this.specItem.type) // Exclude the item's own type
             .map((type: IField, index: number): string => {
+                if (index === this.specItem.type) return '';
+                else
                 switch (this.specItem.covered[index]) {
                     case 3: // MISSING - use red color
                         return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
@@ -277,10 +316,18 @@ export class SpecItemElement {
             }
         });
 
+        // Single click on covered type badges to pin and filter by type
+        template.find('._specitem-covered').on({
+            click: (e) => {
+                e.stopPropagation(); // Prevent triggering parent click
+                this.notifyFocusWithTypeFilter(e.currentTarget);
+            }
+        });
+
         return template;
     }
 
-    private addCopyButton(template: JQuery): JQuery {
+    protected addCopyButton(template: JQuery): JQuery {
         this.copyButton = new CopyButtonElement(
             template.find('._copy-btn-sm'),
             () => this.specItem.id
