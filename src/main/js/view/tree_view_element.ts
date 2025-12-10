@@ -22,10 +22,11 @@ import {SpecItem} from "@main/model/specitems";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {Project} from "@main/model/project";
 import {Log} from "@main/utils/log";
+import {ChangeEvent, EventType} from "@main/model/change_event";
 
 interface TreeNode {
     name: string;
-    specItems: Array<SpecItem>;
+    specItems: SpecItem;
     children: Map<string, TreeNode>;
     level: number;
 }
@@ -36,6 +37,7 @@ export class TreeViewElement {
     private readonly log: Log = new Log("TreeViewElement");
     private readonly treeViewElement: JQuery;
     private rootNodes: Map<string, TreeNode> = new Map();
+    private suppressSelectionEvent: boolean = false;
 
     constructor(
         private readonly specItems: Array<SpecItem>,
@@ -49,6 +51,10 @@ export class TreeViewElement {
         this.buildTree();
         this.renderTree();
         this.attachExpandCollapseButtons();
+        this.oftStateController.addChangeListener(
+            (event: ChangeEvent) => this.handleSelectionChange(event),
+            EventType.Selection
+        );
         return this;
     }
 
@@ -104,7 +110,7 @@ export class TreeViewElement {
         this.specItems.forEach(specItem => {
             const tokens = this.splitName(specItem.name);
 
-            if (tokens.length === 0) {
+            if (tokens.length < 2) {
                 // If no tokens, skip
                 return;
             }
@@ -112,10 +118,10 @@ export class TreeViewElement {
             // Build path from tokens (excluding last token)
             const pathTokens = tokens.slice(0, -1);
 
-            if (pathTokens.length === 0) {
+            //if (pathTokens.length === 0) {
                 // Single token name - add under type only
-                pathTokens.push(specItem.name);
-            }
+            //pathTokens.push(specItem.name);
+            //}
 
             // Prepend the type name as the uppermost level
             const typeName = this.project.types[specItem.type];
@@ -155,7 +161,7 @@ export class TreeViewElement {
         if (!node) {
             node = {
                 name: token,
-                specItems: [],
+                specItems: specItem,
                 children: new Map(),
                 level: level
             };
@@ -164,7 +170,7 @@ export class TreeViewElement {
 
         // If this is the last token in the path, add the specItem here
         if (remainingTokens.length === 0 || level >= MAX_TREE_DEPTH - 1) {
-            node.specItems.push(specItem);
+            //node.specItems.push(specItem);
         } else {
             // Recurse into children
             this.insertIntoTree(remainingTokens, specItem, level + 1, node.children);
@@ -199,12 +205,12 @@ export class TreeViewElement {
             a[0].localeCompare(b[0])
         );
 
-        sortedEntries.forEach(([key, node]) => {
+        sortedEntries.forEach(([_, node]) => {
             const hasChildren = node.children.size > 0;
-            const hasItems = node.specItems.length > 0;
             const itemCount = this.countTotalItems(node);
+            const firstItemIndex = node.specItems.index;
 
-            html += `<li class="tree-node" data-level="${node.level}">`;
+            html += `<li class="tree-node" data-level="${node.level}" data-itemIndex="${firstItemIndex}">`;
 
             // Node label with expand/collapse icon
             html += `<div class="tree-node-label">`;
@@ -226,17 +232,6 @@ export class TreeViewElement {
                 html += `</div>`;
             }
 
-            // Render spec items at this level
-            if (hasItems) {
-                html += `<ul class="tree-items">`;
-                node.specItems.forEach(specItem => {
-                    html += `<li class="tree-item" data-index="${specItem.index}">`;
-                    html += `<span class="tree-item-title">${this.escapeHtml(specItem.title)}</span>`;
-                    html += `</li>`;
-                });
-                html += `</ul>`;
-            }
-
             html += `</li>`;
         });
 
@@ -248,38 +243,51 @@ export class TreeViewElement {
      * Counts total number of specItems in a node and all its children
      */
     private countTotalItems(node: TreeNode): number {
-        let count = node.specItems.length;
+        let count = node.children.size;
         node.children.forEach(child => {
             count += this.countTotalItems(child);
         });
         return count;
     }
 
-    /**
+    /*
      * Attaches click handlers for tree interaction
      */
     private attachClickHandlers(): void {
-        // Toggle expand/collapse
+        // Handle tree node label clicks - expand/collapse and select first item
         this.treeViewElement.find('.tree-node-label').off('click').on('click', (e) => {
             e.stopPropagation();
-            const $label = $(e.currentTarget);
-            const $node = $label.parent('.tree-node');
-            const $children = $node.children('.tree-children');
-            const $icon = $label.find('.tree-expand-icon');
+            const labelNode = $(e.currentTarget);
+            const treeNode = labelNode.parent('.tree-node');
+            const childNodes = treeNode.children('.tree-children');
+            const expandIconNode = labelNode.find('.tree-expand-icon');
 
-            if ($children.length > 0) {
-                const isExpanded = $children.is(':visible');
+            // Mark this node as selected
+            this.markNodeSelected(labelNode);
+
+            // Toggle expand/collapse if has children
+            if (childNodes.length > 0) {
+                const isExpanded = childNodes.is(':visible');
                 if (isExpanded) {
-                    $children.slideUp(200);
-                    $icon.text('▶');
+                    childNodes.slideUp(200);
+                    expandIconNode.text('▶');
                 } else {
-                    $children.slideDown(200);
-                    $icon.text('▼');
+                    childNodes.slideDown(200);
+                    expandIconNode.text('▼');
                 }
+            }
+
+            // Select first matching specItem in this node or its children
+            const firstItemIndex = this.findFirstSpecItemInNode(treeNode);
+            if (firstItemIndex !== null) {
+                this.log.info("Tree node clicked, selecting first item index", firstItemIndex);
+                this.suppressSelectionEvent = true;
+                this.oftStateController.selectAndShowItem(firstItemIndex);
             }
         });
 
         // Handle specItem clicks
+        /*
         this.treeViewElement.find('.tree-item').off('click').on('click', (e) => {
             e.stopPropagation();
             const $item = $(e.currentTarget);
@@ -288,6 +296,126 @@ export class TreeViewElement {
             this.log.info("Tree item clicked, selecting index", index);
             this.oftStateController.selectAndShowItem(index);
         });
+         */
+    }
+
+    /**
+     * Finds the first specItem index in a node by extracting it from the node's id attribute
+     */
+    private findFirstSpecItemInNode(treeNode: JQuery): number | null {
+        const treeItemIndex = treeNode.attr('data-itemIndex');
+        return treeItemIndex != null ? parseInt(treeItemIndex, 10) : null;
+    }
+
+    /**
+     * Handles selection change events from the controller
+     */
+    private handleSelectionChange(event: ChangeEvent): void {
+        if (this.suppressSelectionEvent) {
+            this.log.info("Tree selection change suppressed");
+            this.suppressSelectionEvent = false;
+            return;
+        }
+        event.handleSelectionChange((selectedIndex) => {
+            this.updateTreeSelection(selectedIndex);
+        });
+    }
+
+    /**
+     * Updates tree selection based on the selected specItem
+     */
+    private updateTreeSelection(selectedIndex: number | null): void {
+        // Remove all previous selections
+        this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
+        //this.treeViewElement.find('.tree-item').removeClass('tree-item-selected');
+
+        if (selectedIndex === null) {
+            return;
+        }
+
+        // Find and mark the selected item
+        const $selectedItem = this.treeViewElement.find(`.tree-item[data-index="${selectedIndex}"]`);
+        if ($selectedItem.length > 0) {
+            $selectedItem.addClass('tree-item-selected');
+            return;
+        }
+
+        // If exact item not found, find the best matching tree node
+        const selectedSpecItem = this.specItems[selectedIndex];
+        if (selectedSpecItem) {
+            this.selectBestMatchingNode(selectedSpecItem);
+        }
+    }
+
+    /**
+     * Selects the tree node that best matches the given specItem
+     */
+    private selectBestMatchingNode(specItem: SpecItem): void {
+        const typeName = this.project.types[specItem.type];
+        const tokens = this.splitName(specItem.name);
+        const pathTokens = tokens.slice(0, -1);
+
+        // Build the path to search for
+        const searchPath = [typeName, ...pathTokens];
+
+        // Try to find nodes that match progressively shorter paths
+        for (let i = searchPath.length; i > 0; i--) {
+            const partialPath = searchPath.slice(0, i).join(' ');
+            const $matchingNode = this.findNodeByPath(partialPath);
+
+            if ($matchingNode.length > 0) {
+                $matchingNode.addClass('tree-node-selected');
+                return;
+            }
+        }
+    }
+
+    /**
+     * Finds a tree node by matching its text path
+     */
+    private findNodeByPath(path: string): JQuery {
+        const pathParts = path.split(' ');
+        let $currentLevel = this.treeViewElement.find('> .tree-list > .tree-node');
+        let $result: JQuery = $();
+
+        for (let i = 0; i < pathParts.length; i++) {
+            const part = pathParts[i];
+            let found = false;
+
+            $currentLevel.each((_, node) => {
+                const $node = $(node);
+                const nodeName = $node.find('> .tree-node-label > .tree-node-name').text().trim();
+
+                if (nodeName === part) {
+                    if (i === pathParts.length - 1) {
+                        // Found the final node
+                        $result = $node.find('> .tree-node-label');
+                        return false; // break each loop
+                    } else {
+                        // Continue searching in children
+                        $currentLevel = $node.find('> .tree-children > .tree-list > .tree-node');
+                        found = true;
+                        return false; // break each loop
+                    }
+                }
+            });
+
+            if (!found && i < pathParts.length - 1) {
+                return $(); // Return empty jQuery object
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Marks a tree node as selected
+     */
+    private markNodeSelected(labelNode: JQuery): void {
+        this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
+        //const $label = labelNode.closest('.tree-node').find('> .tree-node-label');
+        this.log.info("LABEL:", labelNode.find('.tree-node-name').text());
+        labelNode.addClass('tree-node-selected');
     }
 
     /**
