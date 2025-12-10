@@ -120,11 +120,13 @@ a {
 
 #sidebar-right {
   vertical-align: top;
-  width: 0;
-  min-width: 0;
+  width: 280px;
+  min-width: 240px;
   background-color: var(--col-slider);
-  padding: 0 0 0 0;
+  padding: 0;
   border-left: solid 1px var(--col-border);
+  transition: width 0.3s ease;
+  overflow-x: hidden;
 }
 
 #content {

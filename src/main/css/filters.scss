@@ -18,7 +18,8 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
-#filters {
+#filters,
+#tree-view {
   overflow: auto;
   overflow-x: hidden;
   height: calc(100vh - 130px);

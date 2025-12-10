@@ -43,6 +43,7 @@
   // Apply inversion to all icons except #logo
   .img-logo-filters,
   .img-logo-details,
+  .img-logo-tree,
   .img-sidebar-close,
   ._img-filter-all,
   ._img-filter-off,
@@ -92,6 +93,10 @@ span.sidebar-logo {
 
 .img-logo-details {
   background-image: url("~@images/material_article.svg");
+}
+
+.img-logo-tree {
+  background-image: url("~@images/material_folders.svg");
 }
 
 .img-sidebar-close {
