@@ -21,7 +21,8 @@
 #tree-view {
   overflow: auto;
   max-height: 100%;
-  max-width: 240px;
+  min-width: 200px;
+  max-width: 260px;
   word-wrap: break-word;
   overflow-wrap: break-word;
   
@@ -47,6 +48,15 @@
 
     &:hover {
       background-color: var(--col-table-even-value);
+    }
+
+    &.tree-node-selected {
+      background-color: var(--col-selected);
+      font-weight: 600;
+
+      .tree-node-name {
+        color: var(--col-link);
+      }
     }
   }
 
