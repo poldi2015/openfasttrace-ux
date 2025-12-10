@@ -30,13 +30,14 @@ const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
 export class FocusSpecItemElement extends SpecItemElement {
     public constructor(
         specItem: SpecItem,
-        public coverType: CoverType,
+        private coverType: CoverType,
         oftStateController: OftStateController,
         project: Project
     ) {
         super(specItem, oftStateController, project);
         this.log = new Log("FocusSpecItemElement");
-        this.log.info("new FocusSpecItemElement");
+        this.log.info(`new FocusSpecItemElement index ${specItem.index} coverType ${coverType}`);
+        this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? COVERING_TEXT : IS_COVERED_BY_TEXT);
     }
 
 
@@ -105,7 +106,11 @@ export class FocusSpecItemElement extends SpecItemElement {
                     <div class="_specitem-pin _img-button-unpin">
                     </div>
                     <div class="_specitem-header">
-                        <div class="_specitem-name">[${this.typeLabel}:${this.specItem.title}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>${draft}
+                        <div class="_specitem-name">[${this.typeLabel}:${this.specItem.title}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>
+                        <button class="_copy-btn-sm" title="Copy ID to clipboard">
+                            <span class="_img-content-copy"></span>
+                        </button>
+                        ${draft}
                         <div class="_specitem-status">${coverageTemplate}</div>                    
                     </div>
                     <div class="_specitem-body">
@@ -116,15 +121,11 @@ export class FocusSpecItemElement extends SpecItemElement {
             </div>             
         `);
 
-        return this.addListenersToTemplate(template);
+        return this.addListenersToTemplate(this.addCopyButton(template));
     }
 
     private createCoverTypeTemplate(): string {
-        if (this.coverType == CoverType.covering) {
-            return `<div class="_specitem-cover-type">${COVERING_TEXT}</div>`;
-        } else {
-            return `<div class="_specitem-cover-type">${IS_COVERED_BY_TEXT}</div>`;
-        }
+        return `<div class="_specitem-cover-type">${IS_COVERED_BY_TEXT}</div>`; // NO Access to coverType yet
     }
 
     private updateCoverTypeElement(coverType: CoverType): void {
