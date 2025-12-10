@@ -43,6 +43,7 @@
 
 ._specitem-header {
   min-height: 24px;
+  max-width: calc(100% - 10px);
   padding: 8px 8px 6px 10px;
   display: flex;
   align-items: flex-start;
@@ -52,9 +53,14 @@
 
 ._specitem-name {
   //font-weight: bold;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 40vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   font-size: 16px;
   color: var(--col-specitem-name);
-  float: left;
   height: auto;
   margin-left: 5px;
   padding: 2px 4px 2px 4px;
