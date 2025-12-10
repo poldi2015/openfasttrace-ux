@@ -110,10 +110,18 @@
 ._specitem-covered {
   @include _specitem-badge(var(--col-specitem-badge-color-covered));
   color: #1a5a1a;
+  cursor: pointer;
 
   // Dark mode text color
   :root.dark-theme & {
     color: #ccf3cc;
+  }
+
+  &:hover {
+    text-decoration: underline;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.10);
   }
 }
 
