@@ -31,6 +31,7 @@ import {Project} from "@main/model/project";
 import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
 import {ThemeController} from "@main/controller/theme_controller";
 import {HeaderElement} from "@main/view/header_element";
+import {TreeViewElement} from "@main/view/tree_view_element";
 
 function _init() {
     console.log("START");
@@ -79,6 +80,9 @@ function _init() {
 
     // Initialize header with OFT logo, project name, and theme toggle
     new HeaderElement($("#header"), project.projectName, themeController).init().activate();
+
+    // Initialize tree view in right sidebar
+    new TreeViewElement(specItems, oftStateController).init().activate();
     
     initFooter(project);
 
