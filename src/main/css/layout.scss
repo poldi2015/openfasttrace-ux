@@ -122,18 +122,19 @@ a {
   vertical-align: top;
   width: 280px;
   min-width: 240px;
+  max-width: 280px;
   background-color: var(--col-slider);
   padding: 0;
   border-left: solid 1px var(--col-border);
   transition: width 0.3s ease;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 #content {
   vertical-align: top;
   min-width: 100px;
-  width: 100%;
-  max-width: 77vw;
+  width: 95%;
+  max-width: 75vw;
   padding: 0 0 0 0;
 }
 
