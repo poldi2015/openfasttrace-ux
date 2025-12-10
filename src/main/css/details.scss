@@ -72,4 +72,10 @@
 
 .specitem-id {
   font-size: 11pt;
+  max-width: 40vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
