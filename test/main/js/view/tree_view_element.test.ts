@@ -127,7 +127,8 @@ describe("TreeViewElement - Type as uppermost level", () => {
 
         // Create mock controller
         oftStateController = {
-            selectAndShowItem: vi.fn()
+            selectAndShowItem: vi.fn(),
+            addChangeListener: vi.fn()
         } as any;
 
         // Create tree view
