@@ -20,6 +20,7 @@
 
 import {SpecItem} from "@main/model/specitems";
 import {OftStateController} from "@main/controller/oft_state_controller";
+import {Project} from "@main/model/project";
 import {Log} from "@main/utils/log";
 
 interface TreeNode {
@@ -29,7 +30,7 @@ interface TreeNode {
     level: number;
 }
 
-const MAX_TREE_DEPTH = 4;
+const MAX_TREE_DEPTH = 5; // Type + 4 levels of name hierarchy
 
 export class TreeViewElement {
     private readonly log: Log = new Log("TreeViewElement");
@@ -38,7 +39,8 @@ export class TreeViewElement {
 
     constructor(
         private readonly specItems: Array<SpecItem>,
-        private readonly oftStateController: OftStateController
+        private readonly oftStateController: OftStateController,
+        private readonly project: Project
     ) {
         this.treeViewElement = $("#tree-view");
     }
@@ -63,6 +65,7 @@ export class TreeViewElement {
 
     /**
      * Splits a specItem name by delimiters (-, _, .) and builds a hierarchical tree structure.
+     * The type is the uppermost level, followed by name tokens.
      * Excludes the last token from the path. Limits depth to MAX_TREE_DEPTH levels.
      */
     private buildTree(): void {
@@ -72,7 +75,7 @@ export class TreeViewElement {
             const tokens = this.splitName(specItem.name);
 
             if (tokens.length === 0) {
-                // If no tokens or only one token, skip or add to root
+                // If no tokens, skip
                 return;
             }
 
@@ -80,11 +83,15 @@ export class TreeViewElement {
             const pathTokens = tokens.slice(0, -1);
 
             if (pathTokens.length === 0) {
-                // Single token name - skip or handle specially
-                return;
+                // Single token name - add under type only
+                pathTokens.push(specItem.name);
             }
 
-            this.insertIntoTree(pathTokens, specItem, 0, this.rootNodes);
+            // Prepend the type name as the uppermost level
+            const typeName = this.project.types[specItem.type];
+            const fullPath = [typeName, ...pathTokens];
+
+            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes);
         });
 
         this.log.info("Tree built with", this.rootNodes.size, "root nodes");
