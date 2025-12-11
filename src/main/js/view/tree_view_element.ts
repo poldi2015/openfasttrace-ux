@@ -26,12 +26,13 @@ import {ChangeEvent, EventType} from "@main/model/change_event";
 
 interface TreeNode {
     name: string;
-    specItems: SpecItem;
+    firstIndex: number;
     children: Map<string, TreeNode>;
     level: number;
+    fullPath: string;
 }
 
-const MAX_TREE_DEPTH = 5; // Type + 4 levels of name hierarchy
+const MAX_TREE_DEPTH = 3; // Type + MAX_TREE_DEPTH level
 
 export class TreeViewElement {
     private readonly log: Log = new Log("TreeViewElement");
@@ -48,7 +49,7 @@ export class TreeViewElement {
     }
 
     public init(): TreeViewElement {
-        this.buildTree();
+        this.buildTreeModel();
         this.renderTree();
         this.attachExpandCollapseButtons();
         this.oftStateController.addChangeListener(
@@ -70,6 +71,9 @@ export class TreeViewElement {
         return true;
     }
 
+    //
+    // Buttons
+
     /**
      * Attaches handlers to the expand/collapse all buttons
      */
@@ -83,61 +87,43 @@ export class TreeViewElement {
         });
     }
 
-    /**
-     * Expands all tree nodes
-     */
-    private expandAll(): void {
-        this.treeViewElement.find('.tree-children').show();
-        this.treeViewElement.find('.tree-expand-icon').text('▼');
-    }
 
-    /**
-     * Collapses all tree nodes
-     */
-    private collapseAll(): void {
-        this.treeViewElement.find('.tree-children').hide();
-        this.treeViewElement.find('.tree-expand-icon').text('▶');
-    }
+    //
+    // Model
 
     /**
      * Splits a specItem name by delimiters (-, _, .) and builds a hierarchical tree structure.
      * The type is the uppermost level, followed by name tokens.
      * Excludes the last token from the path. Limits depth to MAX_TREE_DEPTH levels.
      */
-    private buildTree(): void {
+    private buildTreeModel(): void {
         this.log.info("Building tree from", this.specItems.length, "specItems");
 
         this.specItems.forEach(specItem => {
-            const tokens = this.splitName(specItem.name);
-
-            if (tokens.length < 2) {
-                // If no tokens, skip
-                return;
-            }
-
-            // Build path from tokens (excluding last token)
-            const pathTokens = tokens.slice(0, -1);
-
-            //if (pathTokens.length === 0) {
-                // Single token name - add under type only
-            //pathTokens.push(specItem.name);
-            //}
+            const pathTokens = this.splitSpecItemNameIntoPath(specItem.name);
+            if (pathTokens.length < 1) return;
 
             // Prepend the type name as the uppermost level
             const typeName = this.project.types[specItem.type];
             const fullPath = [typeName, ...pathTokens];
 
-            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes);
+            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes, '');
         });
 
         this.log.info("Tree built with", this.rootNodes.size, "root nodes");
     }
 
     /**
-     * Splits name by minus, underscore, or dot
+     * Splits specItem name by minus, underscore, or dot into a path excluding the last token.
+     *
+     * The path is restricted to MAX_TREE_DEPTH tokens (excluding type).
+     *
+     * @param specItemName The specItem name without type
      */
-    private splitName(name: string): Array<string> {
-        return name.split(/[-_.]+/).filter(token => token.length > 0);
+    private splitSpecItemNameIntoPath(specItemName: string): Array<string> {
+        const allPathTokens = specItemName.split(/[-_.]+/).filter(token => token.length > 0).slice(0, -1);
+        return allPathTokens.slice(0, MAX_TREE_DEPTH);
+
     }
 
     /**
@@ -147,35 +133,36 @@ export class TreeViewElement {
         pathTokens: Array<string>,
         specItem: SpecItem,
         level: number,
-        currentLevel: Map<string, TreeNode>
+        levelNodes: Map<string, TreeNode>,
+        parentPath: string
     ): void {
-        if (pathTokens.length === 0 || level >= MAX_TREE_DEPTH) {
-            return;
-        }
+        if (pathTokens.length === 0 || level >= MAX_TREE_DEPTH + 1) return;
 
         const token = pathTokens[0];
         const remainingTokens = pathTokens.slice(1);
+        const fullPath = parentPath ? parentPath + "-" + token : token;
 
         // Get or create node for this token
-        let node = currentLevel.get(token);
+        let node = levelNodes.get(token);
         if (!node) {
             node = {
                 name: token,
-                specItems: specItem,
+                firstIndex: specItem.index,
                 children: new Map(),
-                level: level
+                level: level,
+                fullPath: fullPath
             };
-            currentLevel.set(token, node);
+            levelNodes.set(token, node);
         }
 
         // If this is the last token in the path, add the specItem here
-        if (remainingTokens.length === 0 || level >= MAX_TREE_DEPTH - 1) {
-            //node.specItems.push(specItem);
-        } else {
-            // Recurse into children
-            this.insertIntoTree(remainingTokens, specItem, level + 1, node.children);
+        if (remainingTokens.length != 0 || level >= MAX_TREE_DEPTH) {
+            this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath);
         }
     }
+
+    //
+    // Render tree
 
     /**
      * Renders the tree structure as HTML
@@ -201,16 +188,15 @@ export class TreeViewElement {
         let html = '<ul class="tree-list">';
 
         // Sort nodes alphabetically
-        const sortedEntries = Array.from(nodes.entries()).sort((a, b) =>
+        const sortedNodes = Array.from(nodes.entries()).sort((a, b) =>
             a[0].localeCompare(b[0])
         );
 
-        sortedEntries.forEach(([_, node]) => {
+        sortedNodes.forEach(([_, node]) => {
             const hasChildren = node.children.size > 0;
             const itemCount = this.countTotalItems(node);
-            const firstItemIndex = node.specItems.index;
 
-            html += `<li class="tree-node" data-level="${node.level}" data-itemIndex="${firstItemIndex}">`;
+            html += `<li class="tree-node" data-level="${node.level}" data-itemIndex="${node.firstIndex}" data-path="${node.fullPath}">`;
 
             // Node label with expand/collapse icon
             html += `<div class="tree-node-label">`;
@@ -250,7 +236,11 @@ export class TreeViewElement {
         return count;
     }
 
-    /*
+
+    //
+    // Selection handler
+
+    /**
      * Attaches click handlers for tree interaction
      */
     private attachClickHandlers(): void {
@@ -260,43 +250,17 @@ export class TreeViewElement {
             const labelNode = $(e.currentTarget);
             const treeNode = labelNode.parent('.tree-node');
             const childNodes = treeNode.children('.tree-children');
-            const expandIconNode = labelNode.find('.tree-expand-icon');
 
             // Mark this node as selected
-            this.markNodeSelected(labelNode);
+            this.markNodeSelected(treeNode);
 
             // Toggle expand/collapse if has children
-            if (childNodes.length > 0) {
-                const isExpanded = childNodes.is(':visible');
-                if (isExpanded) {
-                    childNodes.slideUp(200);
-                    expandIconNode.text('▶');
-                } else {
-                    childNodes.slideDown(200);
-                    expandIconNode.text('▼');
-                }
-            }
+            const isExpanded = childNodes.is(':visible');
+            this.expandNode(treeNode, !isExpanded);
 
             // Select first matching specItem in this node or its children
-            const firstItemIndex = this.findFirstSpecItemInNode(treeNode);
-            if (firstItemIndex !== null) {
-                this.log.info("Tree node clicked, selecting first item index", firstItemIndex);
-                this.suppressSelectionEvent = true;
-                this.oftStateController.selectAndShowItem(firstItemIndex);
-            }
+            this.selectSpecItem(this.findFirstSpecItemInNode(treeNode));
         });
-
-        // Handle specItem clicks
-        /*
-        this.treeViewElement.find('.tree-item').off('click').on('click', (e) => {
-            e.stopPropagation();
-            const $item = $(e.currentTarget);
-            const index = parseInt($item.attr('data-index') || '0', 10);
-
-            this.log.info("Tree item clicked, selecting index", index);
-            this.oftStateController.selectAndShowItem(index);
-        });
-         */
     }
 
     /**
@@ -308,6 +272,20 @@ export class TreeViewElement {
     }
 
     /**
+     * Select the specItem in the specItem view with the given index.
+     */
+    private selectSpecItem(index: number | null): void {
+        if (index == null) return;
+        this.log.info("firstNode index", index, "in selection");
+        this.suppressSelectionEvent = true;
+        this.oftStateController.selectAndShowItem(index);
+    }
+
+
+    //
+    // Selection change handler
+
+    /**
      * Handles selection change events from the controller
      */
     private handleSelectionChange(event: ChangeEvent): void {
@@ -317,106 +295,113 @@ export class TreeViewElement {
             return;
         }
         event.handleSelectionChange((selectedIndex) => {
-            this.updateTreeSelection(selectedIndex);
+            this.setSelection(selectedIndex);
         });
     }
 
     /**
      * Updates tree selection based on the selected specItem
      */
-    private updateTreeSelection(selectedIndex: number | null): void {
-        // Remove all previous selections
-        this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
-        //this.treeViewElement.find('.tree-item').removeClass('tree-item-selected');
-
+    private setSelection(selectedIndex: number | null): void {
         if (selectedIndex === null) {
+            this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
             return;
         }
 
-        // Find and mark the selected item
-        const $selectedItem = this.treeViewElement.find(`.tree-item[data-index="${selectedIndex}"]`);
-        if ($selectedItem.length > 0) {
-            $selectedItem.addClass('tree-item-selected');
-            return;
-        }
-
-        // If exact item not found, find the best matching tree node
-        const selectedSpecItem = this.specItems[selectedIndex];
-        if (selectedSpecItem) {
-            this.selectBestMatchingNode(selectedSpecItem);
+        const treeNodeMatchingPath = this.selectPathMatchingNode(this.specItems[selectedIndex]);
+        if (treeNodeMatchingPath) {
+            this.markNodeSelected(treeNodeMatchingPath);
         }
     }
 
     /**
      * Selects the tree node that best matches the given specItem
      */
-    private selectBestMatchingNode(specItem: SpecItem): void {
-        const typeName = this.project.types[specItem.type];
-        const tokens = this.splitName(specItem.name);
-        const pathTokens = tokens.slice(0, -1);
-
-        // Build the path to search for
-        const searchPath = [typeName, ...pathTokens];
-
-        // Try to find nodes that match progressively shorter paths
-        for (let i = searchPath.length; i > 0; i--) {
-            const partialPath = searchPath.slice(0, i).join(' ');
-            const $matchingNode = this.findNodeByPath(partialPath);
-
-            if ($matchingNode.length > 0) {
-                $matchingNode.addClass('tree-node-selected');
-                return;
-            }
-        }
+    private selectPathMatchingNode(specItem: SpecItem): JQuery {
+        const namePath = this.splitSpecItemNameIntoPath(specItem.name).join('-');
+        const fullPath = this.project.types[specItem.type] + (namePath.length > 0 ? '-' + namePath : '');
+        return this.treeViewElement.find(`.tree-node[data-path="${fullPath}"]`);
     }
 
-    /**
-     * Finds a tree node by matching its text path
-     */
-    private findNodeByPath(path: string): JQuery {
-        const pathParts = path.split(' ');
-        let $currentLevel = this.treeViewElement.find('> .tree-list > .tree-node');
-        let $result: JQuery = $();
 
-        for (let i = 0; i < pathParts.length; i++) {
-            const part = pathParts[i];
-            let found = false;
-
-            $currentLevel.each((_, node) => {
-                const $node = $(node);
-                const nodeName = $node.find('> .tree-node-label > .tree-node-name').text().trim();
-
-                if (nodeName === part) {
-                    if (i === pathParts.length - 1) {
-                        // Found the final node
-                        $result = $node.find('> .tree-node-label');
-                        return false; // break each loop
-                    } else {
-                        // Continue searching in children
-                        $currentLevel = $node.find('> .tree-children > .tree-list > .tree-node');
-                        found = true;
-                        return false; // break each loop
-                    }
-                }
-            });
-
-            if (!found && i < pathParts.length - 1) {
-                return $(); // Return empty jQuery object
-            }
-        }
-
-        return $result;
-    }
+    //
+    // Render changes
 
     /**
      * Marks a tree node as selected
      */
-    private markNodeSelected(labelNode: JQuery): void {
+    private markNodeSelected(treeNode: JQuery): void {
         this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
-        //const $label = labelNode.closest('.tree-node').find('> .tree-node-label');
-        this.log.info("LABEL:", labelNode.find('.tree-node-name').text());
+        const labelNode = treeNode.children(".tree-node-label");
+        this.expandParentNodes(treeNode);
+        this.log.info("markNodeSelected", treeNode.length);
         labelNode.addClass('tree-node-selected');
+
+        // Scroll the selected node into view after expansion animation completes
+        if (labelNode.length > 0) {
+            // Wait for slideDown animation to complete (200ms + small buffer)
+            setTimeout(() => {
+                const labelElement = labelNode[0];
+                labelElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            }, 250);
+        }
     }
+
+    /**
+     * Expands all parent nodes from the root down to the given node
+     */
+    private expandParentNodes(treeNode: JQuery): void {
+        // Find all parent tree-node elements
+        const parentNodes = treeNode.parents('.tree-node');
+
+        // Expand each parent from outermost to innermost
+        parentNodes.each((_, parentNode) => {
+            const parent = $(parentNode);
+            const childrenContainer = parent.children('.tree-children');
+
+            if (childrenContainer.length > 0 && !childrenContainer.is(':visible')) {
+                this.expandNode(parent, true);
+            }
+        });
+    }
+
+    /**
+     * Expands or collapses the given tree node.
+     */
+    private expandNode(treeNode: JQuery, expand: boolean): void {
+        const childNodes = treeNode.children('.tree-children');
+        if (childNodes.length > 0) {
+            const expandIconNode = treeNode.children('.tree-node-label').find('.tree-expand-icon');
+            if (expand) {
+                childNodes.slideDown(200);
+                expandIconNode.text('▼');
+            } else {
+                childNodes.slideUp(200);
+                expandIconNode.text('▶');
+            }
+        }
+
+    }
+
+    /**
+     * Expands all tree nodes
+     */
+    private expandAll(): void {
+        this.treeViewElement.find('.tree-children').show();
+        this.treeViewElement.find('.tree-expand-icon').text('▼');
+    }
+
+    /**
+     * Collapses all tree nodes
+     */
+    private collapseAll(): void {
+        this.treeViewElement.find('.tree-children').hide();
+        this.treeViewElement.find('.tree-expand-icon').text('▶');
+    }
+
+
+    //
+    // Helpers
 
     /**
      * Escapes HTML special characters
