@@ -64,22 +64,25 @@ export class ChangeEvent {
     /**
      * * Handler is called If selection changed.
      */
-    public handleSelectionChange(handler: SelectionChangeHandler) {
+    public handleSelectionChange(handler: SelectionChangeHandler): boolean {
         if (this.has(EventType.Selection)) handler(this.oftState.selectedIndex, this.oftState);
+        return this.has(EventType.Selection);
     }
 
     /**
      * Handler is called of focus changed.
      */
-    public handleFocusChange(handler: FocusChangeHandler) {
+    public handleFocusChange(handler: FocusChangeHandler): boolean {
         if (this.has(EventType.Focus)) handler(this.oftState.focusIndex, this.oftState.coverType, this.oftState);
+        return this.has(EventType.Focus);
     }
 
     /**
      * Handler is called when filters changed.
      */
-    public handleFilterChange(handler: FilterChangeHandler) {
+    public handleFilterChange(handler: FilterChangeHandler): boolean {
         if (this.has(EventType.Filters)) handler(this.oftState.selectedFilters, this.oftState);
+        return this.has(EventType.Filters);
     }
 
     /**

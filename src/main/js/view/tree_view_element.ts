@@ -54,7 +54,8 @@ export class TreeViewElement {
         this.attachExpandCollapseButtons();
         this.oftStateController.addChangeListener(
             (event: ChangeEvent) => this.handleSelectionChange(event),
-            EventType.Selection
+            EventType.Selection,
+            EventType.Focus
         );
         return this;
     }
@@ -276,7 +277,7 @@ export class TreeViewElement {
      */
     private selectSpecItem(index: number | null): void {
         if (index == null) return;
-        this.log.info("firstNode index", index, "in selection");
+        this.log.info("selectSpecItem firstNode index", index);
         this.suppressSelectionEvent = true;
         this.oftStateController.selectAndShowItem(index);
     }
@@ -294,21 +295,22 @@ export class TreeViewElement {
             this.suppressSelectionEvent = false;
             return;
         }
+        event.handleFocusChange((focusedIndex) => {
+            this.selectNode(focusedIndex);
+        })
         event.handleSelectionChange((selectedIndex) => {
-            this.setSelection(selectedIndex);
+            this.selectNode(selectedIndex);
         });
     }
 
     /**
      * Updates tree selection based on the selected specItem
      */
-    private setSelection(selectedIndex: number | null): void {
-        if (selectedIndex === null) {
-            this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
-            return;
-        }
+    private selectNode(selectedIndex: number | null): void {
+        if (selectedIndex === null) return;    // In case of a focus node selection
+        this.log.info("selectNode to index", selectedIndex);
 
-        const treeNodeMatchingPath = this.selectPathMatchingNode(this.specItems[selectedIndex]);
+        const treeNodeMatchingPath = this.findMatchingNode(this.specItems[selectedIndex]);
         if (treeNodeMatchingPath) {
             this.markNodeSelected(treeNodeMatchingPath);
         }
@@ -317,7 +319,7 @@ export class TreeViewElement {
     /**
      * Selects the tree node that best matches the given specItem
      */
-    private selectPathMatchingNode(specItem: SpecItem): JQuery {
+    private findMatchingNode(specItem: SpecItem): JQuery {
         const namePath = this.splitSpecItemNameIntoPath(specItem.name).join('-');
         const fullPath = this.project.types[specItem.type] + (namePath.length > 0 ? '-' + namePath : '');
         return this.treeViewElement.find(`.tree-node[data-path="${fullPath}"]`);
@@ -331,10 +333,10 @@ export class TreeViewElement {
      * Marks a tree node as selected
      */
     private markNodeSelected(treeNode: JQuery): void {
-        this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
+        this.removeSelections();
         const labelNode = treeNode.children(".tree-node-label");
         this.expandParentNodes(treeNode);
-        this.log.info("markNodeSelected", treeNode.length);
+        this.log.info("markNodeSelected", treeNode.attr("data-path"));
         labelNode.addClass('tree-node-selected');
 
         // Scroll the selected node into view after expansion animation completes
@@ -345,6 +347,14 @@ export class TreeViewElement {
                 labelElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
             }, 250);
         }
+    }
+
+    /**
+     * Clears all selections marks.
+     */
+    private removeSelections(): void {
+        this.log.info("removeSelections");
+        this.treeViewElement.find('.tree-node-label').removeClass('tree-node-selected');
     }
 
     /**
