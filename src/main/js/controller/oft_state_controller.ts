@@ -125,7 +125,7 @@ export class OftStateController {
         this.log.info("focusItem", index);
         if (this.createFocus(index, coverType, filters) ||
             this.adjustFocus(index, coverType, filters)) {
-            this.notifyChangeWithHistory(EventType.Selection, EventType.Focus, EventType.Filters);
+            this.notifyChangeWithHistory(EventType.Focus, EventType.Filters);
         }
     }
 
