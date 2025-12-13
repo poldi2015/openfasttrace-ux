@@ -50,6 +50,8 @@ $light-color-nav-hover: #e8e8de;
 $light-color-link: #0066cc;
 $light-color-link-visited: #551a8b;
 
+$light-color-tree-count: #3a3a3a;
+
 // Dark mode colors
 $dark-color-bg-darker: #1e1e1e;
 $dark-color-bg-lighter: #252526;
@@ -81,6 +83,8 @@ $dark-color-nav-active: color.invert(#404040);
 
 $dark-color-link: #6699cc;  // 20% more grey-blue for dark mode
 $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
+
+$dark-color-tree-count: #b4b4b4;
 
 // Light mode colors (default)
 :root,
@@ -122,6 +126,8 @@ $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
 
   --col-link: #{$light-color-link};
   --col-link-visited: #{$light-color-link-visited};
+
+  --col-tree-count: #{$light-color-tree-count};
 }
 
 // Dark mode using class (takes precedence over media query)
@@ -163,4 +169,6 @@ $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
 
   --col-link: #{$dark-color-link};
   --col-link-visited: #{$dark-color-link-visited};
+
+  --col-tree-count: #{$light-color-tree-count};
 }
