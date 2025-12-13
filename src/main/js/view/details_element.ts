@@ -23,7 +23,6 @@ import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
-import {OftState} from "@main/model/oft_state";
 import {IField, Project} from "@main/model/project";
 import {CopyButtonElement} from "@main/view/copy_button_element";
 
@@ -75,7 +74,7 @@ export class DetailsElement implements IDetailsElement {
     protected log: Log = new Log("DetailsElement");
 
     private changeListener: ChangeListener = (event: ChangeEvent): void => {
-        event.handleSelectionChange((selectedIndex, oftState) => this.selectionChangeListener(selectedIndex, oftState));
+        event.handleSelectionChange((selectedIndex, _) => this.selectionChangeListener(selectedIndex));
     }
 
     public init(): IDetailsElement {
@@ -86,7 +85,7 @@ export class DetailsElement implements IDetailsElement {
 
     public activate(): void {
         this.tableElement.removeAttr("disabled");
-        this.oftState.addChangeListener(this.changeListener, EventType.Focus, EventType.Selection);
+        this.oftState.addChangeListener(this.changeListener, EventType.Selection);
     }
 
     public deactivate(): void {
@@ -180,10 +179,9 @@ export class DetailsElement implements IDetailsElement {
         })
     }
 
-    private selectionChangeListener(selectedIndex: number | null, oftState: OftState) {
-        this.log.info("selectionChangeListener index", selectedIndex, "focus", oftState.focusIndex);
-        const newIndex: number | null = selectedIndex != null ? selectedIndex : oftState.focusIndex;
-        this.updateTable(newIndex != null ? this.specItems[newIndex!] : null);
+    private selectionChangeListener(selectedIndex: number | null) {
+        this.log.info("selectionChangeListener index", selectedIndex);
+        this.updateTable(selectedIndex != null ? this.specItems[selectedIndex!] : null);
     }
 
 } // DetailsElement

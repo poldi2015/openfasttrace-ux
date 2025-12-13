@@ -44,25 +44,24 @@ export class SpecItemsController {
 
     private focusSpecItemElement: FocusSpecItemElement | null = null;
     private selectedIndex: number | null = null;
+    private focusIndex: number | null = null;
     private specItems: Map<number, SpecItem> = new Map<number, SpecItem>();
     private specItemElements: Array<SpecItemElement> = [];
     private specItemToElement: Array<[SpecItem, SpecItemElement]> = new Array<[SpecItem, SpecItemElement]>();
 
-    private filterOrFocusChangeListener: ChangeListener = (event: ChangeEvent): void => {
+    private stateChangeListener: ChangeListener = (event: ChangeEvent): void => {
         event.handleFocusChange((focusIndex, coverType, _) => this.focusChange(focusIndex, coverType));
+        event.handleSelectionChange((selectedIndex) => {
+            this.selectSpecItem(selectedIndex);
+            this.scrollToSpecItem(selectedIndex);
+        });
         event.handleFilterChange((filters, oftState) => this.filterChange(filters, oftState));
     }
 
-    private selectionChangeListener: ChangeListener = (event: ChangeEvent): void => {
-        const selectedIndex: number | null = event.oftState.selectedIndex;
-        this.selectSpecItem(selectedIndex);
-        this.scrollToSpecItem(selectedIndex);
-    }
 
     public init(specItems: Array<SpecItem>): void {
         this.log.info("init specitemCount", specItems.length);
-        this.oftStateController.addChangeListener(this.filterOrFocusChangeListener, EventType.Focus, EventType.Filters);
-        this.oftStateController.addChangeListener(this.selectionChangeListener, EventType.Selection);
+        this.oftStateController.addChangeListener(this.stateChangeListener, EventType.Focus, EventType.Filters, EventType.Selection);
 
         specItems.forEach((specItem: SpecItem) => {
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
@@ -99,41 +98,6 @@ export class SpecItemsController {
         this.specItemElements.push(specItem);
     }
 
-    private setFocusSpecItem(specItem: SpecItem | null, coverType: CoverType): void {
-        this.log.info("setFocusSpecItem index", specItem?.index, "coverType", coverType);
-        if (specItem == null) {
-            // focus gets removed
-
-            this.log.info("setFocusSpecItem remove");
-            this.removeFocusSpecItem();
-            $(FOCUS_SPECITEM_ELEMENT_ID).hide();
-        } else if (this.focusSpecItemElement?.specItem.index != specItem?.index) {
-            // focused element gets replaced
-
-            this.log.info("setFocusSpecItem replace");
-            this.removeFocusSpecItem();
-            $(FOCUS_SPECITEM_ELEMENT_ID).show();
-            this.focusSpecItemElement = this.createFocusSpecItemElement(specItem, coverType);
-            this.focusSpecItemElement.insertToAt($(FOCUS_SPECITEM_ELEMENT_ID), 0);
-            this.focusSpecItemElement.activate();
-            this.focusSpecItemElement.select();
-        } else if (this.focusSpecItemElement?.specItem.index == specItem?.index) {
-            // Switch coverType
-
-            this.log.info("setFocusSpecItem switch");
-            this.focusSpecItemElement.select();
-            this.focusSpecItemElement.cover(coverType);
-        }
-    }
-
-    private removeFocusSpecItem() {
-        this.log.info("removeFocusSpecItem");
-        if (this.focusSpecItemElement != null) {
-            this.focusSpecItemElement.remove();
-            this.focusSpecItemElement = null;
-        }
-    }
-
 
     //
     // Change listeners
@@ -145,19 +109,42 @@ export class SpecItemsController {
      * @param coverType the coverType of the focused element
      */
     private focusChange(focusIndex: number | null, coverType: CoverType): void {
-        this.log.info(`focusChange focusIndex ${focusIndex} coverType ${coverType}`);
+        this.log.info("setFocusSpecItem index", focusIndex, "coverType", coverType);
 
-        // Update focus element
         if (focusIndex == null) {
-            // Hide focus item
-
             this.removeFocusSpecItem();
-        } else {
-            // show Focus item
-
-            const focusedSpecItem: SpecItem = this.specItems.get(focusIndex) as SpecItem;
-            this.setFocusSpecItem(focusedSpecItem, coverType);
+        } else if (this.focusIndex != focusIndex) {
+            this.changeFocusedSpecItem(focusIndex, coverType);
+        } else if (this.focusIndex == focusIndex) {
+            this.switchFocusedCoverageType(focusIndex, coverType);
         }
+    }
+
+    private removeFocusSpecItem(): void {
+        this.log.info("removeFocusSpecItem");
+        if (this.focusSpecItemElement != null) {
+            this.focusSpecItemElement.remove();
+            this.focusSpecItemElement = null;
+        }
+        this.focusIndex = null;
+        $(FOCUS_SPECITEM_ELEMENT_ID).hide();
+    }
+
+    private changeFocusedSpecItem(focusIndex: number, coverType: CoverType): void {
+        if (focusIndex == this.focusIndex) return;
+        this.log.info("changeFocusedSpecItem index", focusIndex, "coverType", coverType);
+        this.focusIndex = focusIndex;
+        $(FOCUS_SPECITEM_ELEMENT_ID).show();
+        const specItem: SpecItem = this.specItems.get(focusIndex) as SpecItem;
+        this.focusSpecItemElement = this.createFocusSpecItemElement(specItem, coverType);
+        this.focusSpecItemElement.insertToAt($(FOCUS_SPECITEM_ELEMENT_ID), 0);
+        this.focusSpecItemElement.activate();
+    }
+
+    private switchFocusedCoverageType(focusIndex: number, coverType: CoverType): void {
+        if (focusIndex != this.focusIndex) return
+        this.log.info("switchFocusedCoverageType", coverType);
+        this.focusSpecItemElement?.cover(coverType);
     }
 
 
@@ -218,11 +205,15 @@ export class SpecItemsController {
      */
     private showOnlySelectedSpecItemElements(specItemElements: Array<SpecItemElement>, selectedIndex: number | null): void {
         this.specItemElements.forEach((specItemElement: SpecItemElement) => {
+            if (specItemElement == this.focusSpecItemElement) return;
             if (specItemElements.includes(specItemElement)) {
                 specItemElement.activate();
             } else {
                 specItemElement.deactivate();
-                if (specItemElement.specItem.index == selectedIndex) this.oftStateController.unselectItem();
+                if (specItemElement.specItem.index == selectedIndex) {
+                    this.selectedIndex = null;
+                    this.oftStateController.unselectItem();
+                }
             }
         });
         this.specItemsElement.updateNumberOfItems(specItemElements.length);
@@ -249,7 +240,7 @@ export class SpecItemsController {
     /**
      * Changes the selection to the given index or unselect if index = null.
      *
-     * notfify an unselect if new indexed item is deactivated (by filter).
+     * notify an unselect if new indexed item is deactivated (by filter).
      *
      * @param index the new index or null
      * @private
@@ -259,19 +250,17 @@ export class SpecItemsController {
         if (index === this.selectedIndex) return;
 
         // unselect current selection
-        if (this.selectedIndex != null) this.specItemElements[this.selectedIndex!]?.unselect();
-        // TODO unfocus focus element
+        this.getSpecItemElementByIndex(this.selectedIndex)?.unselect();
 
         // select requested selection
-        if (index != null) {
-            const newSelectedItemElement: SpecItemElement = this.specItemElements[index];
-            if (newSelectedItemElement == undefined || !newSelectedItemElement.isActive()) {
-                this.oftStateController.unselectItem();
-            } else {
-                this.specItemElements[index]?.select();
-                this.selectedIndex = index;
-            }
-        }
+        this.selectedIndex = index;
+        this.getSpecItemElementByIndex(index)?.select();
+    }
+
+    private getSpecItemElementByIndex(index: number | null): SpecItemElement | null {
+        if (index == null) return null;
+        if (index == this.focusIndex) return this.focusSpecItemElement;
+        return this.specItemElements[index];
     }
 
     private scrollToSpecItem(index: number | null): boolean {

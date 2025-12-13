@@ -31,8 +31,9 @@ $light-color-font: #1a1a1a;
 $light-color-font-light: #3a3a3a;
 $light-color-specitem-selected: #ccd6d6;
 $light-color-specitem-hover: #f0f5f5;
-$light-color-specitem-focus: #daecda;
-$light-color-specitem-focus-selected: #a2cfc6;
+$light-color-specitem-focus: #a9d3a9;
+$light-color-specitem-focus-selected: #7cbd7c;
+$light-color-specitem-focus-hover: #5ca35c;
 $light-color-specitem-name: #31355b;
 $light-color-specitem-header-gradient-start: #31355b;
 $light-color-specitem-header-gradient-end: #ffffff;
@@ -63,6 +64,7 @@ $dark-color-specitem-selected: #2a2d2e;
 $dark-color-specitem-hover: #2a2d2e;
 $dark-color-specitem-focus: #1a3d1a;
 $dark-color-specitem-focus-selected: #264d40;
+$dark-color-specitem-focus-hover: #1a4537;
 $dark-color-specitem-name: #6699cc;
 $dark-color-specitem-header-gradient-start: #6699cc;
 $dark-color-specitem-header-gradient-end: #252526;
@@ -108,7 +110,7 @@ $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
   --col-specitem-hover: #{$light-color-specitem-hover};
   --col-specitem-focus: #{$light-color-specitem-focus};
   --col-specitem-focus-selected: #{$light-color-specitem-focus-selected};
-  --col-specitem-focus-focus: #{$light-color-specitem-focus-selected};
+  --col-specitem-focus-hover: #{$light-color-specitem-focus-selected};
   --col-specitem-focus-border: #{$light-color-border};
   --col-specitem-name: #{$light-color-specitem-name};
 
@@ -149,7 +151,7 @@ $dark-color-link-visited: #9988bb;  // Adjusted visited color for dark mode
   --col-specitem-hover: #{$dark-color-specitem-hover};
   --col-specitem-focus: #{$dark-color-specitem-focus};
   --col-specitem-focus-selected: #{$dark-color-specitem-focus-selected};
-  --col-specitem-focus-focus: #{$dark-color-specitem-focus-selected};
+  --col-specitem-focus-hover: #{$dark-color-specitem-focus-hover};
   --col-specitem-focus-border: #{$dark-color-border};
   --col-specitem-name: #{$dark-color-specitem-name};
 

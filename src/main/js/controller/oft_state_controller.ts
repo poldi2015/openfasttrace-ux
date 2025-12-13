@@ -123,23 +123,23 @@ export class OftStateController {
                      coverType: CoverType,
                      filters: Map<FilterName, Filter> | null = null): void {
         this.log.info("focusItem", index);
-        if (this.createFocus(index, coverType, filters) ||
+        if (this.activateFocus(index, coverType, filters) ||
             this.adjustFocus(index, coverType, filters)) {
-            this.notifyChangeWithHistory(EventType.Focus, EventType.Filters);
+            this.notifyChangeWithHistory(EventType.Selection, EventType.Focus, EventType.Filters);
         }
     }
 
-    private createFocus(index: number,
+    private activateFocus(index: number,
                         coverType: CoverType,
                         filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex == index) return false;
         this.oftState.focusIndex = index;
         this.oftState.coverType = coverType;
-        this.oftState.selectedIndex = null;
+        this.oftState.selectedIndex = index;
         this.oftState.unfocusedFilters = this.oftState.selectedFilters;
         this.oftState.unfocusedFilters.delete(IndexFilter.FILTER_NAME);
         if (filters != null) this.oftState.selectedFilters = filters;
-        this.log.info("focusing item", this.oftState);
+        this.log.info("activateFocus", this.oftState);
         return true;
     }
 
@@ -147,13 +147,14 @@ export class OftStateController {
                         coverType: CoverType,
                         filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex != index) return false;
+        this.oftState.selectedIndex = index;
         this.oftState.coverType = coverType;
         if (filters != null) {
             filters.forEach((value: Filter, key: FilterName) => {
                 this.oftState.selectedFilters.set(key, value)
             });
         }
-        this.log.info("adjust focus", this.oftState);
+        this.log.info("adjustFocus", this.oftState);
         return true;
     }
 
@@ -165,7 +166,7 @@ export class OftStateController {
         this.oftState.selectedIndex = index;
         this.oftState.focusIndex = null;
         this.oftState.coverType = CoverType.covering;
-        this.log.info("unFocusItem: unfocusedFilters=", this.oftState.unfocusedFilters);
+        this.log.info("unFocusItem: index=", index, "filters=", this.oftState.unfocusedFilters);
         this.oftState.selectedFilters = this.oftState.unfocusedFilters;
         this.oftState.unfocusedFilters = new Map();
         this.notifyChangeWithHistory(EventType.Focus, EventType.Filters, EventType.Selection);
