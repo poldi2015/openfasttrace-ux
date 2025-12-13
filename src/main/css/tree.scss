@@ -38,7 +38,7 @@
   }
 
   .tree-node-label {
-    //display: flex;
+    display: flex;
     align-items: center;
     padding: 6px 8px;
     cursor: pointer;
@@ -53,10 +53,6 @@
     &.tree-node-selected {
       background-color: var(--col-selected);
       font-weight: 600;
-
-      .tree-node-name {
-        color: var(--col-link);
-      }
     }
   }
 
@@ -79,22 +75,24 @@
   }
 
   .tree-node-name {
-    flex: 1;
+    flex: 0 1 auto; // Don't grow, can shrink, auto size
+    min-width: 0; // Critical for flexbox ellipsis to work
     font-weight: 500;
     color: var(--col-text);
-    //overflow: hidden;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .tree-node-count {
     font-size: 11px;
-    color: var(--col-disabled);
-    margin-left: 8px;
+    color: var(--col-tree-count);
+    margin-left: 4px; // Smaller gap to keep it close to text
+    flex-shrink: 0; // Prevent count from shrinking
   }
 
   .tree-children {
-    margin-left: 16px;
+    margin-left: 20px; // Indent by icon width (16px) + margin (4px)
   }
 
   .tree-items {
@@ -124,6 +122,7 @@
   }
 
   // Indentation for different levels
+  // Each level's icon aligns with the parent's name start position
   .tree-node[data-level="0"] > .tree-node-label {
     padding-left: 8px;
 
@@ -131,23 +130,40 @@
     .tree-node-name {
       color: #2563eb; // Light mode: bright blue
       font-weight: 600;
+      max-width: 200px; // Level 0: 8px padding + 20px icon = 28px used
     }
   }
 
   .tree-node[data-level="1"] > .tree-node-label {
-    padding-left: 24px;
+    padding-left: 8px; // Same base padding
+
+    .tree-node-name {
+      max-width: 180px; // Level 1: indented 20px more via .tree-children
+    }
   }
 
   .tree-node[data-level="2"] > .tree-node-label {
-    padding-left: 40px;
+    padding-left: 8px; // Same base padding
+
+    .tree-node-name {
+      max-width: 160px; // Level 2: indented 40px more via .tree-children
+    }
   }
 
   .tree-node[data-level="3"] > .tree-node-label {
-    padding-left: 56px;
+    padding-left: 8px; // Same base padding
+
+    .tree-node-name {
+      max-width: 140px; // Level 3: indented 60px more via .tree-children
+    }
   }
 
   .tree-node[data-level="4"] > .tree-node-label {
-    padding-left: 72px;
+    padding-left: 8px; // Same base padding
+
+    .tree-node-name {
+      max-width: 120px; // Level 4: indented 80px more via .tree-children
+    }
   }
 }
 
