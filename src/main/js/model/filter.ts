@@ -131,3 +131,12 @@ export class NameFilter extends Filter {
     }
 
 } // NameFilter
+
+/**
+ * @param specItem The SpecItem to validate
+ * @param selectedFilters The filters
+ * @return true if the specItem matches all filters
+ */
+export function isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, Filter]>): boolean {
+    return selectedFilters.every(([_, filter]: [string, Filter]): boolean => filter.matches(specItem));
+}

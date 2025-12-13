@@ -23,8 +23,10 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {Project} from "@main/model/project";
 import {Log} from "@main/utils/log";
 import {ChangeEvent, EventType} from "@main/model/change_event";
+import {Filter, isMatchingAllFilters} from "@main/model/filter";
 
 interface TreeNode {
+    index: number;
     name: string;
     firstIndex: number;
     children: Map<string, TreeNode>;
@@ -39,6 +41,7 @@ export class TreeViewElement {
     private readonly log: Log = new Log("TreeViewElement");
     private readonly treeViewElement: JQuery;
     private rootNodes: Map<string, TreeNode> = new Map();
+    private indexCounter: number = 0;
     private suppressSelectionEvent: boolean = false;
 
     constructor(
@@ -50,13 +53,17 @@ export class TreeViewElement {
     }
 
     public init(): TreeViewElement {
-        this.buildTreeModel();
+        this.buildOrUpdateTreeModel(null);
         this.renderTree();
         this.attachExpandCollapseButtons();
         this.oftStateController.addChangeListener(
             (event: ChangeEvent) => this.handleSelectionChange(event),
             EventType.Selection
         );
+        this.oftStateController.addChangeListener(
+            (event: ChangeEvent) => this.handleFilterChange(event),
+            EventType.Filters
+        )
         return this;
     }
 
@@ -97,10 +104,14 @@ export class TreeViewElement {
      * The type is the uppermost level, followed by name tokens.
      * Excludes the last token from the path. Limits depth to MAX_TREE_DEPTH levels.
      */
-    private buildTreeModel(): void {
+    private buildOrUpdateTreeModel(selectedFilters: Array<[string, Filter]> | null): void {
         this.log.info("Building tree from", this.specItems.length, "specItems");
 
+        this.resetNodeCounts(this.rootNodes); // clear counters in case the model was already generated
+
+        this.indexCounter = 0;
         this.specItems.forEach(specItem => {
+            if (selectedFilters != null && !isMatchingAllFilters(specItem, selectedFilters)) return;
             const pathTokens = this.splitSpecItemNameIntoPath(specItem.name);
             if (pathTokens.length < 1) return;
 
@@ -147,6 +158,7 @@ export class TreeViewElement {
         let node = levelNodes.get(token);
         if (!node) {
             node = {
+                index: this.indexCounter++,
                 name: token,
                 firstIndex: specItem.index,
                 children: new Map(),
@@ -164,6 +176,19 @@ export class TreeViewElement {
             this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath);
         }
     }
+
+    /**
+     * Resets all node counts to 0 recursively
+     */
+    private resetNodeCounts(nodes: Map<string, TreeNode>): void {
+        nodes.forEach(node => {
+            node.specItemCount = 0;
+            if (node.children.size > 0) {
+                this.resetNodeCounts(node.children);
+            }
+        });
+    }
+
 
     //
     // Render tree
@@ -199,7 +224,7 @@ export class TreeViewElement {
         sortedNodes.forEach(([_, node]) => {
             const hasChildren = node.children.size > 0;
 
-            html += `<li class="tree-node" data-level="${node.level}" data-itemIndex="${node.firstIndex}" data-path="${node.fullPath}">`;
+            html += `<li class="tree-node" id="tn_${node.index}" data-level="${node.level}" data-itemIndex="${node.firstIndex}" data-path="${node.fullPath}">`;
 
             // Node label with expand/collapse icon
             html += `<div class="tree-node-label">`;
@@ -226,6 +251,14 @@ export class TreeViewElement {
 
         html += '</ul>';
         return html;
+    }
+
+    private updateRenderedCounters(nodes: Map<string, TreeNode>): void {
+        Array.from(nodes.entries()).forEach(([_, node]) => {
+            const counter = this.treeViewElement.find(`#tn_${node.index}.tree-node > .tree-node-label > .tree-node-count`);
+            counter.text(`(${node.specItemCount})`);
+            this.updateRenderedCounters(node.children);
+        });
     }
 
 
@@ -276,6 +309,17 @@ export class TreeViewElement {
 
     //
     // Selection change handler
+
+    /**
+     * Handles filter change events and updates counts
+     */
+    private handleFilterChange(event: ChangeEvent): void {
+        event.handleFilterChange((filters, _) => {
+            this.log.info("Tree filter change", filters);
+            this.buildOrUpdateTreeModel(Array.from(filters));
+            this.updateRenderedCounters(this.rootNodes);
+        });
+    }
 
     /**
      * Handles selection change events from the controller
