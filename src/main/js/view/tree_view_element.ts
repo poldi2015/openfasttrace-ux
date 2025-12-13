@@ -303,7 +303,11 @@ export class TreeViewElement {
      * Updates tree selection based on the selected specItem
      */
     private selectNode(selectedIndex: number | null): void {
-        if (selectedIndex === null) return;
+        if (selectedIndex === null) {
+            this.log.info("selectNode to null - removing selection");
+            this.removeSelections();
+            return;
+        }
         this.log.info("selectNode to index", selectedIndex);
 
         const treeNodeMatchingPath = this.findMatchingNode(this.specItems[selectedIndex]);

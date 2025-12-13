@@ -39,6 +39,7 @@ export class OftStateController {
 
     private changeListeners: Map<EventType, Array<ChangeListener>> = new Map<EventType, Array<ChangeListener>>();
     private isInitialized: boolean = false;
+    private eventQueue: Array<ChangeEvent> = [];
 
     private log: Log = new Log("OftStateController");
 
@@ -134,8 +135,8 @@ export class OftStateController {
                         filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex == index) return false;
         this.oftState.focusIndex = index;
-        this.oftState.coverType = coverType;
         this.oftState.selectedIndex = index;
+        this.oftState.coverType = coverType;
         this.oftState.unfocusedFilters = this.oftState.selectedFilters;
         this.oftState.unfocusedFilters.delete(IndexFilter.FILTER_NAME);
         if (filters != null) this.oftState.selectedFilters = filters;
@@ -147,6 +148,7 @@ export class OftStateController {
                         coverType: CoverType,
                         filters: Map<FilterName, Filter> | null = null): boolean {
         if (this.oftState.focusIndex != index) return false;
+        this.oftState.focusIndex = index;
         this.oftState.selectedIndex = index;
         this.oftState.coverType = coverType;
         if (filters != null) {
@@ -321,19 +323,45 @@ export class OftStateController {
     }
 
     /**
-     * send event to all listeners.
+     * adds a new event at the end of the event queue and processes events sequentially.
      *
      * @param changeEvent The event to send
      */
     private sendChangeEvent(changeEvent: ChangeEvent): void {
         this.log.info("sendChangeEvent", changeEvent);
-        const listeners: Set<ChangeListener> = new Set(
-            Array.of(...this.changeListeners)
-                .filter(([eventType, _]: [EventType, Array<ChangeListener>]) => changeEvent.types.includes(eventType))
-                .flatMap(([_, listener]: [EventType, Array<ChangeListener>]) => listener)
-        );
 
-        listeners.forEach((listener: ChangeListener) => listener(changeEvent));
+        // Add event to queue
+        this.eventQueue.push(changeEvent);
+
+
+        if (this.eventQueue.length > 1) {
+            // If already processing only add event to the queue
+
+            this.log.info("Event queued, already processing");
+        } else {
+            // Process all events in queue
+            this.processEventQueue();
+        }
+    }
+
+    /**
+     * sends all queue events to listeners.
+     */
+    private processEventQueue() {
+        while (this.eventQueue.length > 0) {
+            const event = this.eventQueue[0];
+            this.log.info("Processing event from queue", event);
+
+            const listeners: Set<ChangeListener> = new Set(
+                Array.of(...this.changeListeners)
+                    .filter(([eventType, _]: [EventType, Array<ChangeListener>]) => event.types.includes(eventType))
+                    .flatMap(([_, listener]: [EventType, Array<ChangeListener>]) => listener)
+            );
+
+            listeners.forEach((listener: ChangeListener) => listener(event));
+            this.eventQueue.shift();
+        }
+        this.log.info("All events processed");
     }
 
 } // OftState

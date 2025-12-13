@@ -113,9 +113,7 @@ export class SpecItemElement {
      * Place the selection focus on this item.
      */
     public select(): void {
-        this.log.info("select", this.specItem.index);
-        if (!this.isActive()) return;
-        if (this.selected) return;
+        this.log.info("selectElement index", this.specItem.index);
         this.selected = true;
         this.element.addClass(SELECT_CLASS);
         this.element.removeClass(MOUSE_ENTER_CLASS);
@@ -126,9 +124,7 @@ export class SpecItemElement {
      * Remove selection focus from this item.
      */
     public unselect(): void {
-        this.log.info("unselect index", this.specItem.index);
-        if (!this.isActive()) return;
-        if (!this.selected) return;
+        this.log.info("unselectElement index", this.specItem.index);
         this.selected = false;
         this.element.removeClass(SELECT_CLASS);
     }
