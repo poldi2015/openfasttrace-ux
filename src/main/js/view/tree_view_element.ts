@@ -33,6 +33,7 @@ interface TreeNode {
     level: number;
     fullPath: string;
     specItemCount: number;
+    selectable: boolean;
 }
 
 const MAX_TREE_DEPTH = 3; // Type + MAX_TREE_DEPTH level
@@ -107,7 +108,7 @@ export class TreeViewElement {
     private buildOrUpdateTreeModel(selectedFilters: Array<[string, Filter]> | null): void {
         this.log.info("Building tree from", this.specItems.length, "specItems");
 
-        this.resetNodeCounts(this.rootNodes); // clear counters in case the model was already generated
+        this.resetTreeNodes(this.rootNodes, selectedFilters); // clear counters in case the model was already generated
 
         this.indexCounter = 0;
         this.specItems.forEach(specItem => {
@@ -164,7 +165,8 @@ export class TreeViewElement {
                 children: new Map(),
                 level: level,
                 fullPath: fullPath,
-                specItemCount: 1
+                specItemCount: 1,
+                selectable: true
             };
             levelNodes.set(token, node);
         } else {
@@ -180,11 +182,12 @@ export class TreeViewElement {
     /**
      * Resets all node counts to 0 recursively
      */
-    private resetNodeCounts(nodes: Map<string, TreeNode>): void {
+    private resetTreeNodes(nodes: Map<string, TreeNode>, selectedFilters: Array<[string, Filter]> | null): void {
         nodes.forEach(node => {
             node.specItemCount = 0;
+            node.selectable = selectedFilters == null || isMatchingAllFilters(this.specItems[node.firstIndex], selectedFilters);
             if (node.children.size > 0) {
-                this.resetNodeCounts(node.children);
+                this.resetTreeNodes(node.children, selectedFilters);
             }
         });
     }
@@ -253,11 +256,20 @@ export class TreeViewElement {
         return html;
     }
 
-    private updateRenderedCounters(nodes: Map<string, TreeNode>): void {
+    /**
+     * In case of a filter change the specItem count indicator and the selectability is updated.
+     *
+     * A tree node is disabled when the specItem counter is 0 or when the firstSpecItem is filtered out.
+     *
+     * @param nodes The model
+     */
+    private updateRenderedNodes(nodes: Map<string, TreeNode>): void {
         Array.from(nodes.entries()).forEach(([_, node]) => {
-            const counter = this.treeViewElement.find(`#tn_${node.index}.tree-node > .tree-node-label > .tree-node-count`);
-            counter.text(`(${node.specItemCount})`);
-            this.updateRenderedCounters(node.children);
+            const treeNodeElement = this.treeViewElement.find(`#tn_${node.index}.tree-node`);
+            const counterElement = treeNodeElement?.find("> .tree-node-label > .tree-node-count");
+            counterElement?.text(`(${node.specItemCount})`);
+            treeNodeElement.toggleClass('tree-node-disabled', !node.selectable || node.specItemCount === 0);
+            this.updateRenderedNodes(node.children);
         });
     }
 
@@ -274,14 +286,17 @@ export class TreeViewElement {
             e.stopPropagation();
             const labelNode = $(e.currentTarget);
             const treeNode = labelNode.parent('.tree-node');
+
+            // Toggle expand/collapse if has children
             const childNodes = treeNode.children('.tree-children');
+            const isExpanded = childNodes.is(':visible');
+            this.expandNode(treeNode, !isExpanded);
+
+            // Disabled nodes cannot be selected but only expanded/collapsed
+            if (treeNode.hasClass('tree-node-disabled')) return;
 
             // Mark this node as selected
             this.markNodeSelected(treeNode);
-
-            // Toggle expand/collapse if has children
-            const isExpanded = childNodes.is(':visible');
-            this.expandNode(treeNode, !isExpanded);
 
             // Select first matching specItem in this node or its children
             this.selectSpecItem(this.findFirstSpecItemInNode(treeNode));
@@ -303,7 +318,7 @@ export class TreeViewElement {
         if (index == null) return;
         this.log.info("selectSpecItem firstNode index", index);
         this.suppressSelectionEvent = true;
-        this.oftStateController.selectAndShowItem(index);
+        this.oftStateController.selectItem(index);
     }
 
 
@@ -317,7 +332,7 @@ export class TreeViewElement {
         event.handleFilterChange((filters, _) => {
             this.log.info("Tree filter change", filters);
             this.buildOrUpdateTreeModel(Array.from(filters));
-            this.updateRenderedCounters(this.rootNodes);
+            this.updateRenderedNodes(this.rootNodes);
         });
     }
 

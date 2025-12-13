@@ -35,6 +35,10 @@
   .tree-node {
     margin: 0;
     padding: 0;
+
+    .tree-node-disabled {
+      color: var(--col-disabled);
+    }
   }
 
   .tree-node-label {
@@ -47,7 +51,7 @@
     user-select: none;
 
     &:hover {
-      background-color: var(--col-table-even-value);
+      background-color: var(--col-hover);
     }
 
     &.tree-node-selected {
@@ -108,7 +112,7 @@
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: var(--col-selected);
+      background-color: var(--col-hover);
     }
   }
 
@@ -132,6 +136,10 @@
       font-weight: 600;
       max-width: 200px; // Level 0: 8px padding + 20px icon = 28px used
     }
+  }
+
+  .tree-node[data-level="0"].tree-node-disabled > .tree-node-label > .tree-node-name {
+    color: var(--col-disabled) !important;
   }
 
   .tree-node[data-level="1"] > .tree-node-label {
