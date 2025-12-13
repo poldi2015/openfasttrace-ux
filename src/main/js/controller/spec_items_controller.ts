@@ -22,7 +22,7 @@ import {SpecItem} from "@main/model/specitems";
 import {CoverType, OftState} from "@main/model/oft_state";
 import {Log} from "@main/utils/log";
 import {FocusSpecItemElement} from "@main/view/focus_spec_item_element";
-import {Filter} from "@main/model/filter";
+import {Filter, isMatchingAllFilters} from "@main/model/filter";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType,} from '@main/model/change_event';
 import {SpecItemsElement} from "@main/view/spec_items_element";
@@ -203,7 +203,7 @@ export class SpecItemsController {
 
         return specItemToElement
             .filter(([specItem, _]: [SpecItem, any]) => {
-                return SpecItemsController.isMatchingAllFilters(specItem, selectedFilters);
+                return isMatchingAllFilters(specItem, selectedFilters);
             })
             .map(([_, specItemElement]: [any, SpecItemElement]): SpecItemElement => specItemElement);
     }
