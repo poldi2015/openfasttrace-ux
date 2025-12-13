@@ -30,6 +30,7 @@ interface TreeNode {
     children: Map<string, TreeNode>;
     level: number;
     fullPath: string;
+    specItemCount: number;
 }
 
 const MAX_TREE_DEPTH = 3; // Type + MAX_TREE_DEPTH level
@@ -150,9 +151,12 @@ export class TreeViewElement {
                 firstIndex: specItem.index,
                 children: new Map(),
                 level: level,
-                fullPath: fullPath
+                fullPath: fullPath,
+                specItemCount: 1
             };
             levelNodes.set(token, node);
+        } else {
+            node.specItemCount++;
         }
 
         // If this is the last token in the path, add the specItem here
@@ -194,7 +198,6 @@ export class TreeViewElement {
 
         sortedNodes.forEach(([_, node]) => {
             const hasChildren = node.children.size > 0;
-            const itemCount = this.countTotalItems(node);
 
             html += `<li class="tree-node" data-level="${node.level}" data-itemIndex="${node.firstIndex}" data-path="${node.fullPath}">`;
 
@@ -208,7 +211,7 @@ export class TreeViewElement {
             }
 
             html += `<span class="tree-node-name">${this.escapeHtml(node.name)}</span>`;
-            html += `<span class="tree-node-count">(${itemCount})</span>`;
+            html += `<span class="tree-node-count">(${node.specItemCount})</span>`;
             html += `</div>`;
 
             // Render child nodes
@@ -223,17 +226,6 @@ export class TreeViewElement {
 
         html += '</ul>';
         return html;
-    }
-
-    /**
-     * Counts total number of specItems in a node and all its children
-     */
-    private countTotalItems(node: TreeNode): number {
-        let count = node.children.size;
-        node.children.forEach(child => {
-            count += this.countTotalItems(child);
-        });
-        return count;
     }
 
 
