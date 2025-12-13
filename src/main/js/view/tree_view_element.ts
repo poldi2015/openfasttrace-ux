@@ -54,8 +54,7 @@ export class TreeViewElement {
         this.attachExpandCollapseButtons();
         this.oftStateController.addChangeListener(
             (event: ChangeEvent) => this.handleSelectionChange(event),
-            EventType.Selection,
-            EventType.Focus
+            EventType.Selection
         );
         return this;
     }
@@ -295,9 +294,6 @@ export class TreeViewElement {
             this.suppressSelectionEvent = false;
             return;
         }
-        event.handleFocusChange((focusedIndex) => {
-            this.selectNode(focusedIndex);
-        })
         event.handleSelectionChange((selectedIndex) => {
             this.selectNode(selectedIndex);
         });
@@ -307,11 +303,11 @@ export class TreeViewElement {
      * Updates tree selection based on the selected specItem
      */
     private selectNode(selectedIndex: number | null): void {
-        if (selectedIndex === null) return;    // In case of a focus node selection
+        if (selectedIndex === null) return;
         this.log.info("selectNode to index", selectedIndex);
 
         const treeNodeMatchingPath = this.findMatchingNode(this.specItems[selectedIndex]);
-        if (treeNodeMatchingPath) {
+        if (treeNodeMatchingPath && treeNodeMatchingPath.length > 0) {
             this.markNodeSelected(treeNodeMatchingPath);
         }
     }

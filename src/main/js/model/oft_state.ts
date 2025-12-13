@@ -84,13 +84,19 @@ export class OftState {
     }
 
     public isFocusSelected(): boolean {
-        return this._focusIndex != null && this.selectedIndex == null;
+        return this._focusIndex != null && this.selectedIndex == this._focusIndex;
     }
 
     get unfocusedFilters(): Map<FilterName, Filter> {
         return this._unfocusedFilters;
     }
 
+    /**
+     * Remembers the filters that have been active while unpinned.
+     *
+     * selectedFilters are copied to unfocusedFilters when an item is focused.
+     * @param value selectedFilters
+     */
     set unfocusedFilters(value: Map<FilterName, Filter>) {
         this._unfocusedFilters = value;
     }
