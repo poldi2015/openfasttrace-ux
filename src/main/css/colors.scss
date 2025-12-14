@@ -51,7 +51,7 @@ $light-color-nav-hover: #e8e8de;
 $light-color-link: #0066cc;
 $light-color-link-visited: #551a8b;
 
-$light-color-tree-count: #3a3a3a;
+$light-color-count: #595858;
 
 // Dark mode colors
 $dark-color-bg-darker: #1e1e1e;
@@ -130,7 +130,7 @@ $dark-color-tree-count: #b4b4b4;
   --col-link: #{$light-color-link};
   --col-link-visited: #{$light-color-link-visited};
 
-  --col-tree-count: #{$light-color-tree-count};
+  --col-count: #{$light-color-count};
 }
 
 // Dark mode using class (takes precedence over media query)
@@ -174,5 +174,5 @@ $dark-color-tree-count: #b4b4b4;
   --col-link: #{$dark-color-link};
   --col-link-visited: #{$dark-color-link-visited};
 
-  --col-tree-count: #{$light-color-tree-count};
+  --col-count: #{$light-color-count};
 }
