@@ -26,6 +26,7 @@ import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
 import {IField} from "@main/model/project";
+import {IEntry, SelectElement} from "@main/view/select_element";
 
 /**
  * A FilterElement represents one filter type element in the UI.
@@ -36,8 +37,8 @@ export interface IFilterElement extends IElement {
 }
 
 export class FilterElementFactory {
-    public build(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
-        return new FilterElement(id, selectElement, filterModel, oftState);
+    public build(id: string, containerElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
+        return new FilterElement(id, containerElement, filterModel, oftState);
     }
 }
 
@@ -58,11 +59,25 @@ const MAX_FILTER_ELEMENT = 12;
 export class FilterElement implements IFilterElement {
     public constructor(
         public readonly id: string,
-        selectElement: HTMLElement,
+        containerElement: HTMLElement,
         private readonly filterModel: Array<IField>,
         private readonly oftState: OftStateController
     ) {
-        this.selectElement = $(selectElement);
+        this.containerElement = $(containerElement);
+        // Create model from filterModel
+        this.elementModel = this.filterModel.map((field: IField): IEntry => ({
+            text: field.name ?? field.id,
+            count: field.item_count,
+            selected: false
+        }));
+        // Create SelectElement with model
+        this.selectElement = new SelectElement(
+            this.id,
+            this.elementModel,
+            Math.min(this.filterModel.length, MAX_FILTER_ELEMENT),
+            (selectedIndexes: number[]) => this.handleSelectionChange(selectedIndexes),
+            this.containerElement
+        );
     }
 
     /**
@@ -71,9 +86,19 @@ export class FilterElement implements IFilterElement {
     private selectionIndexes: Array<number> = [];
 
     /**
-     * The select element of the filter element.
+     * The container element for the filter.
      */
-    private readonly selectElement: JQuery;
+    private readonly containerElement: JQuery;
+
+    /**
+     * The SelectElement instance
+     */
+    public readonly selectElement: SelectElement;
+
+    /**
+     * The model for the select element
+     */
+    private readonly elementModel: Array<IEntry>;
 
     private navbarElement: NavbarElement | undefined = undefined;
 
@@ -87,9 +112,8 @@ export class FilterElement implements IFilterElement {
      * Builds the filter UI.
      */
     public init(): IFilterElement {
-        this.selectElement.attr('multiple', "true");
+        this.selectElement.init();
         this.addAllNoneSelector();
-        this.appendFilterValues();
         this.deactivate();
         return this;
     }
@@ -98,8 +122,7 @@ export class FilterElement implements IFilterElement {
      * Enable the filter element, ready to be used in the UI.
      */
     public activate(): void {
-        this.selectElement.removeAttr("disabled");
-        this.selectElement.on('change', () => this.notifySelectionChanged(this.selectElement));
+        this.selectElement.activate();
         this.oftState.addChangeListener(this.filtersChangeListener, EventType.Filters);
         this.navbarElement?.activate();
     }
@@ -109,8 +132,7 @@ export class FilterElement implements IFilterElement {
      */
     public deactivate(): void {
         this.navbarElement?.deactivate();
-        this.selectElement.attr("disabled", "disabled");
-        this.selectElement.off('change');
+        this.selectElement.deactivate();
         this.oftState.removeChangeListener(this.filtersChangeListener);
     }
 
@@ -118,7 +140,7 @@ export class FilterElement implements IFilterElement {
      * Query of the UI is active.
      */
     public isActive(): boolean {
-        return this.selectElement.attr("disabled") != undefined;
+        return this.selectElement.isActive();
     }
 
 
@@ -128,24 +150,10 @@ export class FilterElement implements IFilterElement {
     // Init UI
 
     /**
-     * Imports option view for a filter element from the global filter_config variable.
-     */
-    private appendFilterValues(): void {
-        this.selectElement.prop("size", Math.min(this.filterModel.length, MAX_FILTER_ELEMENT));
-        this.filterModel.forEach((item: IField, index: number) => {
-            const color: string = item.color ? `style="color:${item.color}"` : '';
-            const count: string = item.item_count >= 0 ? `&nbsp;&nbsp;(${item.item_count})` : '';
-            const id: string = FilterElement.toSelectionId(this.id, index);
-            this.selectElement.append(`<option id="${id}" ${color}>${item.name}${count}</option>`);
-        });
-        this.toggleOff(true);
-    }
-
-    /**
      * Add a select all and a select off button above a select element.
      */
     private addAllNoneSelector(): void {
-        const buttonBar: JQuery = this.selectElement.parent().parent().find("._expandable-header");
+        const buttonBar: JQuery = this.containerElement.parent().parent().find("._expandable-header");
         buttonBar.append(`
             <div class="nav-bar _filter-nav-bar">
                 <a id="${this.id}-btn-all" class="nav-btn _img-filter-all" href="#" ></a>
@@ -165,63 +173,23 @@ export class FilterElement implements IFilterElement {
      * Select or deselect all options within a element.
      */
     private selectAll(): void {
-        this.selectElement.children("option").each((_, element: HTMLElement) => {
-            $(element).prop("selected", true);
-        });
-        this.selectElement.trigger("change");
+        this.selectElement.selectAll();
     }
 
     /**
      * Sets all items unselected and shows the items of disabled.
      */
     private selectOff(): void {
-        this.selectElement.children("option").each((_, element: HTMLElement) => {
-            $(element).prop("selected", false);
-        });
-        this.selectElement.trigger("change");
+        this.selectElement.selectNone();
     }
 
-
     /**
-     * Listener that reports changed selection to oftState.
-     *
-     * @param {JQuery} selectElement th select element
+     * Handler for selection changes from SelectElement
      */
-    private notifySelectionChanged(selectElement: JQuery): void {
-        this.log.info("selectionChanged", this.id, " ", this.toSelectionIndexes(selectElement));
-        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, this.toSelectionIndexes(selectElement))]]);
+    private handleSelectionChange(selectedIndexes: number[]): void {
+        this.log.info("handleSelectionChange", this.id, " ", selectedIndexes);
+        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, selectedIndexes)]]);
         this.oftState.selectFilters(filters);
-    }
-
-    /**
-     * Extracts the selected indexes from a select option elements.
-     *
-     * @param {JQuery} selectElement th select element of the options
-     */
-    private toSelectionIndexes(selectElement: JQuery): Array<number> {
-        return selectElement
-            .find('option:selected')
-            .map((_, option: HTMLElement): number => FilterElement.toSelectionIndex(option)
-            ).toArray();
-    }
-
-    /**
-     * Generates an element id for on option based in the id (index) of the filter entry.
-     *
-     * @param id of the filter
-     * @param index index of the filter entry
-     */
-    private static toSelectionId(id: string, index: number): string {
-        return `${id}_${index}`;
-    }
-
-    /**
-     * Extracts the index out of the id of an option element
-     *
-     * @param element the option element
-     */
-    private static toSelectionIndex(element: HTMLElement): number {
-        return parseInt(element.id.replace(/^[A-Za-z0-9]+_/, ''));
     }
 
 
@@ -252,9 +220,14 @@ export class FilterElement implements IFilterElement {
         // Prevent OftState events received by change to the UI
         if (sameArrayValues(this.selectionIndexes, changedIndexed)) return;
         this.selectionIndexes = changedIndexed;
-        this.selectElement.children("option").each((index: number, element: HTMLElement) => {
-            $(element).prop("selected", changedIndexed.includes(index));
+
+        // Update model selection state
+        this.elementModel.forEach((entry: IEntry, index: number) => {
+            entry.selected = changedIndexed.includes(index);
         });
+
+        // Update SelectElement display
+        this.selectElement.updateSelection();
         this.toggleOff(changedIndexed.length == 0);
     }
 
@@ -264,13 +237,6 @@ export class FilterElement implements IFilterElement {
      * @param off true to set the items off
      */
     private toggleOff(off: boolean): void {
-        this.selectElement.children("option").each((_, element: HTMLElement) => {
-            if (off) {
-                $(element).addClass("_filter-item-off");
-            } else {
-                $(element).removeClass("_filter-item-off");
-            }
-        });
         this.navbarElement?.getButton(`${this.id}-btn-off`)?.toggle(off);
     }
 

@@ -49,12 +49,30 @@ export const FILTER_MODELS_SAMPLE: Map<string, Array<IField>> = new Map(Object.e
 export class FilterElementMock implements IFilterElement {
     public constructor(
         public readonly id: string,
-        public readonly selectElement: HTMLElement,
+        public readonly containerElement: HTMLElement,
         public readonly filterModel: Array<IField>,
         public readonly oftState: OftStateController
     ) {
+        // Create a mock SelectElement
+        this.selectElement = {
+            id: id,
+            init: () => this.selectElement,
+            activate: () => {
+            },
+            deactivate: () => {
+            },
+            isActive: () => true,
+            getSelectedIndexes: () => [],
+            updateSelection: () => {
+            },
+            selectAll: () => {
+            },
+            selectNone: () => {
+            }
+        } as any;
     }
 
+    public readonly selectElement: any;
     public _isActive: boolean = false;
 
 
@@ -76,8 +94,8 @@ export class FilterElementMock implements IFilterElement {
 } // FilterElementMock
 
 export class FilterElementSpy {
-    constructor(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController) {
-        this.filterElement = new FilterElementMock(id, selectElement, filterModel, oftState);
+    constructor(id: string, containerElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController) {
+        this.filterElement = new FilterElementMock(id, containerElement, filterModel, oftState);
         this.initSpy = vi.spyOn(this.filterElement, 'init');
         this.activateSpy = vi.spyOn(this.filterElement, 'activate');
         this.deactivateSpy = vi.spyOn(this.filterElement, 'deactivate');
@@ -94,8 +112,8 @@ export class FilterElementSpy {
 } // FilterElementSpy
 
 export class FilterElementFactoryMock extends FilterElementFactory {
-    public build(id: string, selectElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
-        const filterElementSpy: FilterElementSpy = new FilterElementSpy(id, selectElement, filterModel, oftState);
+    public build(id: string, containerElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
+        const filterElementSpy: FilterElementSpy = new FilterElementSpy(id, containerElement, filterModel, oftState);
         this.instances.push(filterElementSpy);
         return filterElementSpy.filterElement;
     }

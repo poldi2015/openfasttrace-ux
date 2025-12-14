@@ -29,7 +29,7 @@ import {SelectionFilter} from "@main/model/filter";
 
 const HTML_MODEL = `
 <div class="expandable" data-title="Type" data-tooltip="Type part of the Requirement ID">
-    <select class="filter" id="type"></select>
+    <div class="filter" id="type"></div>
 </div>
 `;
 
@@ -43,9 +43,14 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
         </div>
     </div>
         <div class="_expandable-content visible">
-        <select class="filter" id="type" multiple="multiple" size="1" disabled="disabled">
-            <option id="type_0" style="color:red" class="_filter-item-off">Feature&nbsp;&nbsp;(5)</option>            
-        </select>
+        <div class="filter select-container select-disabled" id="type" disabled="disabled">
+            <div class="select-entries" style="height: 42px;">
+                <div class="select-entry" data-index="0">
+                    <span class="select-text">Feature</span>
+                    <span class="select-count">(5)</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>    
 `;

@@ -27,8 +27,8 @@ import {$} from "@test/fixtures/dom";
 
 const HTML_MODEL = `
 <div>
-    <select class="filter" id="type"></select>
-    <select class="filter" id="coverage"></select>
+    <div class="filter" id="type"></div>
+    <div class="filter" id="coverage"></div>
 </div>
 `;
 
