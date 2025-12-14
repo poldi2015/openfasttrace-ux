@@ -82,6 +82,7 @@ export class SelectElement implements ISelectElement {
     public init(): ISelectElement {
         this.log.info("init", this.id);
         this.addEntries();
+        this.updateDisplay();
         this.deactivate();
         return this;
     }
