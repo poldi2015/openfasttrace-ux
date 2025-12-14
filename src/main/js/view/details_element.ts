@@ -67,7 +67,7 @@ export class DetailsElement implements IDetailsElement {
         );
     }
 
-    private readonly tableElement: JQuery<HTMLElement>;
+    private readonly tableElement: JQuery;
     private readonly copyButton: CopyButtonElement;
     private currentSpecItemId: string | null = null;
 
@@ -158,7 +158,7 @@ export class DetailsElement implements IDetailsElement {
         return specItem.comments;
     }
 
-    private replaceHyperlinkedSpecItems(dependenciesElement: JQuery<HTMLElement>, specItemIndexes: Array<number>): void {
+    private replaceHyperlinkedSpecItems(dependenciesElement: JQuery, specItemIndexes: Array<number>): void {
         dependenciesElement.find("a._specitem-hyperlink").off("click");
         dependenciesElement.html(specItemIndexes.map((index: number) =>
             `[<a class="_specitem-hyperlink" href="${index}">${this.specItems[index].title}</a>]`
@@ -166,7 +166,7 @@ export class DetailsElement implements IDetailsElement {
         this.addHyperlinkClickEvent(dependenciesElement);
     }
 
-    private addHyperlinkClickEvent(containerElement: JQuery<HTMLElement>) {
+    private addHyperlinkClickEvent(containerElement: JQuery) {
         this.log.info("set hyperlink", $("a._specitem-hyperlink"));
         containerElement.find("a._specitem-hyperlink").on("click", (event) => {
             event.preventDefault();
