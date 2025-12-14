@@ -43,8 +43,8 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
         </div>
     </div>
         <div class="_expandable-content visible">
-        <div class="filter select-container select-disabled" id="type" disabled="disabled">
-            <div class="select-entries" style="height: 42px;">
+        <div class="filter select-container no-selection select-disabled" id="type" disabled="disabled">
+            <div class="select-entries" style="height: 22px;">
                 <div class="select-entry" data-index="0">
                     <span class="select-text">Feature</span>
                     <span class="select-count">(5)</span>

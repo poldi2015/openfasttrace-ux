@@ -20,425 +20,296 @@
 
 import {beforeEach, describe, expect, test, vi} from "vitest";
 import {$} from "@test/fixtures/dom";
-import {ISelectOption, SelectElement} from "@main/view/select_element";
+import {IEntry, SelectElement} from "@main/view/select_element";
 
 describe("SelectElement - Initialization", () => {
     let container: JQuery;
+    let model: IEntry[];
+    let changeHandler: (selectedIndexes: number[]) => void;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
+        model = [
+            {text: "Option 1", count: 5},
+            {text: "Option 2", count: 10},
+            {text: "Option 3"}
+        ];
+        changeHandler = vi.fn();
     });
 
-    test("should create multi-select with container", () => {
-        const multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+    test("should create select element with container", () => {
+        const selectElement = new SelectElement("test-id", model, 3, changeHandler, container);
+        selectElement.init();
 
-        expect(container.hasClass('_custom-multiselect')).toBe(true);
-        expect(container.find('._multiselect-options-container').length).toBe(1);
+        expect(container.hasClass('select-container')).toBe(true);
+        expect(container.find('.select-entries').length).toBe(1);
     });
 
-    test("should accept jQuery element as container", () => {
-        const multiSelect = new SelectElement(container, "test-id");
-        multiSelect.init();
+    test("should initialize with correct number of entries", () => {
+        const selectElement = new SelectElement("test-id", model, 3, changeHandler, container);
+        selectElement.init();
 
-        expect(container.hasClass('_custom-multiselect')).toBe(true);
+        const entries = container.find('.select-entry');
+        expect(entries.length).toBe(3);
     });
 
-    test("should initialize with empty options", () => {
-        const multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+    test("should initialize with empty model", () => {
+        const emptyModel: IEntry[] = [];
+        const selectElement = new SelectElement("test-id", emptyModel, 3, changeHandler, container);
+        selectElement.init();
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([]);
+        expect(selectElement.getSelectedIndexes()).toEqual([]);
     });
 });
 
-describe("SelectElement - Options Management", () => {
+describe("SelectElement - Display", () => {
     let container: JQuery;
-    let multiSelect: SelectElement;
-    let sampleOptions: ISelectOption[];
+    let model: IEntry[];
+    let selectElement: SelectElement;
+    let changeHandler: (selectedIndexes: number[]) => void;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+        changeHandler = vi.fn();
 
-        sampleOptions = [
-            {id: "opt1", text: "Option 1", count: 5},
-            {id: "opt2", text: "Option 2", count: 10},
-            {id: "opt3", text: "Option 3"}
+        model = [
+            {text: "Option 1", count: 5},
+            {text: "Option 2", count: 10},
+            {text: "Option 3"}
         ];
-    });
 
-    test("should render options correctly", () => {
-        multiSelect.setOptions(sampleOptions);
-
-        const options = container.find('._multiselect-option');
-        expect(options.length).toBe(3);
+        selectElement = new SelectElement("test-id", model, 3, changeHandler, container);
+        selectElement.init();
     });
 
     test("should display option text", () => {
-        multiSelect.setOptions(sampleOptions);
-
-        const firstOption = container.find('._multiselect-option').first();
-        expect(firstOption.find('._multiselect-text').text()).toBe("Option 1");
+        const firstOption = container.find('.select-entry').first();
+        expect(firstOption.find('.select-text').text()).toBe("Option 1");
     });
 
     test("should display option count when provided", () => {
-        multiSelect.setOptions(sampleOptions);
-
-        const firstOption = container.find('._multiselect-option').first();
-        expect(firstOption.find('._multiselect-count').text()).toBe("(5)");
+        const firstOption = container.find('.select-entry').first();
+        expect(firstOption.find('.select-count').text()).toBe("(5)");
     });
 
     test("should not display count when not provided", () => {
-        multiSelect.setOptions(sampleOptions);
-
-        const thirdOption = container.find('._multiselect-option').eq(2);
-        expect(thirdOption.find('._multiselect-count').length).toBe(0);
-    });
-
-    test("should display icon when provided", () => {
-        const optionsWithIcon: ISelectOption[] = [
-            {id: "opt1", text: "Option 1", icon: "material-icons"}
-        ];
-        multiSelect.setOptions(optionsWithIcon);
-
-        const option = container.find('._multiselect-option').first();
-        expect(option.find('._multiselect-icon').hasClass('material-icons')).toBe(true);
+        const thirdOption = container.find('.select-entry').eq(2);
+        expect(thirdOption.find('.select-count').length).toBe(0);
     });
 
     test("should escape HTML in option text", () => {
-        const maliciousOptions: ISelectOption[] = [
-            {id: "opt1", text: "<script>alert('xss')</script>"}
+        const htmlModel: IEntry[] = [
+            {text: "<script>alert('xss')</script>"}
         ];
-        multiSelect.setOptions(maliciousOptions);
+        const htmlContainer = $('<div></div>');
+        $('body').append(htmlContainer);
+        const ms = new SelectElement("test-id", htmlModel, 1, changeHandler, htmlContainer);
+        ms.init();
 
-        const option = container.find('._multiselect-option').first();
-        const html = option.find('._multiselect-text').html();
+        const option = htmlContainer.find('.select-entry').first();
+        const html = option.find('.select-text').html();
         expect(html).toContain("&lt;script&gt;");
-        expect(option.find('._multiselect-text').text()).toContain("<script>");
-    });
-
-    test("should set pre-selected options", () => {
-        const preSelectedOptions: ISelectOption[] = [
-            {id: "opt1", text: "Option 1", selected: true},
-            {id: "opt2", text: "Option 2", selected: false},
-            {id: "opt3", text: "Option 3", selected: true}
-        ];
-        multiSelect.setOptions(preSelectedOptions);
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 2]);
     });
 });
 
-describe("SelectElement - Selection Behavior", () => {
+describe("SelectElement - Selection", () => {
     let container: JQuery;
-    let multiSelect: SelectElement;
-    let sampleOptions: ISelectOption[];
+    let model: IEntry[];
+    let selectElement: SelectElement;
+    let changeHandler: any;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
-        multiSelect.activate(); // Activate so selection works
+        changeHandler = vi.fn();
 
-        sampleOptions = [
-            {id: "opt1", text: "Option 1"},
-            {id: "opt2", text: "Option 2"},
-            {id: "opt3", text: "Option 3"}
+        model = [
+            {text: "Option 1"},
+            {text: "Option 2"},
+            {text: "Option 3"}
         ];
-        multiSelect.setOptions(sampleOptions);
+
+        selectElement = new SelectElement("test-id", model, 3, changeHandler, container);
+        selectElement.init();
+        selectElement.activate();
     });
 
-    test("should select option on click", () => {
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
+    test("should select option on mousedown", () => {
+        const firstOption = container.find('.select-entry').first();
+        firstOption.trigger('mousedown');
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([0]);
-        expect(firstOption.hasClass('_selected')).toBe(true);
+        expect(selectElement.getSelectedIndexes()).toEqual([0]);
+        expect(firstOption.hasClass('selected')).toBe(true);
     });
 
-    test("should deselect option on second click", () => {
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
-        firstOption.trigger('click');
+    test("should deselect option on second mousedown", () => {
+        const firstOption = container.find('.select-entry').first();
+        firstOption.trigger('mousedown');
+        $(document).trigger('mouseup');
+        firstOption.trigger('mousedown');
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([]);
-        expect(firstOption.hasClass('_selected')).toBe(false);
+        expect(selectElement.getSelectedIndexes()).toEqual([]);
+        expect(firstOption.hasClass('selected')).toBe(false);
     });
 
-    test("should allow multiple selections", () => {
-        const options = container.find('._multiselect-option');
-        options.eq(0).trigger('click');
-        options.eq(2).trigger('click');
+    test("should call change handler when selection changes", () => {
+        const firstOption = container.find('.select-entry').first();
+        firstOption.trigger('mousedown');
+        $(document).trigger('mouseup');
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 2]);
-    });
-
-    test("should update checkbox visual state", () => {
-        const firstOption = container.find('._multiselect-option').first();
-        const checkbox = firstOption.find('._multiselect-checkbox');
-
-        firstOption.trigger('click');
-        expect(checkbox.hasClass('_checked')).toBe(true);
-
-        firstOption.trigger('click');
-        expect(checkbox.hasClass('_checked')).toBe(false);
-    });
-
-    test("should call onChange callback when selection changes", () => {
-        const onChange = vi.fn();
-        multiSelect.onChange(onChange);
-
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
-
-        expect(onChange).toHaveBeenCalledWith([0]);
-    });
-
-    test("should call onChange with correct indexes for multiple selections", () => {
-        const onChange = vi.fn();
-        multiSelect.onChange(onChange);
-
-        const options = container.find('._multiselect-option');
-        options.eq(0).trigger('click');
-        options.eq(2).trigger('click');
-
-        expect(onChange).toHaveBeenLastCalledWith([0, 2]);
+        expect(changeHandler).toHaveBeenCalledWith([0]);
     });
 });
 
 describe("SelectElement - Programmatic Selection", () => {
     let container: JQuery;
-    let multiSelect: SelectElement;
-    let sampleOptions: ISelectOption[];
+    let model: IEntry[];
+    let selectElement: SelectElement;
+    let changeHandler: any;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+        changeHandler = vi.fn();
 
-        sampleOptions = [
-            {id: "opt1", text: "Option 1"},
-            {id: "opt2", text: "Option 2"},
-            {id: "opt3", text: "Option 3"},
-            {id: "opt4", text: "Option 4"}
+        model = [
+            {text: "Option 1"},
+            {text: "Option 2"},
+            {text: "Option 3"},
+            {text: "Option 4"}
         ];
-        multiSelect.setOptions(sampleOptions);
-    });
 
-    test("should set selected indexes programmatically", () => {
-        multiSelect.setSelectedIndexes([0, 2]);
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 2]);
-    });
-
-    test("should update UI when setting indexes programmatically", () => {
-        multiSelect.setSelectedIndexes([1, 3]);
-
-        const options = container.find('._multiselect-option');
-        expect(options.eq(0).hasClass('_selected')).toBe(false);
-        expect(options.eq(1).hasClass('_selected')).toBe(true);
-        expect(options.eq(2).hasClass('_selected')).toBe(false);
-        expect(options.eq(3).hasClass('_selected')).toBe(true);
-    });
-
-    test("should ignore invalid indexes", () => {
-        multiSelect.setSelectedIndexes([0, 10, -1, 2]);
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 2]);
+        selectElement = new SelectElement("test-id", model, 4, changeHandler, container);
+        selectElement.init();
     });
 
     test("should select all options", () => {
-        multiSelect.selectAll();
+        selectElement.selectAll();
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 1, 2, 3]);
+        expect(selectElement.getSelectedIndexes()).toEqual([0, 1, 2, 3]);
     });
 
     test("should deselect all options", () => {
-        multiSelect.setSelectedIndexes([0, 1, 2]);
-        multiSelect.selectNone();
+        model[0].selected = true;
+        model[2].selected = true;
+        selectElement.selectNone();
 
-        expect(multiSelect.getSelectedIndexes()).toEqual([]);
+        expect(selectElement.getSelectedIndexes()).toEqual([]);
     });
 
-    test("should call onChange when using selectAll", () => {
-        const onChange = vi.fn();
-        multiSelect.onChange(onChange);
+    test("should call change handler when using selectAll", () => {
+        selectElement.selectAll();
 
-        multiSelect.selectAll();
-
-        expect(onChange).toHaveBeenCalledWith([0, 1, 2, 3]);
+        expect(changeHandler).toHaveBeenCalledWith([0, 1, 2, 3]);
     });
 
-    test("should call onChange when using selectNone", () => {
-        const onChange = vi.fn();
-        multiSelect.onChange(onChange);
-        multiSelect.setSelectedIndexes([0, 1]);
+    test("should call change handler when using selectNone", () => {
+        selectElement.selectNone();
 
-        onChange.mockClear();
-        multiSelect.selectNone();
-
-        expect(onChange).toHaveBeenCalledWith([]);
+        expect(changeHandler).toHaveBeenCalledWith([]);
     });
 });
 
 describe("SelectElement - Disabled State", () => {
     let container: JQuery;
-    let multiSelect: SelectElement;
-    let sampleOptions: ISelectOption[];
+    let model: IEntry[];
+    let selectElement: SelectElement;
+    let changeHandler: any;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+        changeHandler = vi.fn();
 
-        sampleOptions = [
-            {id: "opt1", text: "Option 1"},
-            {id: "opt2", text: "Option 2"}
+        model = [
+            {text: "Option 1"},
+            {text: "Option 2"}
         ];
-        multiSelect.setOptions(sampleOptions);
+
+        selectElement = new SelectElement("test-id", model, 2, changeHandler, container);
+        selectElement.init();
     });
 
-    test("should disable multi-select", () => {
-        multiSelect.deactivate();
-
-        expect(multiSelect.isActive()).toBe(false);
-        expect(container.hasClass('_multiselect-disabled')).toBe(true);
+    test("should be disabled after init", () => {
+        expect(container.hasClass('select-disabled')).toBe(true);
     });
 
-    test("should enable multi-select", () => {
-        multiSelect.deactivate();
-        multiSelect.activate();
+    test("should enable when activated", () => {
+        selectElement.activate();
+        expect(container.hasClass('select-disabled')).toBe(false);
+    });
 
-        expect(multiSelect.isActive()).toBe(true);
-        expect(container.hasClass('_multiselect-disabled')).toBe(false);
+    test("should disable when deactivated", () => {
+        selectElement.activate();
+        selectElement.deactivate();
+        expect(container.hasClass('select-disabled')).toBe(true);
     });
 
     test("should not allow selection when disabled", () => {
-        multiSelect.deactivate();
+        const firstOption = container.find('.select-entry').first();
+        firstOption.trigger('mousedown');
 
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([]);
-    });
-
-    test("should allow selection when enabled", () => {
-        multiSelect.activate();
-
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([0]);
+        expect(selectElement.getSelectedIndexes()).toEqual([]);
     });
 });
 
-describe("SelectElement - Cleanup", () => {
+describe("SelectElement - Drag Selection", () => {
     let container: JQuery;
-    let multiSelect: SelectElement;
+    let model: IEntry[];
+    let selectElement: SelectElement;
+    let changeHandler: any;
 
     beforeEach(() => {
         container = $('<div id="test-container"></div>');
         $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-    });
+        changeHandler = vi.fn();
 
-    test("should clean up on destroy", () => {
-        const sampleOptions: ISelectOption[] = [
-            {id: "opt1", text: "Option 1"}
+        model = [
+            {text: "Option 1"},
+            {text: "Option 2"},
+            {text: "Option 3"}
         ];
-        multiSelect.setOptions(sampleOptions);
 
-        multiSelect.destroy();
-
-        expect(container.children().length).toBe(0);
+        selectElement = new SelectElement("test-id", model, 3, changeHandler, container);
+        selectElement.init();
+        selectElement.activate();
     });
 
-    test("should remove event listeners on destroy", () => {
-        const onChange = vi.fn();
-        multiSelect.onChange(onChange);
+    test("should select multiple entries by dragging", () => {
+        const entries = container.find('.select-entry');
 
-        const sampleOptions: ISelectOption[] = [
-            {id: "opt1", text: "Option 1"}
-        ];
-        multiSelect.setOptions(sampleOptions);
+        // Start drag on first entry
+        entries.eq(0).trigger('mousedown');
 
-        multiSelect.destroy();
+        // Drag over second entry
+        entries.eq(1).trigger('mouseenter');
 
-        // Try to trigger click after destroy - should not call onChange
-        const firstOption = container.find('._multiselect-option').first();
-        firstOption.trigger('click');
+        // End drag
+        $(document).trigger('mouseup');
 
-        expect(onChange).not.toHaveBeenCalled();
-    });
-});
-
-describe("SelectElement - Edge Cases", () => {
-    let container: JQuery;
-    let multiSelect: SelectElement;
-
-    beforeEach(() => {
-        container = $('<div id="test-container"></div>');
-        $('body').append(container);
-        multiSelect = new SelectElement(container[0], "test-id");
-        multiSelect.init();
+        expect(selectElement.getSelectedIndexes()).toEqual([0, 1]);
     });
 
-    test("should handle empty options array", () => {
-        multiSelect.setOptions([]);
+    test("should deselect entries when dragging from selected entry", () => {
+        // Pre-select all entries
+        model[0].selected = true;
+        model[1].selected = true;
+        model[2].selected = true;
+        selectElement.updateSelection();
 
-        expect(container.find('._multiselect-option').length).toBe(0);
-        expect(multiSelect.getSelectedIndexes()).toEqual([]);
-    });
+        const entries = container.find('.select-entry');
 
-    test("should handle options with count of 0", () => {
-        const options: ISelectOption[] = [
-            {id: "opt1", text: "Option 1", count: 0}
-        ];
-        multiSelect.setOptions(options);
+        // Start drag on first entry (deselecting)
+        entries.eq(0).trigger('mousedown');
 
-        const option = container.find('._multiselect-option').first();
-        expect(option.find('._multiselect-count').text()).toBe("(0)");
-    });
+        // Drag over second entry
+        entries.eq(1).trigger('mouseenter');
 
-    test("should handle options with negative count", () => {
-        const options: ISelectOption[] = [
-            {id: "opt1", text: "Option 1", count: -1}
-        ];
-        multiSelect.setOptions(options);
+        // End drag
+        $(document).trigger('mouseup');
 
-        const option = container.find('._multiselect-option').first();
-        expect(option.find('._multiselect-count').length).toBe(0);
-    });
-
-    test("should return sorted indexes", () => {
-        const options: ISelectOption[] = [
-            {id: "opt1", text: "Option 1"},
-            {id: "opt2", text: "Option 2"},
-            {id: "opt3", text: "Option 3"}
-        ];
-        multiSelect.setOptions(options);
-
-        // Select in reverse order
-        multiSelect.setSelectedIndexes([2, 0, 1]);
-
-        expect(multiSelect.getSelectedIndexes()).toEqual([0, 1, 2]);
-    });
-
-    test("should handle special characters in text", () => {
-        const options: ISelectOption[] = [
-            {id: "opt1", text: "Option & Special <> Characters \"'/"}
-        ];
-        multiSelect.setOptions(options);
-
-        const option = container.find('._multiselect-option').first();
-        expect(option.find('._multiselect-text').text()).toContain("&");
-        expect(option.find('._multiselect-text').text()).toContain("<>");
+        expect(selectElement.getSelectedIndexes()).toEqual([2]);
     });
 });
