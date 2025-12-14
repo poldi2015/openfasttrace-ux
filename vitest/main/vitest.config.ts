@@ -23,6 +23,7 @@ import path = require("path");
 export default defineConfig({
     test: {
         environment: 'jsdom',
+        watch: false,
         globals: true, // Enables global variables like describe, test, etc.
         include: ['test/main/js/**/*.test.ts'],
         exclude: ['node_modules', 'build'],
