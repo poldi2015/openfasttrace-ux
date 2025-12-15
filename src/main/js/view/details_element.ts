@@ -136,17 +136,17 @@ export class DetailsElement implements IDetailsElement {
     }
 
     private createStatusValue(specItem: SpecItem): string {
-        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0])[specItem.status].name;
+        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0]).fields[specItem.status].name;
         return statusName != undefined ? statusName : "";
     }
 
     private createTypesValue(types: Array<number>): string {
-        const typeItems: Array<IField> = this.project.getTypeFieldModel()
+        const typeItems: Array<IField> = this.project.getTypeFieldModel().fields;
         return types.map((index: number) => typeItems[index].label).join(", ");
     }
 
     private createTagsValue(specItem: SpecItem): string {
-        const tagFields: Array<IField> = this.project.getFieldModel(TAG_FIELD_NAMES[0]);
+        const tagFields: Array<IField> = this.project.getFieldModel(TAG_FIELD_NAMES[0]).fields;
         return specItem.tags.map((index: number) => tagFields[index].name).join(", ");
     }
 

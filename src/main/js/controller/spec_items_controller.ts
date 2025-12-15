@@ -209,16 +209,6 @@ export class SpecItemsController {
     }
 
     /**
-     * @param specItem The SpecItem to validate
-     * @param selectedFilters The filters
-     * @return true if the specItem matches all filters
-     * @private
-     */
-    private static isMatchingAllFilters(specItem: SpecItem, selectedFilters: Array<[string, Filter]>): boolean {
-        return selectedFilters.every(([_, filter]: [string, Filter]): boolean => filter.matches(specItem));
-    }
-
-    /**
      * Shows selected SpecItemElements and hides the others.
      *
      * IF the selected specItem is hidden then an {@link unselectItem} is sent.

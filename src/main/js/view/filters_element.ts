@@ -19,14 +19,14 @@
 */
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {FieldConfigurations, IField} from "@main/model/project";
+import {FieldConfigurations, FieldModel} from "@main/model/project";
 
 /**
  * Populates the Filter UI with the corresponding filter elements based on the {@link FieldConfigurations}.
  */
 export class FiltersElement {
     constructor(
-        private readonly filterModels: Map<String, Array<IField>>,
+        private readonly filterModels: Map<String, FieldModel>,
         private readonly oftState: OftStateController,
         private readonly filterElementFactory: FilterElementFactory = new FilterElementFactory()) {
     }

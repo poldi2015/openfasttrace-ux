@@ -77,16 +77,20 @@ describe("SpecItemElement - Badge Click Functionality", () => {
             itemCovered: 1,
             itemUncovered: 0,
             fieldModels: new Map(),
-            getTypeFieldModel: vi.fn().mockReturnValue([
-                {id: "0", label: "variants", name: "variants", tooltip: "", item_count: 0},
-                {id: "1", label: "feat", name: "feat", tooltip: "", item_count: 1},
-                {id: "2", label: "req", name: "req", tooltip: "", item_count: 0},
-                {id: "3", label: "arch", name: "arch", tooltip: "", item_count: 0},
-                {id: "4", label: "dsn", name: "dsn", tooltip: "", item_count: 0}
-            ]),
-            getFieldModel: vi.fn().mockReturnValue([
-                {id: "0", label: "Accepted", name: "Accepted", tooltip: "", item_count: 1}
-            ])
+            getTypeFieldModel: vi.fn().mockReturnValue({
+                fields: [
+                    {id: "0", label: "variants", name: "variants", tooltip: "", item_count: 0},
+                    {id: "1", label: "feat", name: "feat", tooltip: "", item_count: 1},
+                    {id: "2", label: "req", name: "req", tooltip: "", item_count: 0},
+                    {id: "3", label: "arch", name: "arch", tooltip: "", item_count: 0},
+                    {id: "4", label: "dsn", name: "dsn", tooltip: "", item_count: 0}
+                ]
+            }),
+            getFieldModel: vi.fn().mockReturnValue({
+                fields: [
+                    {id: "0", label: "Accepted", name: "Accepted", tooltip: "", item_count: 1}
+                ]
+            })
         } as unknown as Project;
 
         // Create mock OftStateController
