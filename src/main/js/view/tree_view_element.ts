@@ -117,7 +117,7 @@ export class TreeViewElement {
             if (pathTokens.length < 1) return;
 
             // Prepend the type name as the uppermost level
-            const typeName = this.project.types[specItem.type];
+            const typeName = this.project.typeLabels[specItem.type];
             const fullPath = [typeName, ...pathTokens];
 
             this.insertIntoTree(fullPath, specItem, 0, this.rootNodes, '');
@@ -372,7 +372,7 @@ export class TreeViewElement {
      */
     private findMatchingNode(specItem: SpecItem): JQuery {
         const namePath = this.splitSpecItemNameIntoPath(specItem.name).join('-');
-        const fullPath = this.project.types[specItem.type] + (namePath.length > 0 ? '-' + namePath : '');
+        const fullPath = this.project.typeIds[specItem.type] + (namePath.length > 0 ? '-' + namePath : '');
         return this.treeViewElement.find(`.tree-node[data-path="${fullPath}"]`);
     }
 

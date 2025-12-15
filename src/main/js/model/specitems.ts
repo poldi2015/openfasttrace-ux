@@ -48,6 +48,10 @@ export interface SpecItem {
 }
 
 export const TYPE_FIELD_NAME: string = "type";
+export const COVERAGE_FIELD_NAME: string = "coverage";
+export const TAGS_FIELD_NAME: string = "tags";
+export const STATUS_FIELD_NAME: string = "status";
+
 export const TYPED_FIELD_NAMES : Array<string> = [TYPE_FIELD_NAME,"provides","needs","covered","uncovered","covering","coveredBy","depends"];
 export const TAG_FIELD_NAMES : Array<string> = ["tags"];
 export const STATUS_FIELD_NAMES : Array<string> = ["status"];

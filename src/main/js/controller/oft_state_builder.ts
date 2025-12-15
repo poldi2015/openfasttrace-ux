@@ -20,19 +20,19 @@
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
 import {Filter} from "@main/model/filter";
 import {SpecItem} from "@main/model/specitems";
-import {FieldModel} from "@main/model/project";
+import {FieldModel, Project} from "@main/model/project";
 
 export class OftStateBuilder {
     public constructor(private oftState: OftState = new OftState() ) {}
 
-    public fromModel(fieldModels: Map<String, FieldModel>, specItems: Array<SpecItem>): OftStateBuilder {
+    public fromModel(project: Project, specItems: Array<SpecItem>): OftStateBuilder {
         if (specItems.length > 0) {
             this.oftState.selectedIndex = 0;
         } else {
             this.oftState.selectedIndex = null;
         }
-        Object.entries(fieldModels).forEach(([filterName, fieldModel]: [string, FieldModel]) => {
-            this.oftState.selectedFilters.set(filterName, fieldModel.filter);
+        Object.entries(project.fieldModels).forEach(([filterName, fieldModel]: [string, FieldModel]) => {
+            this.oftState.selectedFilters.set(filterName, fieldModel.createFilter([]));
         });
 
         return this;

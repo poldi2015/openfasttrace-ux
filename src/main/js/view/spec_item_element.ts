@@ -18,7 +18,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {Filter, IndexFilter, SelectionFilter} from "@main/model/filter";
+import {FieldFilter, Filter, IndexFilter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 import {CoverType, FilterName} from "@main/model/oft_state";
 import {SpecItem, STATUS_ACCEPTED_INDEX, STATUS_FIELD_NAMES} from "@main/model/specitems";
@@ -196,7 +196,7 @@ export class SpecItemElement {
         // Create filters: index filter for covering items + type filter for the clicked badge
         const filters: Map<FilterName, Filter> = new Map<FilterName, Filter>();
         filters.set(IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes));
-        filters.set("type", new SelectionFilter("type", [typeIndex]));
+        filters.set("type", new FieldFilter("type", [typeIndex], Project.createTypeFieldFilterMatcher()));
 
         this.log.info("notifyFocusWithTypeFilter index", this.specItem.index, "typeIndex", typeIndex, "acceptedIndexes", acceptedIndexes);
 

@@ -21,7 +21,7 @@ import {Log} from "@main/utils/log";
 import {FilterName, SelectedFilterIndexes} from "@main/model/oft_state";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {sameArrayValues} from "@main/utils/collections";
-import {Filter, SelectionFilter} from "@main/model/filter";
+import {FieldFilter, Filter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
@@ -180,6 +180,7 @@ export class FilterElement implements IFilterElement {
      * Sets all items unselected and shows the items of disabled.
      */
     private selectOff(): void {
+        this.log.info("selectOff", this.id);
         this.selectElement.selectNone();
     }
 
@@ -188,7 +189,7 @@ export class FilterElement implements IFilterElement {
      */
     private handleSelectionChange(selectedIndexes: number[]): void {
         this.log.info("handleSelectionChange", this.id, " ", selectedIndexes);
-        const filters: Map<FilterName, Filter> = new Map([[this.id, new SelectionFilter(this.id, selectedIndexes)]]);
+        const filters: Map<FilterName, Filter> = new Map([[this.id, this.filterModel.createFilter(selectedIndexes)]]);
         this.oftState.selectFilters(filters);
     }
 
@@ -204,8 +205,8 @@ export class FilterElement implements IFilterElement {
      */
     private filtersChanged(selectedFilters: Map<FilterName, Filter>): void {
         this.log.info("filtersChanged index=", this.id, "filters", selectedFilters);
-        const changedSelectionIndexes: SelectedFilterIndexes = this.getSelectionIndexes(selectedFilters.get(this.id));
-        this.setSelections(changedSelectionIndexes);
+        const changedSelectionIndexes: SelectedFilterIndexes | undefined = this.getSelectionIndexes(selectedFilters.get(this.id));
+        if (changedSelectionIndexes != undefined) this.setSelections(changedSelectionIndexes);
     }
 
     /**
@@ -240,9 +241,9 @@ export class FilterElement implements IFilterElement {
         this.navbarElement?.getButton(`${this.id}-btn-off`)?.toggle(off);
     }
 
-    private getSelectionIndexes(filter: Filter | undefined): SelectedFilterIndexes {
-        if (filter == undefined || !(filter instanceof SelectionFilter)) return [];
-        return (filter as SelectionFilter).filterIndexes;
+    private getSelectionIndexes(filter: Filter | undefined): SelectedFilterIndexes | undefined {
+        if (filter == undefined || !(filter instanceof FieldFilter)) return undefined;
+        return (filter as FieldFilter).fieldIndexes;
     }
 
 } // FilterElement

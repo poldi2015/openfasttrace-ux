@@ -48,55 +48,30 @@ export abstract class Filter {
 } // Filter
 
 /**
- * A Filter that filters SpecItems based on a list of selected entries.
- *
- * This filter is used for the sidebar filters.
+ * Used by {@link FieldFilter} to execute the actual matching
  */
-export class SelectionFilter extends Filter {
-    constructor(filterName: string,
-                public readonly filterIndexes: Array<number>) {
-        super(filterName);
-    }
-
-    public matches(specItem: SpecItem): boolean {
-        if (this.filterIndexes.length == 0) return true;
-        const specItemValues: Array<number> | undefined = this.getSpecItemValuesByFilterName(specItem, this.filterName);
-        if (specItemValues == undefined) return false;
-        return specItemValues.some((value: number) => this.filterIndexes.includes(value));
-    }
-
-    private getSpecItemValuesByFilterName(specItem: SpecItem, filterName: string): Array<number> | undefined {
-        // TODO improve performance
-        if (!Object.keys(specItem).includes(filterName)) return undefined;
-        return Object.entries(specItem)
-            .filter(([key, _]: [string, any]) => key == filterName)
-            .map(([_, value]: [string, any]) => {
-                if (Array.isArray(value)) {
-                    // Covering filter: covers, coveredBy etc.
-                    return value as Array<number>;
-                } else if (typeof value == "number") {
-                    // Type and Status
-                    return [value];
-                }
-                return [];
-            }).flat();
-    }
-} // SelectionFilter
+export type FieldFilterMatcher = (specItem: SpecItem, fieldIndexes: Array<number>) => boolean;
 
 /**
- * Apples a given function to the handed in SpecItem.
+ * Apples a given function with a list of handed in field ids.
  *
- * @param matcher function that determines if a the specItem is accepted
+ * This class is used by {link _Project} to create filters for the supported fields.
+ *
+ * @param filterIndexes selected fields
  */
-export class MatcherFilter extends Filter {
+export class FieldFilter extends Filter {
     constructor(filterName: string,
-                public readonly matcher: (specItem: SpecItem) => boolean) {
+                public readonly fieldIndexes: Array<number>,
+                private readonly matcher: FieldFilterMatcher
+    ) {
         super(filterName);
     }
 
+
     public matches(specItem: SpecItem): boolean {
-        return this.matcher(specItem);
+        return this.fieldIndexes.length == 0 || this.matcher(specItem, this.fieldIndexes);
     }
+
 } // MatcherFilter
 
 /**
