@@ -18,21 +18,21 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
-import {Filter, SelectionFilter} from "@main/model/filter";
+import {Filter} from "@main/model/filter";
 import {SpecItem} from "@main/model/specitems";
-import {FieldConfigurations, IField} from "@main/model/project";
+import {FieldModel} from "@main/model/project";
 
 export class OftStateBuilder {
     public constructor(private oftState: OftState = new OftState() ) {}
 
-    public fromModel(fieldConfigurations: Map<String, Array<IField>>, specItems: Array<SpecItem>):OftStateBuilder {
+    public fromModel(fieldModels: Map<String, FieldModel>, specItems: Array<SpecItem>): OftStateBuilder {
         if (specItems.length > 0) {
             this.oftState.selectedIndex = 0;
         } else {
             this.oftState.selectedIndex = null;
         }
-        Object.entries(fieldConfigurations).forEach(([filterName, _]: [string, any]) => {
-            this.oftState.selectedFilters.set(filterName, new SelectionFilter(filterName, []));
+        Object.entries(fieldModels).forEach(([filterName, fieldModel]: [string, FieldModel]) => {
+            this.oftState.selectedFilters.set(filterName, fieldModel.filter);
         });
 
         return this;

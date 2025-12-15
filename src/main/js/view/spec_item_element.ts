@@ -38,7 +38,7 @@ export class SpecItemElement {
         //this.log.info("constructor", specItem.index);
         this.elementId = SpecItemElement.toElementId(specItem.index);
         //this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
-        const typeFilterModel: IField = project.getTypeFieldModel()[this.specItem.type];
+        const typeFilterModel: IField = project.getTypeFieldModel().fields[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
         this.element = this.createTemplate();
     }
@@ -270,7 +270,7 @@ export class SpecItemElement {
             : `<div class="_specitem-rejected">✗</div>`;
 
         // Generate type-specific coverage badges
-        const typeBadges = this.project.getTypeFieldModel()
+        const typeBadges = this.project.getTypeFieldModel().fields
             .map((type: IField, index: number): string => {
                 if (index === this.specItem.type) return '';
                 else
@@ -290,7 +290,7 @@ export class SpecItemElement {
     }
 
     protected createDraftTemplate(): string {
-        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0])[this.specItem.status].name;
+        const statusName: string | undefined = this.project.getFieldModel(STATUS_FIELD_NAMES[0]).fields[this.specItem.status].name;
         return this.specItem.status != STATUS_ACCEPTED_INDEX && statusName != undefined ?
             `<div class="_specitem-draft">(${statusName})</div>` : '';
     }

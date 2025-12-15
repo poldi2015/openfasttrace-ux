@@ -20,30 +20,30 @@
 import {FilterElementFactory, IFilterElement} from "@main/view/filter_element";
 import {MockInstance, vi} from "vitest";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {IField} from "@main/model/project";
+import {FieldModel, IField} from "@main/model/project";
 
-export const FILTER_MODELS_SAMPLE: Map<string, Array<IField>> = new Map(Object.entries({
-    type: [{
+export const FILTER_MODELS_SAMPLE: Map<string, FieldModel> = new Map(Object.entries({
+    type: new FieldModel("type", "Type", "Type filter", [{
         id: "fea",
         name: "Feature",
         tooltip: "Tooltip Feature",
         color: "red",
         item_count: 5
-    }],
-    coverage: [{
+    }]),
+    coverage: new FieldModel("coverage", "Coverage", "Coverage filter", [{
         id: "impl",
         name: "Missing implementation",
         tooltip: "Tooltip Implementation",
         color: "red",
         item_count: 5
-    }],
-    status: [{
+    }]),
+    status: new FieldModel("status", "Status", "Status filter", [{
         id: "accept",
         name: "Accept",
         tooltip: "Tooltip Accept",
         color: "red",
         item_count: 5
-    }],
+    }]),
 }));
 
 export class FilterElementMock implements IFilterElement {

@@ -26,7 +26,7 @@ describe("Tests for SpecItemMetaData", () => {
 
         expect(metaData.projectName).toBe(project.projectName);
         expect(metaData.types).toStrictEqual(project.types);
-        const tagModels : Array<IField> = metaData.getFieldModel(TAG_FIELD_NAMES[0]);
+        const tagModels: Array<IField> = metaData.getFieldModel(TAG_FIELD_NAMES[0]).fields;
         const expectedTooltip = ["Version 2.0","Version 0.1","Version 1.0","",""];
         const expectedLabel = ["ver 2.0","v0.1","ver 1.0","comp1","comp"];
         const expectedName = ["VERSION two.zero","v0.1","ver 1.0","comp1","comp"];

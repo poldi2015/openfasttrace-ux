@@ -25,7 +25,7 @@ import {Filter, SelectionFilter} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 import {IElement} from "@main/view/element";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
-import {IField} from "@main/model/project";
+import {FieldModel, IField} from "@main/model/project";
 import {IEntry, SelectElement} from "@main/view/select_element";
 
 /**
@@ -37,7 +37,7 @@ export interface IFilterElement extends IElement {
 }
 
 export class FilterElementFactory {
-    public build(id: string, containerElement: HTMLElement, filterModel: Array<IField>, oftState: OftStateController): IFilterElement {
+    public build(id: string, containerElement: HTMLElement, filterModel: FieldModel, oftState: OftStateController): IFilterElement {
         return new FilterElement(id, containerElement, filterModel, oftState);
     }
 }
@@ -60,12 +60,12 @@ export class FilterElement implements IFilterElement {
     public constructor(
         public readonly id: string,
         containerElement: HTMLElement,
-        private readonly filterModel: Array<IField>,
+        private readonly filterModel: FieldModel,
         private readonly oftState: OftStateController
     ) {
         this.containerElement = $(containerElement);
         // Create model from filterModel
-        this.elementModel = this.filterModel.map((field: IField): IEntry => ({
+        this.elementModel = this.filterModel.fields.map((field: IField): IEntry => ({
             text: field.name ?? field.id,
             count: field.item_count,
             selected: false
@@ -74,7 +74,7 @@ export class FilterElement implements IFilterElement {
         this.selectElement = new SelectElement(
             this.id,
             this.elementModel,
-            Math.min(this.filterModel.length, MAX_FILTER_ELEMENT),
+            Math.min(this.filterModel.fields.length, MAX_FILTER_ELEMENT),
             (selectedIndexes: number[]) => this.handleSelectionChange(selectedIndexes),
             this.containerElement
         );

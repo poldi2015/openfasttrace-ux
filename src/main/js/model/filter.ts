@@ -84,8 +84,25 @@ export class SelectionFilter extends Filter {
 } // SelectionFilter
 
 /**
- * A filter that applies for all SpecItems with an index matching a list of accepted indexes.
+ * Apples a given function to the handed in SpecItem.
  *
+ * @param matcher function that determines if a the specItem is accepted
+ */
+export class MatcherFilter extends Filter {
+    constructor(filterName: string,
+                public readonly matcher: (specItem: SpecItem) => boolean) {
+        super(filterName);
+    }
+
+    public matches(specItem: SpecItem): boolean {
+        return this.matcher(specItem);
+    }
+} // MatcherFilter
+
+/**
+ * A filter that applies to all SpecItems with a fitting index
+ *
+ * @param acceptedIndexes The specItem indexes that are accepted by the Filter
  * If the accepted indexes == null than it matches all SpecItems.
  */
 export class IndexFilter extends Filter {
@@ -131,6 +148,22 @@ export class NameFilter extends Filter {
     }
 
 } // NameFilter
+
+/**
+ * A filter that filters SpecItems with an id that starts with a given prefix.
+ */
+export class PrefixFilter extends Filter {
+    public static readonly FILTER_PREFIX: string = "%prefix%";
+
+    constructor(public readonly acceptedName: string) {
+        super(NameFilter.FILTER_NAME);
+    }
+
+    public matches(specItem: SpecItem): boolean {
+        return this.acceptedName == "" || specItem.id.startsWith(this.acceptedName);
+    }
+
+} // PrefixFilter
 
 /**
  * @param specItem The SpecItem to validate
