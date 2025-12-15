@@ -19,10 +19,10 @@
 */
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {FieldConfigurations, FieldModel} from "@main/model/project";
+import {FieldMetaData, FieldModel} from "@main/model/project";
 
 /**
- * Populates the Filter UI with the corresponding filter elements based on the {@link FieldConfigurations}.
+ * Populates the Filter UI with the corresponding filter elements based on the {@link FieldMetaData}.
  */
 export class FiltersElement {
     constructor(

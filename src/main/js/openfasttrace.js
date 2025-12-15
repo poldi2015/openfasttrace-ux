@@ -28,7 +28,6 @@ import {SearchElement} from "@main/view/search_element";
 import {DetailsElementFactory} from "@main/view/details_element";
 import {SpecItemsElement} from "@main/view/spec_items_element";
 import {Project} from "@main/model/project";
-import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
 import {ThemeController} from "@main/controller/theme_controller";
 import {HeaderElement} from "@main/view/header_element";
 import {TreeViewElement} from "@main/view/tree_view_element";
@@ -39,30 +38,13 @@ function _init() {
     // Initialize theme controller with dark mode as default
     const themeController = new ThemeController().init();
     
-    const projectModel = window.specitem.project;
     const specItems = window.specitem.specitems;
-    const fieldCounts = new Map([
-        ["type", projectModel.type_count],
-        ["uncovered", projectModel.uncovered_count],
-        ["status", projectModel.status_count],
-        ["tags", projectModel.tags_count],
-    ]);
     const project = new Project(
-        projectModel.projectName,
-        projectModel.types,
-        TYPED_FIELD_NAMES,
-        projectModel.tags,
-        TAG_FIELD_NAMES,
-        projectModel.status,
-        STATUS_FIELD_NAMES,
-        projectModel.item_count,
-        projectModel.item_covered,
-        projectModel.item_uncovered,
-        fieldCounts,
+        window.specitem.project,
         window.metadata.fields
     );
 
-    const oftStateBuilder = new OftStateBuilder().fromModel(project.fieldModels, specItems);
+    const oftStateBuilder = new OftStateBuilder().fromModel(project, specItems);
     if (Number.parseInt(window.location.hash.substring(1)) > 0) {
         oftStateBuilder.setSelectedIndex(Number.parseInt(window.location.hash.substring(1)));
     }
@@ -79,7 +61,7 @@ function _init() {
     new SpecItemsController(oftStateController, specItemsElement, project).init(specItems);
 
     // Initialize header with OFT logo, project name, and theme toggle
-    new HeaderElement($("#header"), project.projectName, themeController).init().activate();
+    new HeaderElement($("#header"), project.project.projectName, themeController).init().activate();
 
     // Initialize tree view in right sidebar
     new TreeViewElement(specItems, oftStateController, project).init().activate();
@@ -93,9 +75,9 @@ function _init() {
 }
 
 function initFooter(project) {
-    $("#specitem-total").append(project.itemCount);
-    $("#specitem-covered").append(project.itemCovered);
-    $("#specitem-uncovered").append(project.itemUncovered);
+    $("#specitem-total").append(project.project.item_count);
+    $("#specitem-covered").append(project.project.item_covered);
+    $("#specitem-uncovered").append(project.project.item_uncovered);
 }
 
 $(_init);

@@ -49,6 +49,16 @@
                     tooltip: "Tests based on customer requirements.",
                 }
             ],
+            covered: [
+                {
+                    id: "covered",
+                    tooltip: "Item is fully covered.",
+                },
+                {
+                    id: "uncovered",
+                    tooltip: "Item has missing coverage.",
+                }
+            ],
             uncovered: [
                 {
                     id: "feat",

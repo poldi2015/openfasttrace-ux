@@ -1,17 +1,19 @@
-import {TYPE_FIELD_NAME} from "@main/model/specitems";
-import {Filter, SelectionFilter} from "@main/model/filter";
+import {COVERAGE_FIELD_NAME, STATUS_FIELD_NAME, TAGS_FIELD_NAME, TYPE_FIELD_NAME} from "@main/model/specitems";
+import {FieldFilter, FieldFilterMatcher, Filter} from "@main/model/filter";
 
 /**
  * List of all available filters with selectable entries.
  *
  * The FilterModels are populated by the generated window.metadata.
  */
-export type FieldConfigurations = Record<string, Array<IField>>;
+export type FieldMetaData = Record<string, Array<IField>>;
 
 /**
  * Project data in window.specitem.project.
+ *
+ * Model used by the {@link Project} and by window.metadata.
  */
-export interface IProjectData {
+export interface IProjectMetaData {
     projectName: string,
     types: Array<string>,
     tags: Array<string>,
@@ -19,7 +21,12 @@ export interface IProjectData {
     item_count: number,
     item_covered: number,
     item_uncovered: number,
+    type_count: Array<number>,
+    uncovered_count: Array<number>,
+    status_count: Array<number>,
+    tag_count: Array<number>,
 } // IProjectData
+
 
 /**
  * FieldModel represent the visualization of entries in the specItem.
@@ -27,27 +34,23 @@ export interface IProjectData {
  * They are used to provide readable names, tooltips and filter for the filter sidebar.
  *
  * @id The id as shown up in the specItem and the project meta model
- * @name a optional human readable name, defaults to id
- * @tooltip an optional tooltip, if not set no tooltip is shown
  * @fieldEntries all possible field entry values that show up in the specItem (they are there identified by an id)
- * @filter the filter applied by the filter sidebar
+ * @matcher the filter applied by the filter sidebar
  */
 export class FieldModel {
     constructor(
-        readonly id: string,
-        name?: string,
-        readonly tooltip?: string,
-        readonly fields: Array<IField> = [],
-        filter?: Filter,
+        public readonly id: string,
+        public readonly fields: Array<IField> = [],
+        private readonly matcher: FieldFilterMatcher,
     ) {
-        this.name = name !== undefined ? name : id;
-        this.filter = filter ? filter : new SelectionFilter(id, []);
         this.fieldById = new Map(fields.map(field => [field.id, field]));
     }
 
-    public readonly name: string;
     public readonly fieldById: Map<string, IField>;
-    public readonly filter: Filter;
+
+    public createFilter(fieldIndexes: Array<number>): Filter {
+        return new FieldFilter(this.id, fieldIndexes, this.matcher);
+    }
 
 } // FieldConfiguration
 
@@ -55,6 +58,8 @@ export class FieldModel {
  * A single entry of a Field (described in the FieldModel).
  *
  * It provides human readable values of the field and a number of specItems related to the entry.
+ *
+ * Model used by the {@link Project} and by window.metadata.
  *
  * @id The id as used in the specItem
  * @label an optional human readable label used sa short form in badges and in details view, defaults to id
@@ -112,31 +117,31 @@ export class Field implements IField {
 
 export class Project {
     constructor(
-        public readonly projectName: string,
-        public readonly types: Array<string>,
-        private readonly typedFieldNames: Array<string>,
-        public readonly tags: Array<string>,
-        public readonly tagFieldNames: Array<string>,
-        public readonly statusNames: Array<string>,
-        public readonly statusFieldNames: Array<string>,
-        public readonly itemCount: number,
-        public readonly itemCovered: number,
-        public readonly itemUncovered: number,
-        private readonly fieldCounts: Map<string, Array<number>>,
-        configurations: FieldConfigurations
+        public readonly project: IProjectMetaData,
+        private readonly fieldMetaData: FieldMetaData
     ) {
-        const fieldConfigurations: Map<string, Array<IField>> = new Map(Object.entries(configurations));
-        Project.generateFieldModels(typedFieldNames, types, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, this.toFieldModel(key, value)));
-        Project.generateFieldModels(tagFieldNames, tags, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, this.toFieldModel(key, value)));
-        Project.generateFieldModels(statusFieldNames, statusNames, fieldConfigurations, fieldCounts).forEach((value, key) => this.fieldModels.set(key, this.toFieldModel(key, value)));
+        // Populate fieldModels (e.g. used for filters)
+        this.addFieldModel(TYPE_FIELD_NAME, project.types, project.type_count, Project.createTypeFieldFilterMatcher());
+        this.addFieldModel(COVERAGE_FIELD_NAME, ["covered", "uncovered"], [project.item_covered, project.item_uncovered],
+            (specItem, fieldIndexes) =>
+                // field = 0 matches specItems that are fully covered
+                (fieldIndexes.includes(0) && specItem.uncovered.length === 0) ||
+                // field = 1 matches specItems that are not fully covere
+                (fieldIndexes.includes(1) && specItem.uncovered.length != 0)
+        );
+        this.addFieldModel(STATUS_FIELD_NAME, project.status, project.status_count, Project.createStatusFieldFilterMatcher());
+        this.addFieldModel(TAGS_FIELD_NAME, project.tags, project.tag_count, Project.createTagsFieldFilterMatcher());
+
+        // Provide type labels and names
+        this.typeLabels = this.fieldModels.get(TYPE_FIELD_NAME)!.fields.map(field => field.label) as Array<string>;
+        this.typeNames = this.fieldModels.get(TYPE_FIELD_NAME)!.fields.map(field => field.name) as Array<string>;
     }
 
     public readonly fieldModels: Map<String, FieldModel> = new Map();
 
-    public readonly typeCount: Array<number> = new Array<number>();
-    public readonly uncoveredCount: Array<number> = new Array<number>();
-    public readonly statusCount: Array<number> = new Array<number>();
-    public readonly tagCount: Array<number> = new Array<number>();
+    public readonly typeIds: Array<string> = this.project.types;
+    public readonly typeLabels: Array<string>;
+    public readonly typeNames: Array<string>;
 
     public getTypeFieldModel(): FieldModel {
         return this.getFieldModel(TYPE_FIELD_NAME);
@@ -147,54 +152,58 @@ export class Project {
     }
 
     public getFieldModel(name: string): FieldModel {
-        return this.fieldModels.has(name) ? this.fieldModels.get(name)!! : new FieldModel(name);
+        return this.fieldModels.has(name) ? this.fieldModels.get(name)!! : new FieldModel(name, [], () => false);
     }
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.type}.
+     */
+    public static createTypeFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.type);
+    }
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.status}.
+     */
+    public static createStatusFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.status);
+    }
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.tags}.
+     */
+    public static createTagsFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.some(index => specItem.tags.includes(index));
+    }
+
 
     //
     // private members
 
-    private toFieldModel(key: string, fields: Array<IField>): FieldModel {
-        return new FieldModel(key, undefined, undefined, fields, new SelectionFilter(key, []));
+
+    private addFieldModel(id: string,
+                          fieldIds: Array<string>,
+                          fieldCounts: Array<number>,
+                          matcher: FieldFilterMatcher): void {
+        this.fieldModels.set(id, new FieldModel(id, Project.createFields(fieldIds, this.fieldMetaData[id], fieldCounts), matcher));
     }
 
     /**
-     * Generates the models used e.g. for test selection lists.
+     * Generates the fields for a {@link FieldModel}.
      *
-     * Models are only generated based on fieldNames only if configurations know the field name.
-     *
-     * @param fieldNames possible field names like type, status, tags -> each one is a filter
-     * @param fieldIds identifier names of field entries (specObject types, tags....) -> each one is a filter entry
-     * @param configurations meta_data.js metamodel for the project field models
-     * @param fieldCounts the number of items for each field
+     * @param fieldIds Field IDs taken from the specitem_data project data (e.g. types, tags, status)
+     * @param fieldMetaData The meta_data.js field models
+     * @param fieldCounts The number of items for each field from the specitem_data project data
      */
-    static generateFieldModels(fieldNames: Array<string>,
-                               fieldIds: Array<string>,
-                               configurations: Map<string, Array<IField>>,
-                               fieldCounts: Map<string, Array<number>>)
-        : Map<string, Array<IField>> {
-
-        return new Map(fieldNames
-            .filter((name) => configurations.has(name))
-            .map((name) => [name, Project.createFieldModels(fieldIds, configurations.get(name), fieldCounts.get(name))])
-        );
-    }
-
-    /**
-     * Generates the field models for one fieldName (e.g. type, status or tags).
-     *
-     * @param fieldIds The ids of all entries in a fieldModel provided by meta_data.js
-     * @param fieldConfiguration The meta_data.js content
-     * @param fieldCounts The number of items for each field
-     */
-    static createFieldModels(fieldIds: Array<string>, fieldConfiguration: Array<IField> | undefined, fieldCounts: Array<number> | undefined): Array<IField> {
-        const namedFieldConfiguration: Map<string, IField> = fieldConfiguration != undefined
-            ? new Map(fieldConfiguration.map((item) => [item.id, item]))
+    private static createFields(fieldIds: Array<string>, fieldMetaData: Array<IField> | undefined, fieldCounts: Array<number>): Array<IField> {
+        const namedFieldMetaData: Map<string, IField> = fieldMetaData != undefined
+            ? new Map(fieldMetaData.map((item) => [item.id, item]))
             : new Map();
 
         return fieldIds.map((fieldId) => {
             const idIndex: number = fieldIds.indexOf(fieldId);
-            const count: number = (fieldCounts != undefined && fieldCounts.length > idIndex) ? fieldCounts[idIndex] : -1;
-            return Project.createFieldModel(fieldId, namedFieldConfiguration.get(fieldId), count);
+            const count: number = fieldCounts.length > idIndex ? fieldCounts[idIndex] : -1;
+            return Project.createField(fieldId, namedFieldMetaData.get(fieldId), count);
         });
     }
 
@@ -205,10 +214,11 @@ export class Project {
      * @param configuration the model of the field read out of meta_data.js
      * @param count the number of this entry or -1 if not available
      */
-    static createFieldModel(id: string, configuration: IField | undefined, count: number): IField {
+    private static createField(id: string, configuration: IField | undefined, count: number): IField {
         const field: IField = new Field(id).copyFromSameId(configuration);
         if (count >= 0) field.item_count = count;
         return field;
     }
+
 
 } // Project
