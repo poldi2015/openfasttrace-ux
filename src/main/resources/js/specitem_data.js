@@ -12,7 +12,7 @@
         type_count: [20, 40, 60],
         uncovered_count: [],
         status_count: [],
-        tags_count: [],
+        tag_count: [],
     },
     specitems: [
       {

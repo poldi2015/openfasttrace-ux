@@ -24,6 +24,7 @@ import {Project} from "@main/model/project";
 import {Log} from "@main/utils/log";
 import {ChangeEvent, EventType} from "@main/model/change_event";
 import {Filter, isMatchingAllFilters} from "@main/model/filter";
+import {NavbarElement} from "@main/view/navbar_element";
 
 interface TreeNode {
     index: number;
@@ -37,63 +38,56 @@ interface TreeNode {
 }
 
 const MAX_TREE_DEPTH = 3; // Type + MAX_TREE_DEPTH level
+const TREE_NAV_BAR_ID = "#tree-nav-bar";
 
 export class TreeViewElement {
-    private readonly log: Log = new Log("TreeViewElement");
-    private readonly treeViewElement: JQuery;
-    private rootNodes: Map<string, TreeNode> = new Map();
-    private indexCounter: number = 0;
-    private suppressSelectionEvent: boolean = false;
-
     constructor(
         private readonly specItems: Array<SpecItem>,
         private readonly oftStateController: OftStateController,
         private readonly project: Project
     ) {
         this.treeViewElement = $("#tree-view");
+        this.navbarElement = new NavbarElement($(TREE_NAV_BAR_ID));
     }
 
+    private readonly log: Log = new Log("TreeViewElement");
+
+    private readonly treeViewElement: JQuery;
+    private readonly navbarElement: NavbarElement;
+
+    private rootNodes: Map<string, TreeNode> = new Map();
+    private indexCounter: number = 0;
+    private suppressSelectionEvent: boolean = false;
+    private selectedTreeNode: JQuery | null = null;
+
     public init(): TreeViewElement {
+        // Initialize navbar first to create buttons
+        this.navbarElement.init();
+
+        // Then register listeners for the buttons
+        this.navbarElement.setChangeListener("tree-expand-all", () => this.expandAll());
+        this.navbarElement.setChangeListener("tree-collapse-all", () => this.collapseAll());
+        this.navbarElement.setChangeListener("btn-tree-scroll-to-selection", () => this.scrollToSelection());
+        
         this.buildOrUpdateTreeModel(null);
         this.renderTree();
-        this.attachExpandCollapseButtons();
-        this.oftStateController.addChangeListener(
-            (event: ChangeEvent) => this.handleSelectionChange(event),
-            EventType.Selection
-        );
-        this.oftStateController.addChangeListener(
-            (event: ChangeEvent) => this.handleFilterChange(event),
-            EventType.Filters
-        )
+
+        this.oftStateController.addChangeListener((event: ChangeEvent) => this.handleSelectionChange(event), EventType.Selection);
+        this.oftStateController.addChangeListener((event: ChangeEvent) => this.handleFilterChange(event), EventType.Filters);
+
         return this;
     }
 
     public activate(): void {
-        // Activation logic if needed
+        this.navbarElement.activate();
     }
 
     public deactivate(): void {
-        // Deactivation logic if needed
+        this.navbarElement.deactivate();
     }
 
     public isActive(): boolean {
-        return true;
-    }
-
-    //
-    // Buttons
-
-    /**
-     * Attaches handlers to the expand/collapse all buttons
-     */
-    private attachExpandCollapseButtons(): void {
-        $('#tree-expand-all').off('click').on('click', () => {
-            this.expandAll();
-        });
-
-        $('#tree-collapse-all').off('click').on('click', () => {
-            this.collapseAll();
-        });
+        return this.navbarElement.isActive();
     }
 
 
@@ -357,13 +351,16 @@ export class TreeViewElement {
         if (selectedIndex === null) {
             this.log.info("selectNode to null - removing selection");
             this.removeSelections();
-            return;
-        }
-        this.log.info("selectNode to index", selectedIndex);
-
-        const treeNodeMatchingPath = this.findMatchingNode(this.specItems[selectedIndex]);
-        if (treeNodeMatchingPath && treeNodeMatchingPath.length > 0) {
-            this.markNodeSelected(treeNodeMatchingPath);
+            this.selectedTreeNode = null;
+        } else {
+            this.log.info("selectNode to index", selectedIndex);
+            const selectedTreeNode = this.findMatchingNode(this.specItems[selectedIndex]);
+            if (selectedTreeNode && selectedTreeNode.length > 0) {
+                this.markNodeSelected(selectedTreeNode);
+                this.selectedTreeNode = selectedTreeNode;
+            } else {
+                this.selectedTreeNode = null;
+            }
         }
     }
 
@@ -384,20 +381,20 @@ export class TreeViewElement {
      * Marks a tree node as selected
      */
     private markNodeSelected(treeNode: JQuery): void {
-        this.removeSelections();
-        const labelNode = treeNode.children(".tree-node-label");
-        this.expandParentNodes(treeNode);
         this.log.info("markNodeSelected", treeNode.attr("data-path"));
-        labelNode.addClass('tree-node-selected');
+        this.removeSelections();
+        this.expandParentNodes(treeNode);
+        treeNode.children(".tree-node-label").addClass('tree-node-selected');
+        this.scrollToNodeSelected(treeNode);
+    }
 
-        // Scroll the selected node into view after expansion animation completes
-        if (labelNode.length > 0) {
-            // Wait for slideDown animation to complete (200ms + small buffer)
-            setTimeout(() => {
-                const labelElement = labelNode[0];
-                labelElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-            }, 250);
-        }
+    private scrollToNodeSelected(treeNode: JQuery | null): void {
+        this.log.info("scrollToNodeSelected", treeNode);
+        if (treeNode == null) return;
+        const labelNode = treeNode!.children(".tree-node-label");
+        setTimeout(() => {
+            labelNode[0].scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }, 250);
     }
 
     /**
@@ -458,6 +455,10 @@ export class TreeViewElement {
     private collapseAll(): void {
         this.treeViewElement.find('.tree-children').hide();
         this.treeViewElement.find('.tree-expand-icon').text('▶');
+    }
+
+    private scrollToSelection(): void {
+        this.scrollToNodeSelected(this.selectedTreeNode);
     }
 
 
