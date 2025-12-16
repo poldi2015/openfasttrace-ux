@@ -310,7 +310,7 @@ let generatedCode: string = `
             type_count: [],
             uncovered_count: [],
             status_count: [],
-            tags_count: [],
+            tag_count: [],
         },
         specitems: [${items.map((item) => item.generateCode()).join("")}
         ]

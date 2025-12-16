@@ -41,7 +41,7 @@ export class SpecItemsElement implements IElement {
     private log: Log = new Log("SpecItemsElement");
 
     public init(): SpecItemsElement {
-        this.navbarElement.setChangeListener("btn-scroll-to-selection", () => this.scrollToSelection());
+        this.navbarElement.setChangeListener("btn-content-scroll-to-selection", () => this.scrollToSelection());
         this.navbarElement.setChangeListener("btn-history-back", () => this.changeOftStateToPreviousState());
         this.navbarElement.setChangeListener("btn-history-forward", () => this.changeOftStateToNextState());
         this.navbarElement.init();
