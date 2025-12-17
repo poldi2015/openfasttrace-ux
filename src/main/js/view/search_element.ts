@@ -95,12 +95,12 @@ export class SearchElement {
 
     private notifyInputChanged(value: string): void {
         let regEx = false;
-        let target: NameFilterTarget = NameFilterTarget.name;
+        let target: NameFilterTarget = NameFilterTarget.id;
         if (value.startsWith("+")) {
             value = value.substring(5).trimStart();
             target = NameFilterTarget.content;
         }
-        if (!value.match(/^[a-zA-Z0-9_-]*$/)) {
+        if (!value.match(/^[a-zA-Z0-9:._-]*$/)) {
             regEx = true;
         }
         this.log.info("notifyInputChanged value", value, "regEx", regEx, "target", target);

@@ -94,7 +94,7 @@ export class IndexFilter extends Filter {
 } // IndexFilter
 
 export enum NameFilterTarget {
-    name = 0,
+    id = 0,
     content = 1
 } // NameFilterTarget
 
@@ -106,19 +106,20 @@ export class NameFilter extends Filter {
 
     constructor(public readonly acceptedName: string,
                 private readonly isRegExp: boolean = false,
-                private readonly nameFilterTarget: NameFilterTarget = NameFilterTarget.name
+                private readonly nameFilterTarget: NameFilterTarget = NameFilterTarget.id
     ) {
         super(NameFilter.FILTER_NAME);
     }
 
     public matches(specItem: SpecItem): boolean {
         if (this.acceptedName == "") return true;
-        const specItemValues: Array<string> = this.nameFilterTarget == NameFilterTarget.name ?
-            Array.of(specItem.title, specItem.id) :
+        const specItemValues: Array<string> = this.nameFilterTarget == NameFilterTarget.id ?
+            Array.of(specItem.title, specItem.id,specItem.name) :
             Array.of(specItem.content);
 
         return specItemValues.map((value: string): boolean =>
-            this.isRegExp ? value.match(this.acceptedName) != null : value.includes(this.acceptedName.toLowerCase())
+            value != null &&
+            this.isRegExp ? value.match(this.acceptedName) != null : value.toLowerCase().includes(this.acceptedName.toLowerCase())
         ).some((value: boolean) => value);
     }
 
