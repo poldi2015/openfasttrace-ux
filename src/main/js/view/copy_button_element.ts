@@ -30,7 +30,7 @@ export class CopyButtonElement {
     private readonly log: Log = new Log("CopyButtonElement");
 
     constructor(
-        private readonly buttonElement: JQuery<HTMLElement>,
+        private readonly buttonElement: JQuery,
         private readonly getText: () => string | null
     ) {
     }
@@ -48,6 +48,27 @@ export class CopyButtonElement {
         });
         return this;
     }
+
+    /**
+     * Show or hide the copy button.
+     */
+    public activate(): CopyButtonElement {
+        this.buttonElement.show();
+        return this;
+    }
+
+    public deactivate(): CopyButtonElement {
+        this.buttonElement.hide();
+        return this;
+    }
+
+    public isActive(): boolean {
+        return this.buttonElement.is(":visible");
+    }
+
+
+    //
+    // private members
 
     /**
      * Copy text to clipboard and show visual feedback.
@@ -71,21 +92,4 @@ export class CopyButtonElement {
         }, SUCCESS_DURATION_MS);
     }
 
-    /**
-     * Show or hide the copy button.
-     */
-    public setVisible(visible: boolean): void {
-        if (visible) {
-            this.buttonElement.show();
-        } else {
-            this.buttonElement.hide();
-        }
-    }
-
-    /**
-     * Get the jQuery element for the button.
-     */
-    public getElement(): JQuery<HTMLElement> {
-        return this.buttonElement;
-    }
-}
+} // CopyButtonElement
