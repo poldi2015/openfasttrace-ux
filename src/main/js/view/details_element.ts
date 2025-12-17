@@ -137,7 +137,7 @@ export class DetailsElement implements IDetailsElement {
         $(DETAILS_COVERS_ID).text(this.createTypesValue(specItem!.provides));
         $(DETAILS_TAGS_ID).text(this.createTagsValue(specItem!));
         $(DETAILS_WRONG_VERSION_ID).html(this.createWrongLinksValues(specItem!, "version"));
-        $(DETAILS_WRONG_ORPHAN_ID).html(this.createWrongLinksValues(specItem!, "orphan"));
+        $(DETAILS_WRONG_ORPHAN_ID).html(this.createWrongLinksValues(specItem!, "orphaned"));
         $(DETAILS_WRONG_UNWANTED_ID).html(this.createWrongLinksValues(specItem!, "unwanted"));
         $(DETAILS_SOURCE_ID).html(this.createSourceValue(specItem!));
         $(DETAILS_COMMENTS_ID).html(this.createCommentsValue(specItem!));
