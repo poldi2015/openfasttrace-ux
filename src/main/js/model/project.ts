@@ -1,4 +1,11 @@
-import {COVERAGE_FIELD_NAME, STATUS_FIELD_NAME, TAGS_FIELD_NAME, TYPE_FIELD_NAME} from "@main/model/specitems";
+import {
+    COVERAGE_FIELD_NAME,
+    SpecItem,
+    STATUS_FIELD_NAME,
+    TAGS_FIELD_NAME,
+    TYPE_FIELD_NAME,
+    WRONG_LINK_FIELD_NAME
+} from "@main/model/specitems";
 import {FieldFilter, FieldFilterMatcher, Filter} from "@main/model/filter";
 
 /**
@@ -18,6 +25,7 @@ export interface IProjectMetaData {
     types: Array<string>,
     tags: Array<string>,
     status: Array<string>,
+    wronglinkNames: Array<string>,
     item_count: number,
     item_covered: number,
     item_uncovered: number,
@@ -25,6 +33,7 @@ export interface IProjectMetaData {
     uncovered_count: Array<number>,
     status_count: Array<number>,
     tag_count: Array<number>,
+    wronglink_count: Array<number>,
 } // IProjectData
 
 
@@ -114,7 +123,6 @@ export class Field implements IField {
     }
 } // FieldModel
 
-
 export class Project {
     constructor(
         public readonly project: IProjectMetaData,
@@ -122,13 +130,8 @@ export class Project {
     ) {
         // Populate fieldModels (e.g. used for filters)
         this.addFieldModel(TYPE_FIELD_NAME, project.types, project.type_count, Project.createTypeFieldFilterMatcher());
-        this.addFieldModel(COVERAGE_FIELD_NAME, ["covered", "uncovered"], [project.item_covered, project.item_uncovered],
-            (specItem, fieldIndexes) =>
-                // field = 0 matches specItems that are fully covered
-                (fieldIndexes.includes(0) && specItem.uncovered.length === 0) ||
-                // field = 1 matches specItems that are not fully covere
-                (fieldIndexes.includes(1) && specItem.uncovered.length != 0)
-        );
+        this.addFieldModel(COVERAGE_FIELD_NAME, Project.COVERAGE_FIELDS, this.getCoverageFieldCounters(project), this.createCoverageFieldFilterMatcher());
+        this.addFieldModel(WRONG_LINK_FIELD_NAME, project.wronglinkNames, project.wronglink_count, Project.createWrongLinkMatcher());
         this.addFieldModel(STATUS_FIELD_NAME, project.status, project.status_count, Project.createStatusFieldFilterMatcher());
         this.addFieldModel(TAGS_FIELD_NAME, project.tags, project.tag_count, Project.createTagsFieldFilterMatcher());
 
@@ -155,26 +158,14 @@ export class Project {
         return this.fieldModels.has(name) ? this.fieldModels.get(name)!! : new FieldModel(name, [], () => false);
     }
 
-    /**
-     * Create a matcher that matches field ids to {@link SpecItem.type}.
-     */
-    public static createTypeFieldFilterMatcher(): FieldFilterMatcher {
-        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.type);
+    private createCoverageFieldFilterMatcher() {
+        return (specItem: SpecItem, fieldIndexes: Array<number>) =>
+            // field = 0 matches specItems that are fully covered
+            (fieldIndexes.includes(0) && specItem.uncovered.length === 0) ||
+            // field = 1 matches specItems that are not fully covere
+            (fieldIndexes.includes(1) && specItem.uncovered.length != 0);
     }
 
-    /**
-     * Create a matcher that matches field ids to {@link SpecItem.status}.
-     */
-    public static createStatusFieldFilterMatcher(): FieldFilterMatcher {
-        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.status);
-    }
-
-    /**
-     * Create a matcher that matches field ids to {@link SpecItem.tags}.
-     */
-    public static createTagsFieldFilterMatcher(): FieldFilterMatcher {
-        return (specItem, fieldIndexes) => fieldIndexes.some(index => specItem.tags.includes(index));
-    }
 
 
     //
@@ -220,5 +211,42 @@ export class Project {
         return field;
     }
 
+
+    // Field matchers
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.type}.
+     */
+    public static createTypeFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.type);
+    }
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.tags}.
+     */
+    private static createTagsFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.some(index => specItem.tags.includes(index));
+    }
+
+    private static readonly COVERAGE_FIELDS = ["covered", "uncovered"];
+
+    private getCoverageFieldCounters(project: IProjectMetaData): Array<number> {
+        return [project.item_covered, project.item_uncovered];
+    }
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.wrongLinkTypes}.
+     */
+    private static createWrongLinkMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.some((wrongLinkType) => specItem.wrongLinkTypes.includes(wrongLinkType));
+    }
+
+
+    /**
+     * Create a matcher that matches field ids to {@link SpecItem.status}.
+     */
+    private static createStatusFieldFilterMatcher(): FieldFilterMatcher {
+        return (specItem, fieldIndexes) => fieldIndexes.includes(specItem.status);
+    }
 
 } // Project
