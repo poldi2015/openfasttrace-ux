@@ -118,7 +118,7 @@ export class NameFilter extends Filter {
             Array.of(specItem.content);
 
         return specItemValues.map((value: string): boolean =>
-            value != null &&
+            value != null && value != "" &&
             this.isRegExp ? value.match(this.acceptedName) != null : value.toLowerCase().includes(this.acceptedName.toLowerCase())
         ).some((value: boolean) => value);
     }
