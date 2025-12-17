@@ -27,6 +27,7 @@ The `project` object contains high-level information about the specification pro
 | `types`           | string[] | Array of artifact types (e.g., "itest", "feat", "req", "arch", "utest")       |
 | `tags`            | string[] | Array of all tags used in the project                                         |
 | `status`          | string[] | Array of possible item statuses ("approved", "proposed", "draft", "rejected") |
+| 'wronglinkNames'  | string[] | Types of wrong links used in the model ("version", "orphaned", "unwanted"]    |
 | `wrongLinkNames`  | string[] | Array of wrong link type names ("version", "orphaned", "unwanted")            |
 | `item_count`      | number   | Total number of specification items                                           |
 | `item_covered`    | number   | Number of items that are covered                                              |
