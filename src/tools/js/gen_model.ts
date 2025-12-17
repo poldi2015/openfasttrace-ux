@@ -43,6 +43,7 @@ import path from "path";
 
 const TYPE_LABELS: Array<string> = ["feat", "req", "arch", "dsn", "impl", "utest", "itest", "stest"];
 const NUMBER_OF_TYPES: number = TYPE_LABELS.length;
+const WRONG_LINK_NAMES: Array<string> = ["version", "orphaned", "unwanted"];
 
 function random(min: number = 0, max: number = 1): number {
     return Math.round(Math.random() * (max - min)) + min;
@@ -130,6 +131,8 @@ class SpecItem {
         this.depends = this.generateDependencies(typeLength, numberOfTypes);
         this.lineNumber = random(1, 1000);
         this.comments = this.generateContent(1, 8);
+        this.wrongLinkTypes = this.generateWrongLinkTypes();
+        this.wrongLinkTargets = this.generateWrongLinkTargets(this.wrongLinkTypes);
     }
 
     public readonly covered: Array<number>;
@@ -142,6 +145,8 @@ class SpecItem {
     public readonly depends: Array<number>;
     public readonly comments: string;
     public readonly lineNumber: number;
+    public readonly wrongLinkTypes: Array<number>;
+    public readonly wrongLinkTargets: Array<string>;
 
     public generateCode() {
         return `
@@ -165,12 +170,19 @@ class SpecItem {
                 path: ["${this.path.join('","')}"],
                 sourceFile: "${this.path.join('/')}.md",
                 sourceLine: ${this.lineNumber},
-                comments: ${this.comments},                        
+                comments: ${this.comments},
+                wrongLinkTypes: [${this.wrongLinkTypes.join(',')}],
+                wrongLinkTargets: [${this.wrongLinkTargets.map(t => `"${t}"`).join(',')}],
             },`
     }
 
     public static generateSpecItems(type: number, startIndex: number, size: number, nodes: Map<string, FileNode>): Array<SpecItem> {
-        const node: FileNode = nodes.get(TYPE_LABELS[type])!;
+        let node: FileNode | undefined = nodes.get(TYPE_LABELS[type]);
+        if (!node) {
+            // Create a default node if none exists for this type
+            node = new FileNode(TYPE_LABELS[type], [TYPE_LABELS[type]]);
+            nodes.set(TYPE_LABELS[type], node);
+        }
         node.specItemIndexes = node.specItemIndexes.concat(Array.from({length: size}, (_, index) => index + startIndex));
         return Array.from({length: size}, (_, index) => new SpecItem(
             index + startIndex,
@@ -254,6 +266,25 @@ class SpecItem {
             .filter((value: number) => value != this.index));
     }
 
+    private generateWrongLinkTypes(): Array<number> {
+        // Randomly generate 0-2 wrong link types (indices into WRONG_LINK_NAMES)
+        const count = random(0, 2);
+        if (count === 0) return [];
+        return this.uniquesAndSort(Array.from({length: count})
+            .map(() => random(0, WRONG_LINK_NAMES.length - 1)));
+    }
+
+    private generateWrongLinkTargets(wrongLinkTypes: Array<number>): Array<string> {
+        // Generate wrong link targets in format "type:name[:version][reason]"
+        return wrongLinkTypes.map((wrongTypeIndex: number): string => {
+            const targetType = TYPE_LABELS[random(0, NUMBER_OF_TYPES - 1)];
+            const targetName = this.generateName();
+            const targetVersion = Math.random() > 0.5 ? `:${random(1, 3)}` : '';
+            const reason = WRONG_LINK_NAMES[wrongTypeIndex];
+            return `${targetType}:${targetName}${targetVersion}[${reason}]`;
+        });
+    }
+
     private uniquesAndSort(values: Array<number>): Array<number> {
         return values
             .filter((value: number, index: number, values: Array<number>) => values.indexOf(value) == index)
@@ -296,6 +327,16 @@ for (let i: number = 0; i < NUMBER_OF_TYPES; i++) {
     items = items.concat(SpecItem.generateSpecItems(i, i * argv.size, argv.size, nodes));
 }
 
+// Calculate wronglink_count for each wrong link type
+const wronglink_count: Array<number> = Array.from({length: WRONG_LINK_NAMES.length}, () => 0);
+items.forEach((item) => {
+    item.wrongLinkTypes.forEach((wrongTypeIndex) => {
+        if (wrongTypeIndex >= 0 && wrongTypeIndex < wronglink_count.length) {
+            wronglink_count[wrongTypeIndex]++;
+        }
+    });
+});
+
 let generatedCode: string = `
 (function (window,undefined) {
     window.specitem = {
@@ -304,13 +345,15 @@ let generatedCode: string = `
             types: ["${TYPE_LABELS.join('", "')}"],
             tags: ["v0.1","v1.0","v2.0","frontend","backend"],
             status: ["Accepted", "Draft"],
+            wronglinkNames: ["${WRONG_LINK_NAMES.join('", "')}"],
             item_count: ${items.length},
             item_covered: 0,
             item_uncovered: 0,
             type_count: [],
             uncovered_count: [],
             status_count: [],
-            tag_count: [],
+            tags_count: [],
+            wronglink_count: [${wronglink_count.join(', ')}],
         },
         specitems: [${items.map((item) => item.generateCode()).join("")}
         ]
