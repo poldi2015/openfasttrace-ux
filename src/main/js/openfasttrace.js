@@ -78,6 +78,7 @@ function initFooter(project) {
     $("#specitem-total").append(project.project.item_count);
     $("#specitem-covered").append(project.project.item_covered);
     $("#specitem-uncovered").append(project.project.item_uncovered);
+    $("#specitem-wrong-link-total").append(project.project.wronglink_count.reduce((a, b) => a + b));
 }
 
 $(_init);
