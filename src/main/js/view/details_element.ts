@@ -32,9 +32,14 @@ const DETAILS_STATUS_ID = "#details-status";
 const DETAILS_NEEDS_ID = "#details-needs";
 const DETAILS_COVERS_ID = "#details-covers";
 const DETAILS_TAGS_ID = "#details-tags";
+const DETAILS_WRONG_VERSION_ID = "#details-wrong-version";
+const DETAILS_WRONG_ORPHAN_ID = "#details-wrong-orphan";
+const DETAILS_WRONG_UNWANTED_ID = "#details-wrong-unwanted";
 const DETAILS_SOURCE_ID = "#details-source";
 const DETAILS_COMMENTS_ID = "#details-comments";
 const DETAILS_DEPENDENCIES_ID = "#details-dependencies";
+const DETAILS_TAB_CLASS = ".details-tab";
+const DETAILS_TAB_CONTENT_CLASS = ".details-tab-content";
 
 const ALL_TABLE_IDS: Array<string> = Array.of(
     DETAILS_STATUS_ID,
@@ -61,10 +66,7 @@ export class DetailsElement implements IDetailsElement {
         private readonly project: Project,
         private readonly oftState: OftStateController) {
         this.tableElement = $(DETAILS_TABLE_ID);
-        this.copyButton = new CopyButtonElement(
-            $('#details-copy-btn'),
-            () => this.currentSpecItemId
-        );
+        this.copyButton = new CopyButtonElement($("#details-copy-btn"), () => this.currentSpecItemId);
     }
 
     private readonly tableElement: JQuery;
@@ -79,6 +81,7 @@ export class DetailsElement implements IDetailsElement {
 
     public init(): IDetailsElement {
         this.copyButton.init();
+        this.setupTabSwitching();
         this.deactivate();
         return this;
     }
@@ -101,26 +104,45 @@ export class DetailsElement implements IDetailsElement {
     //
     // Private members
 
+    private setupTabSwitching(): void {
+        $(DETAILS_TAB_CLASS).on('click', (event) => {
+            const clickedTab = $(event.currentTarget);
+            const targetTab = clickedTab.data('tab');
+
+            // Remove active class from all tabs and contents
+            $(DETAILS_TAB_CLASS).removeClass('details-tab-active');
+            $(DETAILS_TAB_CONTENT_CLASS).removeClass('details-tab-content-active');
+
+            // Add active class to clicked tab and corresponding content
+            clickedTab.addClass('details-tab-active');
+            $(`${DETAILS_TAB_CONTENT_CLASS}[data-tab-content="${targetTab}"]`).addClass('details-tab-content-active');
+        });
+    }
+
     private updateTable(specItem: SpecItem | null): void {
         if (specItem == null) {
             this.log.info("Clearing description");
             this.clearTable();
             this.currentSpecItemId = null;
-            this.copyButton.setVisible(false);
+            this.copyButton.deactivate();
             return;
         }
 
         this.log.info("Updating description for", specItem!.index);
         this.currentSpecItemId = specItem!.id;
         $(SPECITEM_ID_CLASS).text(this.createNavHeaderLabel(specItem!));
-        this.copyButton.setVisible(true);
+        this.copyButton.activate();
         $(DETAILS_STATUS_ID).text(this.createStatusValue(specItem!));
         $(DETAILS_NEEDS_ID).text(this.createTypesValue(specItem!.needs));
         $(DETAILS_COVERS_ID).text(this.createTypesValue(specItem!.provides));
         $(DETAILS_TAGS_ID).text(this.createTagsValue(specItem!));
+        $(DETAILS_WRONG_VERSION_ID).html(this.createWrongLinksValues(specItem!, "version"));
+        $(DETAILS_WRONG_ORPHAN_ID).html(this.createWrongLinksValues(specItem!, "orphan"));
+        $(DETAILS_WRONG_UNWANTED_ID).html(this.createWrongLinksValues(specItem!, "unwanted"));
         $(DETAILS_SOURCE_ID).html(this.createSourceValue(specItem!));
         $(DETAILS_COMMENTS_ID).html(this.createCommentsValue(specItem!));
         this.replaceHyperlinkedSpecItems($(DETAILS_DEPENDENCIES_ID), specItem!.depends);
+        this.attachWrongLinkCopyButtons();
     }
 
     private clearTable(): void {
@@ -158,6 +180,26 @@ export class DetailsElement implements IDetailsElement {
         return specItem.comments;
     }
 
+    private createWrongLinksValues(specItem: SpecItem, type: string): string {
+        const entries = this.getWrongLinksByType(specItem, type);
+        return entries.map((entry) =>
+            `<span class="wrong-link-entry">${entry}${this.generateWrongLinkCopyButton(entry)}</span>`
+        ).join("<br>");
+    }
+
+    private generateWrongLinkCopyButton(entry: string) {
+        return `<button class="_copy-btn-sm wrong-link-copy-btn" data-value="${entry}">
+                    <span class="_img-content-copy"></span>
+               </button>`;
+    }
+
+    private getWrongLinksByType(specItem: SpecItem, type: string): Array<string> {
+        return specItem.wrongLinkTargets.map((entry) => {
+            const match = entry.match(/^(.+?)\[(.+?)]$/);
+            return match && type == match[2] ? match[1] : null;
+        }).filter((target) => target != null);
+    }
+
     private replaceHyperlinkedSpecItems(dependenciesElement: JQuery, specItemIndexes: Array<number>): void {
         dependenciesElement.find("a._specitem-hyperlink").off("click");
         dependenciesElement.html(specItemIndexes.map((index: number) =>
@@ -177,6 +219,26 @@ export class DetailsElement implements IDetailsElement {
                 this.oftState.selectAndShowItem(index);
             }
         })
+    }
+
+    private attachWrongLinkCopyButtons(): void {
+        $('.wrong-link-copy-btn').off('click').on('click', (event) => {
+            event.stopPropagation();
+            const button = $(event.currentTarget);
+            const value = button.data('value');
+
+            if (value) {
+                navigator.clipboard.writeText(value).then(() => {
+                    this.log.info("Copied to clipboard:", value);
+                    button.addClass('_copy-success');
+                    setTimeout(() => {
+                        button.removeClass('_copy-success');
+                    }, 500);
+                }).catch(err => {
+                    this.log.info("Failed to copy:", err);
+                });
+            }
+        });
     }
 
     private selectionChangeListener(selectedIndex: number | null) {
