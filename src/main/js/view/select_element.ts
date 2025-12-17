@@ -214,7 +214,7 @@ export class SelectElement implements ISelectElement {
     private setHeight(): void {
         if (!this.entriesElement) return;
 
-        const itemHeight = 22; // Height of each option item (padding + content)
+        const itemHeight = 23; // Height of each option item (padding + content)
         const visibleCount = Math.min(this.size, MAX_ENTRIES);
         const calculatedHeight = visibleCount * itemHeight;
 
