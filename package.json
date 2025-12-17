@@ -1,7 +1,7 @@
 {
   "name": "openfasttrace-ux",
   "version": "1.0.0",
-  "description": "HTMP user interface for openfasttrace",
+  "description": "Web UI for openfasttrace",
   "main": "openfasttrace.js",
   "scripts": {
     "watch": "webpack --config webpack/main/webpack.dev.js --color --watch",
