@@ -327,7 +327,7 @@ export class SpecItemElement {
         this.copyButton = new CopyButtonElement(
             template.find('._copy-btn-sm'),
             () => this.specItem.id
-        ).init();
+        ).init().activate();
         return template;
     }
 
