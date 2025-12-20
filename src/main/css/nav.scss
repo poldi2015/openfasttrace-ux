@@ -32,6 +32,7 @@
   min-height: 52px;
   background-color: var(--col-nav-bg);
   border-top: solid 1px var(--col-nav-border);
+  z-index: auto;
 
   display: flex;
   flex-direction: row;

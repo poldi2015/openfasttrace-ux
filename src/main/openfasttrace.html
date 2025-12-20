@@ -102,7 +102,7 @@
                 </div>
                 <div id="specitems-tab">
                     <div id="focusitem"></div>
-                    <div id="specitems"></div>
+                    <div id="specitems" tabindex="0"></div>
                 </div>
             </td>
             <td id="sidebar-right" rowspan="2">
@@ -128,9 +128,10 @@
                     <span>
                         <span class="sidebar-logo img-logo-details"></span>&nbsp;
                         <span class="specitem-id"></span>
-                        <button id="details-copy-btn" class="_copy-btn" title="Copy ID to clipboard" style="display:none;">
+                        <span id="details-copy-btn" class="_copy-btn" title="Copy ID to clipboard"
+                              style="display:none;">
                             <span class="_img-content-copy"></span>
-                        </button>
+                        </span>
                     </span>
                     <span class="details-tabs">
                         <span class="details-tab details-tab-active" data-tab="basic">Main</span>

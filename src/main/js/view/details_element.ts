@@ -173,7 +173,7 @@ export class DetailsElement implements IDetailsElement {
     }
 
     private createSourceValue(specItem: SpecItem): string {
-        return `<a href="file://${specItem.sourceFile}">${specItem.sourceFile}</a>, Line ${specItem.sourceLine}`;
+        return `<a href="file://${specItem.sourceFile}" tabindex="-1">${specItem.sourceFile}</a>, Line ${specItem.sourceLine}`;
     }
 
     private createCommentsValue(specItem: SpecItem): string {
@@ -188,9 +188,9 @@ export class DetailsElement implements IDetailsElement {
     }
 
     private generateWrongLinkCopyButton(entry: string) {
-        return `<button class="_copy-btn-sm wrong-link-copy-btn" data-value="${entry}">
+        return `<span class="_copy-btn-sm wrong-link-copy-btn" data-value="${entry}">
                     <span class="_img-content-copy"></span>
-               </button>`;
+               </span>`;
     }
 
     private getWrongLinksByType(specItem: SpecItem, type: string): Array<string> {
