@@ -156,7 +156,7 @@ export class SelectElement implements ISelectElement {
     private addEntries(): void {
         this.selectorElement.addClass('select-container');
         this.selectorElement.html(`
-            <div class="select-entries"></div>
+            <div id="select-${this.id}" class="select-entries" tabindex="0"></div>
         `);
         this.entriesElement = this.selectorElement.find('> .select-entries');
 

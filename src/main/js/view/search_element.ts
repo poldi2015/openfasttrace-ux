@@ -74,8 +74,8 @@ export class SearchElement {
         this.formElement = searchForm[0];
         searchForm.append(`
             <form class="_search">
-                <input class="_search-input" type="text" placeholder="${this.inputLabel}">
-                <button class="_search-clear" type="submit"></button>
+                <input class="_search-input" type="text" placeholder="${this.inputLabel}" tabindex="0">
+                <span class="_search-clear" type="submit"></span>
             </form>
         `);
         const input: JQuery<HTMLInputElement> = searchForm.find("form input[type='text']") as JQuery<HTMLInputElement>;

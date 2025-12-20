@@ -245,9 +245,9 @@ export class SpecItemElement {
                 <div style="position:relative">    
                     <div class="_specitem-header">
                         <div class="_specitem-name">[${this.specItem.id}]</div>
-                        <button class="_copy-btn-sm" title="Copy ID to clipboard">
+                        <span class="_copy-btn-sm" title="Copy ID to clipboard">
                             <span class="_img-content-copy"></span>
-                        </button>
+                        </span>
                         ${draft}
                         <div class="_specitem-status">${coverageTemplate}</div>
                     </div>

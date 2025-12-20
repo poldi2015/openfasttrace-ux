@@ -21,15 +21,23 @@
 @use "button";
 
 #specitems-tab {
-  height: calc(100vh - 380px);
+  height: calc(100vh - 330px);
   overflow: hidden;
-  padding: 5px;
+  padding: 1px;
+
+  // Show focus ring when child element (specitems-tab) has focus
+  &:focus-within {
+    outline: 2px solid var(--col-link);
+    outline-offset: -2px;
+  }
 }
 
 #specitems {
   overflow-x: hidden;
   overflow-y: auto;
   height: 100%;
+
+  outline: none;
 }
 
 .specitem {
