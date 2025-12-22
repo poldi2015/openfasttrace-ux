@@ -27,7 +27,7 @@ export class KeyboardController {
     ) {
     }
 
-    private readonly log: Log = new Log("KeyboardNavigationController");
+    private readonly log: Log = new Log("KeyboardController");
 
     /**
      * Initialize the keyboard navigation controller.

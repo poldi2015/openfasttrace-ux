@@ -68,6 +68,106 @@ export class SpecItemsController {
         });
     }
 
+
+    /**
+     * @return true if the SpecItemsElement is active
+     */
+    public isActive(): boolean {
+        return this.specItemsElement.isActive();
+    }
+
+    /**
+     * Set the selection to the next visible active specItem after the current selection.
+     *
+     * If no item is selected the first visible item is selected.
+     *
+     * @return true if it was possible to change the selection
+     */
+    public selectNextSpecItem(): boolean {
+        const currentIndex = this.selectedIndex;
+        const visibleItems = this.getVisibleSpecItemIndices();
+        if (visibleItems.length === 0) return false;
+
+        this.log.info("selectNextSpecItem currentIndex", currentIndex, "visibleItems", visibleItems);
+
+        const targetIndex = !visibleItems.includes(currentIndex!) ?
+            visibleItems[0] :
+            this.nextSpecItemIndex(currentIndex != this.focusIndex ? currentIndex : -1);
+
+        if (targetIndex == -1) return false;
+
+        this.oftStateController.selectItem(targetIndex);
+
+        return true;
+    }
+
+    /**
+     * Set the selection to the previous visible active specItem before the current selection.
+     *
+     * If no item is selected the last visible item is selected.
+     *
+     * @return true if it was possible to change the selection
+     */
+    public selectPreviousSpecItem(): boolean {
+        const currentIndex = this.selectedIndex;
+        if (currentIndex == this.focusIndex) return false;
+
+        const visibleItems = this.getVisibleSpecItemIndices();
+        if (visibleItems.length === 0) return false;
+
+        this.log.info("selectPreviousSpecItem currentIndex", currentIndex, "visibleItems", visibleItems);
+
+        let targetIndex = !visibleItems.includes(currentIndex!) ?
+            visibleItems[visibleItems.length - 1] :
+            this.previousSpecItemIndex(currentIndex);
+        targetIndex = targetIndex == -1 && this.focusIndex != null ? this.focusIndex : targetIndex;
+
+        if (targetIndex == -1) {
+            return false;
+        }
+
+        this.oftStateController.selectItem(targetIndex);
+
+        return true;
+    }
+
+    /**
+     * @return true of an item is selected and it is the focued one
+     */
+    public isFocusedItemSelected(): boolean {
+        if (!this.isActive()) return false;
+        if (this.selectedIndex == null) return false;
+        return this.focusIndex === this.selectedIndex;
+    }
+
+
+    /**
+     * Focus the currently selected
+     */
+    public focusSelectedItem(): boolean {
+        if (!this.isActive()) return false;
+        if (this.selectedIndex == null) return false;
+        if (this.isFocusedItemSelected()) return true;
+
+        // Use via specItemElement as it correctly configures the filters
+        this.getSpecItemElementByIndex(this.selectedIndex)?.focus();
+
+        return true;
+    }
+
+    /**
+     * If an specItem is focused (selected or not) unfocus it.
+     */
+    public unfocusItem(): boolean {
+        if (!this.isActive()) return false;
+        if (this.focusIndex != null) {
+            this.oftStateController.unFocusItem(this.focusIndex);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // Initialize Elements
 
     private createSpecItemElement(specItem: SpecItem): SpecItemElement {
@@ -278,9 +378,61 @@ export class SpecItemsController {
 
     private scrollToSpecItem(index: number | null): boolean {
         this.log.info("scrollToSpecItem", index);
+        if (index == null || index < 0 || index >= this.specItemElements.length || !this.specItemElements[index].isActive()) return false;
+        const isVisible: boolean = this.isSpecItemVisible(index);
+        if (isVisible) return true;
+
+        const elementScrollPosition: number = this.specItemElements[index!].getScrollPosition()!;
+        this.log.info("Scroll to", elementScrollPosition);
+        this._specItemsElement.scrollTop(elementScrollPosition);
+        return true;
+    }
+
+    /**
+     * Get the indices of all currently visible (not filtered out) spec items.
+     *
+     * @returns Array of indices of visible spec items
+     */
+    private getVisibleSpecItemIndices(): Array<number> {
+        return Array.from(Array(this.specItems.size).keys()).filter(index => this.isSpecItemVisible(index));
+    }
+
+    /**
+     * Get the index of the item that is before the currentIndex and is active, -1 if there is none.
+     */
+    private previousSpecItemIndex(currentIndex: number | null): number {
+        if (currentIndex == null || currentIndex < 1 || currentIndex >= this.specItemElements.length) return -1;
+        if (currentIndex == this.focusIndex) return -1;
+        this.log.info("previousSpecItemIndex", currentIndex);
+        const index = this.specItemElements.slice(0, currentIndex)
+            .reverse()
+            .findIndex((element) => element.isActive());
+
+        this.log.info("previousSpecItemIndex", index, this.specItemElements.slice(0, currentIndex - 1)
+            .reverse());
+        return index >= 0 ? currentIndex - 1 - index : -1;
+    }
+
+    /**
+     * Get the index of the item that is after the currentIndex and is active, -1 if there is none.
+     *
+     * @param currentIndex current selected index or -1 to get the first active index
+     */
+    private nextSpecItemIndex(currentIndex: number | null): number {
+        if (currentIndex == null || currentIndex < -1 || currentIndex >= this.specItemElements.length) return -1;
+        const index = this.specItemElements.slice(currentIndex + 1).findIndex((element) => element.isActive());
+        return index >= 0 ? currentIndex + 1 + index : -1;
+    }
+
+    /**
+     * @return true if the specItem with the given index is visible on the screen
+     */
+    private isSpecItemVisible(index: number | null): boolean {
         if (index == null || index < 0 || index >= this.specItemElements.length) return false;
+
         const specItemElement: SpecItemElement = this.specItemElements[index];
         if (!specItemElement.isActive()) return false;
+        if (specItemElement == this.focusSpecItemElement) return true;
 
         const scrollTop: number | undefined = this._specItemsElement.scrollTop();
         const visibleHeight: number | undefined = this._specItemsElement.outerHeight();
@@ -288,14 +440,8 @@ export class SpecItemsController {
         const scrollBottom: number = scrollTop! + visibleHeight!;
 
         const elementScrollPosition: number = specItemElement.getScrollPosition()!;
-
-        this.log.info("Scrolls", scrollTop, scrollBottom, elementScrollPosition);
-
-        if (elementScrollPosition >= scrollTop && elementScrollPosition <= scrollBottom) return true;
-
-        this.log.info("Scroll to", elementScrollPosition);
-        this._specItemsElement.scrollTop(elementScrollPosition);
-        return true;
+        const height = specItemElement.getHeight();
+        return (elementScrollPosition + height - 5) >= scrollTop && (elementScrollPosition + 5) <= scrollBottom;
     }
 
 } // SpecItemsElement

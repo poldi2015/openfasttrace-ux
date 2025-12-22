@@ -31,6 +31,9 @@ import {Project} from "@main/model/project";
 import {ThemeController} from "@main/controller/theme_controller";
 import {HeaderElement} from "@main/view/header_element";
 import {TreeViewElement} from "@main/view/tree_view_element";
+import {KeyboardController} from "@main/controller/keyboard_controller";
+import {KeyboardSpecItemHandler} from "@main/controller/keyboard_specitems_handler";
+import {KeyboardGlobalHandler} from "@main/controller/keyboard_global_handler";
 
 function _init() {
     console.log("START");
@@ -58,7 +61,8 @@ function _init() {
 
     const specItemsElement = new SpecItemsElement(oftStateController);
     specItemsElement.init().activate();
-    new SpecItemsController(oftStateController, specItemsElement, project).init(specItems);
+    const specItemsController = new SpecItemsController(oftStateController, specItemsElement, project);
+    specItemsController.init(specItems);
 
     // Initialize header with OFT logo, project name, and theme toggle
     new HeaderElement($("#header"), project.project.projectName, themeController).init().activate();
@@ -71,6 +75,10 @@ function _init() {
     new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
 
     oftStateController.init();
+
+    // Initialize keyboard navigation for spec items (after oftStateController.init())
+    new KeyboardController([new KeyboardGlobalHandler(), new KeyboardSpecItemHandler(specItemsController)]).init().activate();
+    
     console.log("ACTIVE");
 }
 

@@ -110,6 +110,13 @@ export class SpecItemElement {
     }
 
     /**
+     * @return the height of the specItem element in pixel
+     */
+    public getHeight(): number {
+        return this.element!.outerHeight(true)!;
+    }
+
+    /**
      * Place the selection focus on this item.
      */
     public select(): void {
@@ -153,7 +160,7 @@ export class SpecItemElement {
     /**
      * Set this element as the focus element or switch coverType
      */
-    protected notifyFocus(coverType: CoverType = CoverType.covering): void {
+    public focus(coverType: CoverType = CoverType.coveredBy): void {
         if (!this.isActive()) return;
 
         // Filter by covering or coveredBy
@@ -299,7 +306,7 @@ export class SpecItemElement {
         // Single click for selection
         template.on({
             click: () => this.notifySelection(),
-            dblclick: () => this.notifyFocus(), // Double-click to pin/focus
+            dblclick: () => this.focus(), // Double-click to pin/focus
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
@@ -308,7 +315,7 @@ export class SpecItemElement {
         template.find('._specitem-accepted, ._specitem-rejected').on({
             click: (e) => {
                 e.stopPropagation(); // Prevent triggering parent click
-                this.notifyFocus();
+                this.focus();
             }
         });
 
