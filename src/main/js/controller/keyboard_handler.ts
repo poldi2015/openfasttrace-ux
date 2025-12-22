@@ -73,7 +73,7 @@ export abstract class KeyboardHandler {
             // Only handle events that apply to selected focused elements
 
             if (activeElement == null || !this._elements.includes(activeElement)) {
-                this.log.info("keydownHandler: ognoring event, focus not supported");
+                this.log.info("keydownHandler: ignoring event, ", activeElement?.id, "not supported");
                 return;
             }
         }

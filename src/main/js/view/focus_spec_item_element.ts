@@ -58,7 +58,7 @@ export class FocusSpecItemElement extends SpecItemElement {
     /**
      * UnFocus this item and with that hide focus item.
      */
-    protected notifyFocus(_: CoverType): void {
+    public focus(_: CoverType): void {
         this.log.info("notifyFocus unfocus index", this.specItem.index);
         this.oftStateController.unFocusItem(this.specItem.index);
     }
@@ -89,7 +89,7 @@ export class FocusSpecItemElement extends SpecItemElement {
             }
         })();
         this.log.info("switchCoverType coverType to ", coverType);
-        super.notifyFocus(coverType);
+        super.focus(coverType);
         return true;
     }
 
