@@ -206,7 +206,7 @@ export class FilterElement implements IFilterElement {
     private filtersChanged(selectedFilters: Map<FilterName, Filter>): void {
         this.log.info("filtersChanged index=", this.id, "filters", selectedFilters);
         const changedSelectionIndexes: SelectedFilterIndexes | undefined = this.getSelectionIndexes(selectedFilters.get(this.id));
-        if (changedSelectionIndexes != undefined) this.setSelections(changedSelectionIndexes);
+        this.setSelections(changedSelectionIndexes != undefined ? changedSelectionIndexes : []);
     }
 
     /**
