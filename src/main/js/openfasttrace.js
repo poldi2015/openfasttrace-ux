@@ -77,7 +77,7 @@ function _init() {
     oftStateController.init();
 
     // Initialize keyboard navigation for spec items (after oftStateController.init())
-    new KeyboardController([new KeyboardGlobalHandler(), new KeyboardSpecItemHandler(specItemsController)]).init().activate();
+    new KeyboardController([new KeyboardGlobalHandler(), new KeyboardSpecItemHandler(oftStateController, specItemsController)]).init().activate();
     
     console.log("ACTIVE");
 }

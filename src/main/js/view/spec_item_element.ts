@@ -136,31 +136,10 @@ export class SpecItemElement {
         this.element.removeClass(SELECT_CLASS);
     }
 
-
-    //
-    // private members
-
-    /**
-     * Dispatches a selection of this element to the OftStateController.
-     *
-     * @return true if element is attached to a parent and can be selected
-     */
-    protected notifySelection(): boolean {
-        if (!this.isActive()) return false;
-        if (this.selected) {
-            this.log.info("notifySelection already selected");
-            return true;
-        }
-        this.log.info("notifySelection index", this.specItem.index);
-        this.oftStateController.selectItem(this.specItem.index);
-        return true;
-    }
-
-
     /**
      * Set this element as the focus element or switch coverType
      */
-    public focus(coverType: CoverType = CoverType.coveredBy): void {
+    public notifyFocus(coverType: CoverType = CoverType.coveredBy): void {
         if (!this.isActive()) return;
 
         // Filter by covering or coveredBy
@@ -185,6 +164,27 @@ export class SpecItemElement {
 
         const filters: Map<FilterName, Filter> = new Map([[IndexFilter.FILTER_NAME, new IndexFilter(acceptedIndexes)]]);
         this.oftStateController.focusItem(this.specItem.index, coverType, filters);
+    }
+
+
+
+    //
+    // private members
+
+    /**
+     * Dispatches a selection of this element to the OftStateController.
+     *
+     * @return true if element is attached to a parent and can be selected
+     */
+    protected notifySelection(): boolean {
+        if (!this.isActive()) return false;
+        if (this.selected) {
+            this.log.info("notifySelection already selected");
+            return true;
+        }
+        this.log.info("notifySelection index", this.specItem.index);
+        this.oftStateController.selectItem(this.specItem.index);
+        return true;
     }
 
     /**
@@ -306,7 +306,7 @@ export class SpecItemElement {
         // Single click for selection
         template.on({
             click: () => this.notifySelection(),
-            dblclick: () => this.focus(), // Double-click to pin/focus
+            dblclick: () => this.notifyFocus(), // Double-click to pin/focus
             mouseenter: () => this.mouseEntered(),
             mouseleave: () => this.mouseLeave()
         });
@@ -315,7 +315,7 @@ export class SpecItemElement {
         template.find('._specitem-accepted, ._specitem-rejected').on({
             click: (e) => {
                 e.stopPropagation(); // Prevent triggering parent click
-                this.focus();
+                this.notifyFocus();
             }
         });
 
@@ -328,6 +328,13 @@ export class SpecItemElement {
         });
 
         return template;
+    }
+
+    /**
+     * Focuses the specItemElement as this SpecItemElement is not a FocusSpecItemElement.
+     */
+    protected focusUnfocus(): void {
+        this.notifyFocus();
     }
 
     protected addCopyButton(template: JQuery): JQuery {
