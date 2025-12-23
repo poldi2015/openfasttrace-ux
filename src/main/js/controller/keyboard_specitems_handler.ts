@@ -24,12 +24,12 @@ export class KeyboardSpecItemHandler extends KeyboardHandler {
 
 
     private focusOrUnfocusSpecItem(): boolean {
-        this.log.info("focusOrUnfocusSpecItem", this.specItemsController.isFocusedItemSelected());
-        if (this.specItemsController.isFocusedItemSelected()) {
-            if (!this.specItemsController.unfocusItem()) return false;
+        this.log.info("focusOrUnfocusSpecItem", this.specItemsController.isFocusedSpecItemSelected());
+        if (this.specItemsController.isFocusedSpecItemSelected()) {
+            if (!this.specItemsController.unfocusSpecItem()) return false;
             this.focus(this.specitemsElement);
         } else {
-            if (!this.specItemsController.focusSelectedItem()) return false;
+            if (!this.specItemsController.focusSelectedSpecItem()) return false;
             this.focus(this.focusItemElement);
         }
 

@@ -77,13 +77,18 @@ export class SpecItemsController {
     }
 
     /**
-     * Set the selection to the next visible active specItem after the current selection.
+     * Set the selection to the next active (not filtered out) specItem after the current selection.
      *
-     * If no item is selected the first visible item is selected.
+     * If no item is selected or the currently selected SpecItem is not visible the first visible item is selected.
+     * A focused specItem is counted as a visible active first item in the list of visible items.
+     *
+     A change of the selection does not change the filters.
      *
      * @return true if it was possible to change the selection
      */
     public selectNextSpecItem(): boolean {
+        if (!this.isActive()) return false;
+        
         const currentIndex = this.selectedIndex;
         const visibleItems = this.getVisibleSpecItemIndices();
         if (visibleItems.length === 0) return false;
@@ -102,15 +107,21 @@ export class SpecItemsController {
     }
 
     /**
-     * Set the selection to the previous visible active specItem before the current selection.
+     * Set the selection to the previous active (not filtered) specItem before the current selection.
      *
-     * If no item is selected the last visible item is selected.
+     * If no specItem is selected or the selected specItem is not visible the last visible item is selected.
+     * A focused specItem is counted as a visible active first item in the list of visible items.
+     *
+     * A change of the selection does not change the filters.
      *
      * @return true if it was possible to change the selection
      */
     public selectPreviousSpecItem(): boolean {
+        if (!this.isActive()) return false;
+        
         const currentIndex = this.selectedIndex;
-        if (currentIndex == this.focusIndex) return false;
+        // Can't go previous if we're already at the focus item (which is the first visible item)
+        if (currentIndex != null && currentIndex == this.focusIndex) return false;
 
         const visibleItems = this.getVisibleSpecItemIndices();
         if (visibleItems.length === 0) return false;
@@ -132,9 +143,9 @@ export class SpecItemsController {
     }
 
     /**
-     * @return true of an item is selected and it is the focued one
+     * @return true if the currently selected item is the focused item
      */
-    public isFocusedItemSelected(): boolean {
+    public isFocusedSpecItemSelected(): boolean {
         if (!this.isActive()) return false;
         if (this.selectedIndex == null) return false;
         return this.focusIndex === this.selectedIndex;
@@ -142,12 +153,14 @@ export class SpecItemsController {
 
 
     /**
-     * Focus the currently selected
+     * Selects the current specItem is the focused specItem.
+     *
+     * @return true if the selected specItem can be focused or is already focused
      */
-    public focusSelectedItem(): boolean {
+    public focusSelectedSpecItem(): boolean {
         if (!this.isActive()) return false;
         if (this.selectedIndex == null) return false;
-        if (this.isFocusedItemSelected()) return true;
+        if (this.isFocusedSpecItemSelected()) return true;
 
         // Use via specItemElement as it correctly configures the filters
         this.getSpecItemElementByIndex(this.selectedIndex)?.focus();
@@ -156,9 +169,9 @@ export class SpecItemsController {
     }
 
     /**
-     * If an specItem is focused (selected or not) unfocus it.
+     * If a SpecItem is focused remove the focus of that SpecItem.
      */
-    public unfocusItem(): boolean {
+    public unfocusSpecItem(): boolean {
         if (!this.isActive()) return false;
         if (this.focusIndex != null) {
             this.oftStateController.unFocusItem(this.focusIndex);
