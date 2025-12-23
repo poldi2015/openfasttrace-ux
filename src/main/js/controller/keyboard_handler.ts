@@ -4,6 +4,7 @@ import {KeyboardController} from "@main/controller/keyboard_controller";
 export class Key {
     constructor(public readonly key: string,
                 public readonly handler: (event: JQuery.Event) => boolean,
+                public readonly shift: boolean = false,
                 public readonly ctrl: boolean = false,
                 public readonly alt: boolean = false,
                 public readonly meta: boolean = false
@@ -12,6 +13,7 @@ export class Key {
 
     public matches(event: JQuery.Event): boolean {
         return event.key == this.key &&
+            event.shiftKey == this.shift &&
             event.ctrlKey == this.ctrl &&
             event.altKey == this.alt &&
             event.metaKey == this.meta;

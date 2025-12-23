@@ -163,7 +163,7 @@ export class SpecItemsController {
         if (this.isFocusedSpecItemSelected()) return true;
 
         // Use via specItemElement as it correctly configures the filters
-        this.getSpecItemElementByIndex(this.selectedIndex)?.focus();
+        this.getSpecItemElementByIndex(this.selectedIndex)?.notifyFocus();
 
         return true;
     }
@@ -173,12 +173,35 @@ export class SpecItemsController {
      */
     public unfocusSpecItem(): boolean {
         if (!this.isActive()) return false;
-        if (this.focusIndex != null) {
-            this.oftStateController.unFocusItem(this.focusIndex);
+        if (this.focusSpecItemElement != null) {
+            this.focusSpecItemElement.notifyUnfocus();
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Changes the coverType if the curently selected specItems is the focused specItem.
+     * @param coverType The new coverType
+     */
+    public changeFocusCoverType(coverType: CoverType): boolean {
+        if (!this.isActive()) return false;
+        if (!this.isFocusedSpecItemSelected()) return false;
+        this.log.info("changeFocusCoverType", CoverType[coverType]);
+        this.focusSpecItemElement!.notifyFocus(coverType);
+        return true;
+    }
+
+    /**
+     * Toggles the coverType if the curently selected specItems is the focused specItem.
+     */
+    public toggleFocusCoverType(): boolean {
+        if (!this.isActive()) return false;
+        if (!this.isFocusedSpecItemSelected()) return false;
+        this.log.info("toggleFocusCoverType");
+        this.focusSpecItemElement!.notifySwitchCoverType();
+        return true;
     }
 
     // Initialize Elements
@@ -280,7 +303,7 @@ export class SpecItemsController {
     private switchFocusedCoverageType(focusIndex: number, coverType: CoverType): void {
         if (focusIndex != this.focusIndex) return;
         this.log.info("switchFocusedCoverageType", coverType);
-        this.focusSpecItemElement?.cover(coverType);
+        this.focusSpecItemElement?.showCoverType(coverType);
     }
 
 

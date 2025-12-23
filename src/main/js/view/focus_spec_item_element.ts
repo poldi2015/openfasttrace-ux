@@ -46,36 +46,24 @@ export class FocusSpecItemElement extends SpecItemElement {
      *
      * @param coverType the new coverType
      */
-    public cover(coverType: CoverType) {
+    public showCoverType(coverType: CoverType) {
         this.log.info("cover index", this.specItem.index);
         this.updateCoverTypeElement(coverType);
     }
 
 
-    //
-    // private members
-
     /**
-     * UnFocus this item and with that hide focus item.
+     * Sends an unfocus to the OftStateController.
      */
-    public focus(_: CoverType): void {
+    public notifyUnfocus(): void {
         this.log.info("notifyFocus unfocus index", this.specItem.index);
         this.oftStateController.unFocusItem(this.specItem.index);
     }
 
     /**
-     * If focus item is already selected the cover type is switched via {@link notifySwitchCoverType}.
-     */
-    protected notifySelection(): boolean {
-        if (!this.isActive()) return false;
-        return this.notifySwitchCoverType() ? true : super.notifySelection();
-    }
-
-
-    /**
      * Switch the coverType of this item and in case item is already selected.
      */
-    private notifySwitchCoverType(): boolean {
+    public notifySwitchCoverType(): boolean {
         if (this.parentElement == null) return false;
         if (!this.selected) return false;
         const coverType: CoverType = (() => {
@@ -89,9 +77,29 @@ export class FocusSpecItemElement extends SpecItemElement {
             }
         })();
         this.log.info("switchCoverType coverType to ", coverType);
-        super.focus(coverType);
+        super.notifyFocus(coverType);
         return true;
     }
+
+    //
+    // private members
+
+
+    /**
+     * Unfocuses asthis SpecItemElement is a FocusSpecItemElement.
+     */
+    protected focusUnfocus() {
+        this.notifyUnfocus();
+    }
+
+    /**
+     * If focus item is already selected the cover type is switched via {@link notifySwitchCoverType}.
+     */
+    protected notifySelection(): boolean {
+        if (!this.isActive()) return false;
+        return this.notifySwitchCoverType() ? true : super.notifySelection();
+    }
+
 
     //
     // UI Templates
