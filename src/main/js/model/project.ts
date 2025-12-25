@@ -143,7 +143,7 @@ export class Project {
 
     private readonly log = new Log("Project");
 
-    public readonly fieldModels: Map<String, FieldModel> = new Map();
+    public readonly fieldModels: Map<string, FieldModel> = new Map();
 
     public readonly typeIds: Array<string> = this.project.types;
     public readonly typeLabels: Array<string>;
