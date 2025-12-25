@@ -25,7 +25,8 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {$} from "@test/fixtures/dom";
 import {FILTER_MODELS_SAMPLE} from "@test/mocks/filter_mocks";
 import {ExpandableElements} from "@main/view/expandable_elements";
-import {SelectionFilter} from "@main/model/filter";
+import {createFieldFilter} from "@test/samples/events";
+import {FieldFilter} from "@main/model/filter";
 
 const HTML_MODEL = `
 <div class="expandable" data-title="Type" data-tooltip="Type part of the Requirement ID">
@@ -38,13 +39,13 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
     <div class="_expandable-header">
         <span>Type</span>
         <div class="nav-bar _filter-nav-bar">
-            <a id="type-btn-all" class="nav-btn _img-filter-all" href="#"></a>
-            <a id="type-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#"></a>
+            <a id="type-btn-all" class="nav-btn _img-filter-all" href="#" tabindex="-1"></a>
+            <a id="type-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#" tabindex="-1"></a>
         </div>
     </div>
         <div class="_expandable-content visible">
         <div class="filter select-container no-selection select-disabled" id="type" disabled="disabled">
-            <div class="select-entries" style="height: 22px;">
+            <div id="select-type" class="select-entries" tabindex="0" style="height: 23px;">
                 <div class="select-entry" data-index="0">
                     <span class="select-text">Feature</span>
                     <span class="select-count">(5)</span>
@@ -63,7 +64,7 @@ describe("Tests  for FilterElement", () => {
         const selectElement: HTMLElement = $(".filter")[0];
 
         const oftStateBuilder: OftStateBuilder = new OftStateBuilder()
-            .setSelectedFilters(new Map<string, SelectionFilter>([['type', new SelectionFilter('type', [1])]]));
+            .setSelectedFilters(new Map<string, FieldFilter>([['type', createFieldFilter('type', [1])]]));
         const oftState: OftStateController = new OftStateController(oftStateBuilder.build());
         const filterElement = new FilterElement("type", selectElement, FILTER_MODELS_SAMPLE.get("type")!!, oftState);
         filterElement.init();
