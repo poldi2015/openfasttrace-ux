@@ -7,6 +7,7 @@ import {
     WRONG_LINK_FIELD_NAME
 } from "@main/model/specitems";
 import {FieldFilter, FieldFilterMatcher, Filter} from "@main/model/filter";
+import {Log} from "@main/utils/log";
 
 /**
  * List of all available filters with selectable entries.
@@ -140,6 +141,8 @@ export class Project {
         this.typeNames = this.fieldModels.get(TYPE_FIELD_NAME)!.fields.map(field => field.name) as Array<string>;
     }
 
+    private readonly log = new Log("Project");
+
     public readonly fieldModels: Map<String, FieldModel> = new Map();
 
     public readonly typeIds: Array<string> = this.project.types;
@@ -176,7 +179,7 @@ export class Project {
                           fieldIds: Array<string>,
                           fieldCounts: Array<number>,
                           matcher: FieldFilterMatcher): void {
-        this.fieldModels.set(id, new FieldModel(id, Project.createFields(fieldIds, this.fieldMetaData[id], fieldCounts), matcher));
+        this.fieldModels.set(id, new FieldModel(id, this.createFields(fieldIds, this.fieldMetaData[id], fieldCounts), matcher));
     }
 
     /**
@@ -186,12 +189,13 @@ export class Project {
      * @param fieldMetaData The meta_data.js field models
      * @param fieldCounts The number of items for each field from the specitem_data project data
      */
-    private static createFields(fieldIds: Array<string>, fieldMetaData: Array<IField> | undefined, fieldCounts: Array<number>): Array<IField> {
+    private createFields(fieldIds: Array<string>, fieldMetaData: Array<IField> | undefined, fieldCounts: Array<number>): Array<IField> {
         const namedFieldMetaData: Map<string, IField> = fieldMetaData != undefined
             ? new Map(fieldMetaData.map((item) => [item.id, item]))
             : new Map();
 
         return fieldIds.map((fieldId) => {
+            this.log.info(`createFields id=${fieldId} counts=${fieldCounts}`);
             const idIndex: number = fieldIds.indexOf(fieldId);
             const count: number = fieldCounts.length > idIndex ? fieldCounts[idIndex] : -1;
             return Project.createField(fieldId, namedFieldMetaData.get(fieldId), count);
