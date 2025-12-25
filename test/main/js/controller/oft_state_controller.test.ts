@@ -21,10 +21,16 @@ import {beforeEach, describe, expect, vi} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {OftStateHistory} from "@main/model/oft_state_history";
-import {createEvent, createEventWithState, createFilter, createSampleHistory} from "@test/samples/events";
+import {
+    createEvent,
+    createEventWithState,
+    createFieldFilter,
+    createFilter,
+    createSampleHistory
+} from "@test/samples/events";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
 import {ChangeEvent, EventType} from "@main/model/change_event";
-import {Filter, SelectionFilter} from "@main/model/filter";
+import {Filter} from "@main/model/filter";
 import {CoverType, OftState} from "@main/model/oft_state";
 
 describe(("OftStateController"), () => {
@@ -91,7 +97,7 @@ describe(("OftStateController"), () => {
         oftStateController.init();
 
         // Add filter event
-        const typeFilter: Map<string, Filter> = createFilter("Type", new SelectionFilter("Type", [1, 3]));
+        const typeFilter: Map<string, Filter> = createFilter("Type", createFieldFilter("Type", [1, 3]));
         oftStateController.selectFilters(typeFilter);
         expect(listener.mock.calls.length).toBe(2);
         const filterState1 = new OftState(null, typeFilter);
@@ -109,7 +115,7 @@ describe(("OftStateController"), () => {
         oftStateController.init();
 
         // Add filter event
-        const typeFilter1: Map<string, Filter> = createFilter("Type", new SelectionFilter("Type", [1, 3]));
+        const typeFilter1: Map<string, Filter> = createFilter("Type", createFieldFilter("Type", [1, 3]));
         oftStateController.selectFilters(typeFilter1);
         const listenerState1: OftState = listener.mock.results[1].value.oftState;
         expect(listener.mock.calls.length).toBe(2);
@@ -132,7 +138,7 @@ describe(("OftStateController"), () => {
         oftStateController.init();
 
         // Add filter event
-        const typeFilter1: Map<string, Filter> = createFilter("Type", new SelectionFilter("Type", [1, 3]));
+        const typeFilter1: Map<string, Filter> = createFilter("Type", createFieldFilter("Type", [1, 3]));
         oftStateController.selectFilters(typeFilter1);
         expect(listener.mock.calls.length).toBe(2);
 
@@ -160,7 +166,7 @@ describe(("OftStateController"), () => {
         oftStateController.init();
 
         // Add filter event
-        const typeFilter1: Map<string, Filter> = createFilter("Type", new SelectionFilter("Type", [1, 4]));
+        const typeFilter1: Map<string, Filter> = createFilter("Type", createFieldFilter("Type", [1, 4]));
         oftStateController.selectFilters(typeFilter1);
         expect(listener.mock.calls.length).toBe(2);
 
@@ -185,7 +191,7 @@ describe(("OftStateController"), () => {
         oftStateController.init();
 
         // Add filter event
-        const typeFilter1: Map<string, Filter> = createFilter("Type", new SelectionFilter("Type", [1, 4]));
+        const typeFilter1: Map<string, Filter> = createFilter("Type", createFieldFilter("Type", [1, 4]));
         oftStateController.selectFilters(typeFilter1);
         expect(listener.mock.calls.length).toBe(2);
 

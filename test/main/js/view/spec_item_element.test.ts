@@ -25,7 +25,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {Project} from "@main/model/project";
 import {SpecItem} from "@main/model/specitems";
 import {CoverType} from "@main/model/oft_state";
-import {IndexFilter, SelectionFilter} from "@main/model/filter";
+import {FieldFilter, IndexFilter} from "@main/model/filter";
 
 describe("SpecItemElement - Badge Click Functionality", () => {
     let body: JQuery<HTMLElement>;
@@ -61,7 +61,9 @@ describe("SpecItemElement - Badge Click Functionality", () => {
             path: ["test"],
             sourceFile: "test.md",
             sourceLine: 1,
-            comments: ""
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
         } as SpecItem;
 
         // Create mock project with type field model
@@ -154,10 +156,10 @@ describe("SpecItemElement - Badge Click Functionality", () => {
         const indexFilter = filters.get(IndexFilter.FILTER_NAME);
         expect(indexFilter).toBeInstanceOf(IndexFilter);
 
-        // Check SelectionFilter for type
+        // Check FieldFilter for type
         const typeFilter = filters.get("type");
-        expect(typeFilter).toBeInstanceOf(SelectionFilter);
-        expect((typeFilter as SelectionFilter).filterIndexes).toEqual([3]);
+        expect(typeFilter).toBeInstanceOf(FieldFilter);
+        expect((typeFilter as FieldFilter).fieldIndexes).toEqual([3]);
     });
 
     test("Clicking covered badge for different type sets correct type filter", () => {
@@ -174,8 +176,8 @@ describe("SpecItemElement - Badge Click Functionality", () => {
         const filters = callArgs[2];
 
         const typeFilter = filters.get("type");
-        expect(typeFilter).toBeInstanceOf(SelectionFilter);
-        expect((typeFilter as SelectionFilter).filterIndexes).toEqual([3]);
+        expect(typeFilter).toBeInstanceOf(FieldFilter);
+        expect((typeFilter as FieldFilter).fieldIndexes).toEqual([3]);
     });
 
     test("Clicking covered badge includes covering items in index filter", () => {
@@ -316,7 +318,7 @@ describe("SpecItemElement - Badge Click Functionality", () => {
 
         let filters = (oftStateController.focusItem as any).mock.calls[0][2];
         let typeFilter = filters.get("type");
-        expect((typeFilter as SelectionFilter).filterIndexes).toEqual([3]);
+        expect((typeFilter as FieldFilter).fieldIndexes).toEqual([3]);
 
         // For the second click, we need to ensure we're clicking a different covered badge
         // Since specItem.type = 1 is filtered out, we check other covered types
@@ -332,7 +334,7 @@ describe("SpecItemElement - Badge Click Functionality", () => {
             // The type index should be extracted from the badge id
             const match = badgeId?.match(/_cov(\d+)$/);
             if (match) {
-                expect((typeFilter as SelectionFilter).filterIndexes).toEqual([parseInt(match[1])]);
+                expect((typeFilter as FieldFilter).fieldIndexes).toEqual([parseInt(match[1])]);
             }
         }
     });

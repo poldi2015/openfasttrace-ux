@@ -19,9 +19,33 @@
 */
 import {ChangeEvent, EventType} from "@main/model/change_event";
 import {CoverType, FilterName, OftState} from "@main/model/oft_state";
-import {Filter, SelectionFilter} from "@main/model/filter";
+import {FieldFilter, Filter} from "@main/model/filter";
 import {HistoryItem} from "@main/model/oft_state_history";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
+import {SpecItem} from "@main/model/specitems";
+
+/**
+ * Helper to create a FieldFilter with a generic matcher for testing
+ */
+export function createFieldFilter(filterName: string, fieldIndexes: Array<number>): FieldFilter {
+    // Generic matcher that checks if specItem's field value is in the accepted indexes
+    const matcher = (specItem: SpecItem, indexes: Array<number>): boolean => {
+        // Empty list always matches
+        if (indexes.length === 0) return true;
+
+        // For type filter
+        if (filterName.toLowerCase() === 'type' || filterName.toLowerCase() === 'types') {
+            return indexes.includes(specItem.type);
+        }
+        // For covered filter
+        if (filterName.toLowerCase() === 'covered') {
+            return specItem.covered.some(id => indexes.includes(id));
+        }
+        // Unknown filter: don't match
+        return false;
+    };
+    return new FieldFilter(filterName, fieldIndexes, matcher);
+}
 
 /**
  * Creates a sample {@link ChangeEvent} with an empty {@link OftState}.
@@ -60,8 +84,8 @@ export function createSampleHistory(): Array<HistoryItem> {
 
 export const sampleSelectionState1: OftState = new OftState(1);
 export const sampleSelectionState2: OftState = new OftState(2);
-export const sampleFilterState1: OftState = new OftState(2, createFilter("Type", new SelectionFilter("Type", [1, 3])));
-export const sampleFocusState1: OftState = new OftState(null, new Map(), 2, createFilter("Type", new SelectionFilter("Type", [1, 3])), CoverType.covering);
+export const sampleFilterState1: OftState = new OftState(2, createFilter("Type", createFieldFilter("Type", [1, 3])));
+export const sampleFocusState1: OftState = new OftState(null, new Map(), 2, createFilter("Type", createFieldFilter("Type", [1, 3])), CoverType.covering);
 export const sampleChangeEventSelection1: ChangeEvent = createEventWithState(sampleSelectionState1, EventType.Selection);
 export const sampleChangeEventSelection2: ChangeEvent = createEventWithState(sampleSelectionState2, EventType.Selection);
 export const sampleChangeEventFilter1: ChangeEvent = createEventWithState(sampleFilterState1, EventType.Filters);

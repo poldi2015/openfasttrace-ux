@@ -1,31 +1,31 @@
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
-import {STATUS_FIELD_NAMES, TAG_FIELD_NAMES, TYPED_FIELD_NAMES} from "@main/model/specitems";
-import {FieldConfigurations, IField, IProjectData, Project} from "@main/model/project";
+import {TAG_FIELD_NAMES} from "@main/model/specitems";
+import {IField, IProjectMetaData, Project} from "@main/model/project";
 import {metadata} from "@test/samples/meta_data";
 import {project} from "@test/samples/specitem_data";
 
 describe("Tests for SpecItemMetaData", () => {
     test('tests filling meta data', () => {
-        const projectData: IProjectData = project;
-        const configuration: FieldConfigurations = metadata.filters;
-        const metaData = new Project(
-            projectData.projectName,
-            projectData.types,
-            TYPED_FIELD_NAMES,
-            projectData.tags,
-            TAG_FIELD_NAMES,
-            projectData.status,
-            STATUS_FIELD_NAMES,
-            projectData.item_count,
-            projectData.item_covered,
-            projectData.item_uncovered,
-            new Map(),
-            configuration
-        );
+        const projectData: IProjectMetaData = {
+            projectName: project.projectName,
+            types: project.types,
+            tags: project.tags,
+            status: project.status,
+            wronglinkNames: [],
+            item_count: project.item_count,
+            item_covered: project.item_covered,
+            item_uncovered: project.item_uncovered,
+            type_count: [],
+            uncovered_count: [],
+            status_count: [],
+            tag_count: [],
+            wronglink_count: []
+        };
+        const metaData = new Project(projectData, metadata.filters);
 
-        expect(metaData.projectName).toBe(project.projectName);
-        expect(metaData.types).toStrictEqual(project.types);
+        expect(metaData.project.projectName).toBe(project.projectName);
+        expect(metaData.project.types).toStrictEqual(project.types);
         const tagModels: Array<IField> = metaData.getFieldModel(TAG_FIELD_NAMES[0]).fields;
         const expectedTooltip = ["Version 2.0","Version 0.1","Version 1.0","",""];
         const expectedLabel = ["ver 2.0","v0.1","ver 1.0","comp1","comp"];

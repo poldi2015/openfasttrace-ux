@@ -31,7 +31,7 @@ export class OftStateBuilder {
         } else {
             this.oftState.selectedIndex = null;
         }
-        Object.entries(project.fieldModels).forEach(([filterName, fieldModel]: [string, FieldModel]) => {
+        project.fieldModels.forEach((fieldModel: FieldModel, filterName: string) => {
             this.oftState.selectedFilters.set(filterName, fieldModel.createFilter([]));
         });
 

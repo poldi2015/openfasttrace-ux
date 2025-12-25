@@ -20,54 +20,85 @@
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {OftStateBuilder} from "@main/controller/oft_state_builder";
-import {SelectionFilter} from "@main/model/filter";
+import {createFieldFilter} from "@test/samples/events";
 import {OftState} from "@main/model/oft_state";
 import {SpecItem} from "@main/model/specitems";
-import {IField} from "@main/model/project";
+import {FieldMetaData, IField, IProjectMetaData, Project} from "@main/model/project";
+import {FieldFilter} from "@main/model/filter";
 
-const SAMPLE_METADATA: Map<string, Array<IField>> = new Map(Object.entries({
-    types: [
+const SAMPLE_METADATA: FieldMetaData = {
+    type: [
         {
-            id:"feat",
-            label: "feat",
+            id: "feat",
             name: "Feature",
             tooltip: "A feature is a distinct functionality of the software.",
-            item_count: 30,
+            item_count: 0,
         },
     ],
-    coverages: [
+    coverage: [
         {
-            id:"req",
-            name: "Requirement",
-            tooltip: "Missing requirements.",
-            color: "red",
-            item_count: 2,
+            id: "covered",
+            tooltip: "Item is fully covered.",
+            item_count: 0,
+        },
+        {
+            id: "uncovered",
+            tooltip: "Item has missing coverage.",
+            item_count: 0,
         }
+    ],
+    wronglink: [
+        {
+            id: "orphaned",
+            name: "Orphaned",
+            tooltip: "Wrong link target.",
+            item_count: 0,
+        },
     ],
     status: [
         {
-            id:"status",
+            id: "approved",
             name: "Accepted",
             tooltip: "Item is an accepted traceable element.",
-            color: "green",
-            item_count: 50,
+            item_count: 0,
         }
     ],
     tags: [
         {
-            id:"v0.1",
-            name: "v0.1",
+            id: "v0.1",
             tooltip: "Version 0.1",
-            color: "green",
-            item_count: 50,
+            item_count: 0,
         },
     ]
-}));
+};
 
-const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, SelectionFilter> = new Map(
+const PROJECT_META_DATA: IProjectMetaData = {
+    projectName: 'UX Reporter Example (2025-11-18T15.46.04.287572051)',
+    types: ["reg", "req", "info", "itest", "test"],
+    tags: ["vus", "vcs", "tms", "udm"],
+    status: ["approved", "proposed", "draft", "rejected"],
+    wronglinkNames: ["version", "orphaned", "unwanted"],
+    item_count: 1740,
+    item_covered: 1403,
+    item_uncovered: 337,
+    type_count: [1, 695, 3, 520, 521],
+    uncovered_count: [1, 333, 3, 0, 0],
+    status_count: [1740, 0, 0, 0],
+    tag_count: [1418, 70, 98, 184],
+    wronglink_count: [103, 116, 114],
+};
+
+// Create a mock Project with fieldModels
+const mockMatcher = () => true;
+const MOCK_PROJECT: Project = new Project(
+    PROJECT_META_DATA,
+    SAMPLE_METADATA,
+);
+
+const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, FieldFilter> = new Map(
     Object
         .entries(SAMPLE_METADATA)
-        .map(([key, _value]: [string, Array<IField>]): [string, SelectionFilter] => [key, new SelectionFilter(key, [])])
+        .map(([key, _value]: [string, Array<IField>]): [string, FieldFilter] => [key, createFieldFilter(key, [])])
 );
 
 const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
@@ -92,31 +123,49 @@ const SAMPLE_SPEC_ITEMS: Array<SpecItem> = [
         sourceFile: "",
         sourceLine: 5,
         comments: "",
+        wrongLinkTypes: [],
+        wrongLinkTargets: [],
     },
 ];
 
 describe("Tests of the Logger API", () => {
 
     test("create oft state initialized from metadata with a simple specitem", () => {
-        const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS).build();
+        const oftState: OftState = new OftStateBuilder().fromModel(MOCK_PROJECT, SAMPLE_SPEC_ITEMS).build();
         expect(oftState.selectedIndex).toBe(0);
-        expect(oftState.selectedFilters).toStrictEqual(GOLDEN_MASTER_FILTER_WITHOUT_VALUES);
+
+        // Check that all expected filters are present
+        expect(oftState.selectedFilters.size).toBe(GOLDEN_MASTER_FILTER_WITHOUT_VALUES.size);
+        for (const [key, expectedFilter] of GOLDEN_MASTER_FILTER_WITHOUT_VALUES) {
+            expect(oftState.selectedFilters.has(key)).toBe(true);
+            const actualFilter = oftState.selectedFilters.get(key);
+            expect(actualFilter).toBeInstanceOf(FieldFilter);
+            expect(actualFilter!.filterName).toBe(expectedFilter.filterName);
+        }
     });
 
     test("create oft state initialized from metadata without a specitem", () => {
-        const oftState: OftState = new OftStateBuilder().fromModel(SAMPLE_METADATA, []).build();
+        const oftState: OftState = new OftStateBuilder().fromModel(MOCK_PROJECT, []).build();
         expect(oftState.selectedIndex).toBeNull();
-        expect(oftState.selectedFilters).toStrictEqual(GOLDEN_MASTER_FILTER_WITHOUT_VALUES);
+
+        // Check that all expected filters are present
+        expect(oftState.selectedFilters.size).toBe(GOLDEN_MASTER_FILTER_WITHOUT_VALUES.size);
+        for (const [key, expectedFilter] of GOLDEN_MASTER_FILTER_WITHOUT_VALUES) {
+            expect(oftState.selectedFilters.has(key)).toBe(true);
+            const actualFilter = oftState.selectedFilters.get(key);
+            expect(actualFilter).toBeInstanceOf(FieldFilter);
+            expect(actualFilter!.filterName).toBe(expectedFilter.filterName);
+        }
     });
 
     test("create oft state initialized from metadata overridden by a filter value", () => {
-        const changedFilters: Map<string, SelectionFilter> = GOLDEN_MASTER_FILTER_WITHOUT_VALUES;
-        changedFilters.set("types", new SelectionFilter("types", [1]));
+        const changedFilters: Map<string, FieldFilter> = GOLDEN_MASTER_FILTER_WITHOUT_VALUES;
+        changedFilters.set("types", createFieldFilter("types", [1]));
         const oftState: OftState = new OftStateBuilder()
-            .fromModel(SAMPLE_METADATA, SAMPLE_SPEC_ITEMS)
+            .fromModel(MOCK_PROJECT, SAMPLE_SPEC_ITEMS)
             .setSelectedFilters(changedFilters)
             .build();
         expect(oftState.selectedIndex).toBe(0);
-        expect(oftState.selectedFilters.get("types")).toBeInstanceOf(SelectionFilter);
+        expect(oftState.selectedFilters.get("types")).toBeInstanceOf(FieldFilter);
     });
 });

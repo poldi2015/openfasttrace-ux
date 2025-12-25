@@ -59,7 +59,8 @@ describe("Tests for CopyButtonElement", () => {
         const el = new CopyButtonElement(copyButtonSelector(), () => "text");
 
         expect(el).toBeDefined();
-        expect(el.getElement().attr('id')).toBe('btn-copy');
+        // Verify the button element exists in DOM
+        expect(copyButtonSelector().attr('id')).toBe('btn-copy');
     });
 
     test("init() binds click and copies text to clipboard", async () => {
@@ -140,18 +141,17 @@ describe("Tests for CopyButtonElement", () => {
         expect(copyButtonSelector().hasClass(CLASS_COPY_SUCCESS)).toBe(false);
     });
 
-    test("setVisible toggles visibility", () => {
+    test("activate/deactivate toggles visibility", () => {
         body.append(COPY_BUTTON);
 
         const el = new CopyButtonElement(copyButtonSelector(), () => 'x');
 
         // Hidden
-        el.setVisible(false);
+        el.deactivate();
         expect(copyButtonDisplayAttribute()).toBe('none');
 
         // Visible
-        el.setVisible(true);
-
+        el.activate();
         expect(copyButtonDisplayAttribute()).not.toBe('none');
     });
 

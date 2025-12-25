@@ -20,7 +20,25 @@
 import {describe, expect} from "vitest";
 import {test} from "@test/fixtures/fixtures";
 import {SpecItem} from "@main/model/specitems";
-import {IndexFilter, NameFilter, SelectionFilter} from "@main/model/filter";
+import {FieldFilter, IndexFilter, NameFilter} from "@main/model/filter";
+
+// Helper to create a FieldFilter with a matcher for testing
+function createTestFieldFilter(filterName: string, fieldIndexes: Array<number>): FieldFilter {
+    const matcher = (specItem: SpecItem, indexes: Array<number>): boolean => {
+        // Empty list always matches
+        if (indexes.length === 0) return true;
+
+        if (filterName.toLowerCase() === 'type' || filterName.toLowerCase() === 'types') {
+            return indexes.includes(specItem.type);
+        }
+        if (filterName.toLowerCase() === 'covered') {
+            return specItem.covered.some(id => indexes.includes(id));
+        }
+        // Unknown filter: don't match
+        return false;
+    };
+    return new FieldFilter(filterName, fieldIndexes, matcher);
+}
 
 const SampleSpecItem: SpecItem = {
     index: 1,
@@ -42,37 +60,39 @@ const SampleSpecItem: SpecItem = {
     path: ["sample", "spec", "item"],
     sourceFile: "",
     sourceLine: 0,
-    comments: ""
+    comments: "",
+    wrongLinkTypes: [],
+    wrongLinkTargets: [],
 }
 
-describe("filters SelectionFilter", () => {
-    test('test matching SelectionFilter matching type', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("type", [1, 2]).matches(SampleSpecItem);
+describe("filters FieldFilter", () => {
+    test('test matching FieldFilter matching type', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("type", [1, 2]).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeTruthy();
     });
 
-    test('test matching SelectionFilter not matching type', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("type", [7]).matches(SampleSpecItem);
+    test('test matching FieldFilter not matching type', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("type", [7]).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeFalsy();
     });
 
-    test('test matching SelectionFilter matching covered', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("covered", [2, 3]).matches(SampleSpecItem);
+    test('test matching FieldFilter matching covered', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("covered", [2, 3]).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeTruthy();
     });
 
-    test('test matching SelectionFilter not matching covered', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("covered", [6, 7]).matches(SampleSpecItem);
+    test('test matching FieldFilter not matching covered', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("covered", [6, 7]).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeFalsy();
     });
 
-    test('test matching SelectionFilter not matching unknown filter', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("any", [6, 7]).matches(SampleSpecItem);
+    test('test matching FieldFilter not matching unknown filter', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("any", [6, 7]).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeFalsy();
     });
 
-    test('test matching SelectionFilter empty list matches always', () => {
-        const typeFilterMatching: boolean = new SelectionFilter("type", []).matches(SampleSpecItem);
+    test('test matching FieldFilter empty list matches always', () => {
+        const typeFilterMatching: boolean = createTestFieldFilter("type", []).matches(SampleSpecItem);
         expect(typeFilterMatching).toBeTruthy();
     });
 });

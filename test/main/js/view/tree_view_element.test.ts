@@ -18,6 +18,8 @@ describe("TreeViewElement - Type as uppermost level", () => {
         // Create mock project with types
         project = {
             types: ["feat", "req", "arch", "dsn"],
+            typeLabels: ["Feature", "Requirement", "Architecture", "Design"],
+            typeNames: ["Feature", "Requirement", "Architecture", "Design"],
             projectName: "Test Project",
             typedFieldNames: ["type"],
             tags: [],
@@ -55,7 +57,9 @@ describe("TreeViewElement - Type as uppermost level", () => {
                 path: [],
                 sourceFile: "",
                 sourceLine: 0,
-                comments: ""
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
             },
             {
                 index: 1,
@@ -77,7 +81,9 @@ describe("TreeViewElement - Type as uppermost level", () => {
                 path: [],
                 sourceFile: "",
                 sourceLine: 0,
-                comments: ""
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
             },
             {
                 index: 2,
@@ -99,7 +105,9 @@ describe("TreeViewElement - Type as uppermost level", () => {
                 path: [],
                 sourceFile: "",
                 sourceLine: 0,
-                comments: ""
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
             },
             {
                 index: 3,
@@ -121,7 +129,9 @@ describe("TreeViewElement - Type as uppermost level", () => {
                 path: [],
                 sourceFile: "",
                 sourceLine: 0,
-                comments: ""
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
             }
         ];
 
@@ -142,10 +152,10 @@ describe("TreeViewElement - Type as uppermost level", () => {
         // Assert
         const treeHtml = $("#tree-view").html();
 
-        // Check that type names appear in the tree
-        expect(treeHtml).toContain("feat");
-        expect(treeHtml).toContain("req");
-        expect(treeHtml).toContain("arch");
+        // Check that type labels appear in the tree (not IDs)
+        expect(treeHtml).toContain("Feature");
+        expect(treeHtml).toContain("Requirement");
+        expect(treeHtml).toContain("Architecture");
     });
 
     test("should group specItems under their type", () => {
@@ -211,8 +221,7 @@ describe("TreeViewElement - Type as uppermost level", () => {
         expect(treeView.isActive()).toBe(true);
 
         treeView.deactivate();
-        // isActive always returns true in current implementation
-        expect(treeView.isActive()).toBe(true);
+        expect(treeView.isActive()).toBe(false);
     });
 
     test("should handle empty specItems array", () => {
@@ -251,7 +260,9 @@ describe("TreeViewElement - Type as uppermost level", () => {
             path: [],
             sourceFile: "",
             sourceLine: 0,
-            comments: ""
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
         };
 
         const singleItemTreeView = new TreeViewElement(
@@ -265,6 +276,6 @@ describe("TreeViewElement - Type as uppermost level", () => {
 
         // Assert
         const treeHtml = $("#tree-view").html();
-        expect(treeHtml).toContain("dsn"); // project.types[3] = "dsn"
+        expect(treeHtml).toContain("Design"); // project.typeLabels[3] = "Design"
     });
 });
