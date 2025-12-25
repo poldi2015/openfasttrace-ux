@@ -47,7 +47,7 @@ Openfasttrace UX provides a playground to try out the user interface with sample
 * &check; **Focus SpecObject**: Pin a SpecObject with double click to the top and show only SpecObjects that are covered
   by the SpecObject or SpecObject that the SpecObject covers. Own Filter selection for this view.
 * &check; **Tree View**: Treeview grouping SpecObjects by name.
-* &cross; **Details view**: View with details of the selected SpecObject.
+* &check; **Details view**: View with details of the selected SpecObject.
 * ...
 
 ## Build OFT UX
