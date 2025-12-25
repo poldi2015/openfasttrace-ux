@@ -23,6 +23,7 @@ const webpack = require('webpack');
 const common = require('./webpack.common');
 const ZipPlugin = require("zip-webpack-plugin");
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const fs = require('fs');
 const path = require('path');
 const {pathToFileURL} = require('url');
 const os = require('os');
@@ -30,6 +31,14 @@ const os = require('os');
 const MAVEN_LOCAL_URL = pathToFileURL(path.join(os.homedir(), '.m2/repository')).href;
 const DISTRIBUTION_BUILD_PATH = 'publications';
 const APPLICATION_ARTIFACT = 'openfasttrace-ux.zip';
+
+
+const pkg = JSON.parse(
+  fs.readFileSync('./package.json', 'utf8')
+);
+
+const version = pkg.version;
+console.log('App version:', version);
 
 //Configure dev environment by using common configuration and adding some more options
 module.exports = merge(common, {
@@ -52,7 +61,7 @@ module.exports = merge(common, {
                          -Dfile=build/${DISTRIBUTION_BUILD_PATH}/${APPLICATION_ARTIFACT} \
                          -DgroupId=org.itsallcode \
                          -DartifactId=openfasttrace-ux \
-                         -Dversion=0.1.0`
+                         -Dversion=${version}`
                 ],
                 blocking: false,
                 parallel: false
