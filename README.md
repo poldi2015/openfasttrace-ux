@@ -39,14 +39,14 @@ Openfasttrace UX provides a playground to try out the user interface with sample
 
 ### User Interface
 
-* &cross; **Titlebar**: Titlebar on top with project title and global buttons.
-* &cross; **Statusbar**: Statusbar at the bottom with statistics.
+* &check; **Titlebar**: Titlebar on top with project title and global buttons.
+* &check; **Statusbar**: Statusbar at the bottom with statistics.
 * &check; **Filter Sidebar**: Sidebar with filters, SpecObject table view specific.
 * &check; **SpecObject table**: Table as main UI element that lists all non-filtered SpecObjects.
 * &check; **SpecObject coverage overview**: Badges for missing deep coverage.
 * &check; **Focus SpecObject**: Pin a SpecObject with double click to the top and show only SpecObjects that are covered
   by the SpecObject or SpecObject that the SpecObject covers. Own Filter selection for this view.
-* &cross; **File Tree View**: Treeview of source files.
+* &check; **Tree View**: Treeview grouping SpecObjects by name.
 * &cross; **Details view**: View with details of the selected SpecObject.
 * ...
 
