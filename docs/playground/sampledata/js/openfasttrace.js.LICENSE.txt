@@ -30,17 +30,91 @@
  * Date: 2023-08-28T13:37Z
  */
 
+/*! !!../../../node_modules/css-loader/dist/cjs.js!../../../node_modules/resolve-url-loader/index.js!../../../node_modules/sass-loader/dist/cjs.js!./openfasttrace.scss */
+
+/*! !../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */
+
+/*! !../../../node_modules/style-loader/dist/runtime/insertBySelector.js */
+
+/*! !../../../node_modules/style-loader/dist/runtime/insertStyleElement.js */
+
+/*! !../../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */
+
+/*! !../../../node_modules/style-loader/dist/runtime/styleDomAPI.js */
+
+/*! !../../../node_modules/style-loader/dist/runtime/styleTagTransform.js */
+
+/*! ../../../node_modules/css-loader/dist/runtime/api.js */
+
+/*! ../../../node_modules/css-loader/dist/runtime/getUrl.js */
+
+/*! ../../../node_modules/css-loader/dist/runtime/sourceMaps.js */
+
 /*! ./filter_element */
 
 /*! ./oft_state_builder */
 
 /*! @css/openfasttrace.scss */
 
+/*! @images/material_account_tree.svg */
+
+/*! @images/material_article.svg */
+
+/*! @images/material_cancel_rounded.svg */
+
+/*! @images/material_center_focus.svg */
+
+/*! @images/material_chevron_back.svg */
+
+/*! @images/material_chevron_forward.svg */
+
+/*! @images/material_collapse_all.svg */
+
+/*! @images/material_content_copy.svg */
+
+/*! @images/material_dark_mode.svg */
+
+/*! @images/material_expand.svg */
+
+/*! @images/material_expand_all.svg */
+
+/*! @images/material_filter.svg */
+
+/*! @images/material_filter_off.svg */
+
+/*! @images/material_help.svg */
+
+/*! @images/material_keep.svg */
+
+/*! @images/material_keep_off.svg */
+
+/*! @images/material_light_mode.svg */
+
+/*! @images/material_minus.svg */
+
+/*! @images/material_select_all.svg */
+
+/*! @images/material_table_view.svg */
+
+/*! @images/openfasttrace_logo.svg */
+
+/*! @main/controller/keyboard_controller */
+
+/*! @main/controller/keyboard_global_handler */
+
+/*! @main/controller/keyboard_handler */
+
+/*! @main/controller/keyboard_search_handler */
+
+/*! @main/controller/keyboard_specitems_handler */
+
 /*! @main/controller/oft_state_builder */
 
 /*! @main/controller/oft_state_controller */
 
 /*! @main/controller/spec_items_controller */
+
+/*! @main/controller/theme_controller */
 
 /*! @main/model/change_event */
 
@@ -62,6 +136,8 @@
 
 /*! @main/view/button_element */
 
+/*! @main/view/copy_button_element */
+
 /*! @main/view/details_element */
 
 /*! @main/view/expandable_elements.ts */
@@ -70,13 +146,19 @@
 
 /*! @main/view/focus_spec_item_element */
 
+/*! @main/view/header_element */
+
 /*! @main/view/navbar_element */
 
 /*! @main/view/search_element */
 
+/*! @main/view/select_element */
+
 /*! @main/view/spec_item_element */
 
 /*! @main/view/spec_items_element */
+
+/*! @main/view/tree_view_element */
 
 /*! jquery */
 
@@ -133,11 +215,19 @@
   \********************************************/
 
 /*!********************************************!*\
+  !*** ./src/main/js/view/header_element.ts ***!
+  \********************************************/
+
+/*!********************************************!*\
   !*** ./src/main/js/view/navbar_element.ts ***!
   \********************************************/
 
 /*!********************************************!*\
   !*** ./src/main/js/view/search_element.ts ***!
+  \********************************************/
+
+/*!********************************************!*\
+  !*** ./src/main/js/view/select_element.ts ***!
   \********************************************/
 
 /*!*********************************************!*\
@@ -152,6 +242,10 @@
   !*** ./src/main/js/view/spec_item_element.ts ***!
   \***********************************************/
 
+/*!***********************************************!*\
+  !*** ./src/main/js/view/tree_view_element.ts ***!
+  \***********************************************/
+
 /*!************************************************!*\
   !*** ./src/main/js/model/oft_state_history.ts ***!
   \************************************************/
@@ -161,8 +255,24 @@
   \************************************************/
 
 /*!*************************************************!*\
+  !*** ./src/main/js/view/copy_button_element.ts ***!
+  \*************************************************/
+
+/*!*************************************************!*\
   !*** ./src/main/js/view/expandable_elements.ts ***!
   \*************************************************/
+
+/*!****************************************************!*\
+  !*** ./src/main/js/controller/keyboard_handler.ts ***!
+  \****************************************************/
+
+/*!****************************************************!*\
+  !*** ./src/main/js/controller/theme_controller.ts ***!
+  \****************************************************/
+
+/*!*****************************************************!*\
+  !*** ./node_modules/css-loader/dist/runtime/api.js ***!
+  \*****************************************************/
 
 /*!*****************************************************!*\
   !*** ./src/main/js/controller/oft_state_builder.ts ***!
@@ -172,10 +282,146 @@
   !*** ./src/main/js/view/focus_spec_item_element.ts ***!
   \*****************************************************/
 
+/*!*****************************************************!*\
+  !*** ./src/main/resources/images/material_help.svg ***!
+  \*****************************************************/
+
+/*!*****************************************************!*\
+  !*** ./src/main/resources/images/material_keep.svg ***!
+  \*****************************************************/
+
+/*!******************************************************!*\
+  !*** ./src/main/resources/images/material_minus.svg ***!
+  \******************************************************/
+
+/*!*******************************************************!*\
+  !*** ./src/main/js/controller/keyboard_controller.ts ***!
+  \*******************************************************/
+
+/*!*******************************************************!*\
+  !*** ./src/main/resources/images/material_expand.svg ***!
+  \*******************************************************/
+
+/*!*******************************************************!*\
+  !*** ./src/main/resources/images/material_filter.svg ***!
+  \*******************************************************/
+
+/*!********************************************************!*\
+  !*** ./node_modules/css-loader/dist/runtime/getUrl.js ***!
+  \********************************************************/
+
 /*!********************************************************!*\
   !*** ./src/main/js/controller/oft_state_controller.ts ***!
+  \********************************************************/
+
+/*!********************************************************!*\
+  !*** ./src/main/resources/images/material_article.svg ***!
   \********************************************************/
 
 /*!*********************************************************!*\
   !*** ./src/main/js/controller/spec_items_controller.ts ***!
   \*********************************************************/
+
+/*!*********************************************************!*\
+  !*** ./src/main/resources/images/material_keep_off.svg ***!
+  \*********************************************************/
+
+/*!**********************************************************!*\
+  !*** ./src/main/resources/images/material_dark_mode.svg ***!
+  \**********************************************************/
+
+/*!**********************************************************!*\
+  !*** ./src/main/resources/images/openfasttrace_logo.svg ***!
+  \**********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/js/controller/keyboard_global_handler.ts ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/js/controller/keyboard_search_handler.ts ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/resources/images/material_expand_all.svg ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/resources/images/material_filter_off.svg ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/resources/images/material_light_mode.svg ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/resources/images/material_select_all.svg ***!
+  \***********************************************************/
+
+/*!***********************************************************!*\
+  !*** ./src/main/resources/images/material_table_view.svg ***!
+  \***********************************************************/
+
+/*!************************************************************!*\
+  !*** ./node_modules/css-loader/dist/runtime/sourceMaps.js ***!
+  \************************************************************/
+
+/*!*************************************************************!*\
+  !*** ./src/main/resources/images/material_account_tree.svg ***!
+  \*************************************************************/
+
+/*!*************************************************************!*\
+  !*** ./src/main/resources/images/material_center_focus.svg ***!
+  \*************************************************************/
+
+/*!*************************************************************!*\
+  !*** ./src/main/resources/images/material_chevron_back.svg ***!
+  \*************************************************************/
+
+/*!*************************************************************!*\
+  !*** ./src/main/resources/images/material_collapse_all.svg ***!
+  \*************************************************************/
+
+/*!*************************************************************!*\
+  !*** ./src/main/resources/images/material_content_copy.svg ***!
+  \*************************************************************/
+
+/*!**************************************************************!*\
+  !*** ./src/main/js/controller/keyboard_specitems_handler.ts ***!
+  \**************************************************************/
+
+/*!***************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/styleDomAPI.js ***!
+  \***************************************************************/
+
+/*!***************************************************************!*\
+  !*** ./src/main/resources/images/material_cancel_rounded.svg ***!
+  \***************************************************************/
+
+/*!****************************************************************!*\
+  !*** ./src/main/resources/images/material_chevron_forward.svg ***!
+  \****************************************************************/
+
+/*!********************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/insertBySelector.js ***!
+  \********************************************************************/
+
+/*!*********************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/styleTagTransform.js ***!
+  \*********************************************************************/
+
+/*!**********************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/insertStyleElement.js ***!
+  \**********************************************************************/
+
+/*!****************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js ***!
+  \****************************************************************************/
+
+/*!**********************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js ***!
+  \**********************************************************************************/
+
+/*!*****************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/resolve-url-loader/index.js!./node_modules/sass-loader/dist/cjs.js!./src/main/css/openfasttrace.scss ***!
+  \*****************************************************************************************************************************************************************/
