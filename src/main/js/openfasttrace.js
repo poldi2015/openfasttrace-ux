@@ -34,6 +34,7 @@ import {TreeViewElement} from "@main/view/tree_view_element";
 import {KeyboardController} from "@main/controller/keyboard_controller";
 import {KeyboardSpecItemHandler} from "@main/controller/keyboard_specitems_handler";
 import {KeyboardGlobalHandler} from "@main/controller/keyboard_global_handler";
+import {KeyboardSearchHandler} from "@main/controller/keyboard_search_handler";
 
 function _init() {
     console.log("START");
@@ -77,7 +78,11 @@ function _init() {
     oftStateController.init();
 
     // Initialize keyboard navigation for spec items (after oftStateController.init())
-    new KeyboardController([new KeyboardGlobalHandler(), new KeyboardSpecItemHandler(oftStateController, specItemsController)]).init().activate();
+    new KeyboardController([
+        new KeyboardGlobalHandler(),
+        new KeyboardSpecItemHandler(oftStateController, specItemsController),
+        new KeyboardSearchHandler()
+    ]).init().activate();
     
     console.log("ACTIVE");
 }

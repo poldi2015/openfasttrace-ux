@@ -27,12 +27,12 @@ import {Deferred} from "@main/utils/async";
 export class SearchElement {
     constructor(
         private readonly oftState: OftStateController,
+        private readonly id = "search",
     ) {
     }
 
     private readonly log: Log = new Log("SearchFromElement");
     private inputLabel: string = "use '+' for content";
-    private formElement: HTMLElement | null = null;
     private inputElement: HTMLInputElement | null = null;
 
     private filterOrFocusChangeListener: ChangeListener = (event: ChangeEvent): void => {
@@ -70,11 +70,10 @@ export class SearchElement {
     // private members
 
     private addSearchForm(): void {
-        const searchForm: JQuery<HTMLElement> = $("#search");
-        this.formElement = searchForm[0];
+        const searchForm: JQuery = $("#search");
         searchForm.append(`
             <form class="_search">
-                <input class="_search-input" type="text" placeholder="${this.inputLabel}" tabindex="0">
+                <input id="${this.id}-input" class="_search-input" type="text" placeholder="${this.inputLabel}" tabindex="0">
                 <span class="_search-clear" type="submit"></span>
             </form>
         `);
