@@ -50,7 +50,7 @@ Openfasttrace UX provides a playground to try out the user interface with sample
 * &check; **Search**: A interactive search allows to filter items by name or content via substrings or regular expresssions.
 * &check; **Tree sidebar**: A tree groups items by type and name allowing to quickly navigate in parts of the project.
 * &check; **Details sidebar**: A details sidebar at the bottom provides a link to the source of an item and lists all false links.
-* *check; **Keybaord navigation**: The main browser and the search can be fully controlled via keyboard.
+* &check; **Keybaord navigation**: The main browser and the search can be fully controlled via keyboard.
 * &check; **Copy to clibboard**: Copy buttons allow to quickly copy central inormation to the clipboard.
 * ...
 
