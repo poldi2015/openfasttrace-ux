@@ -74,7 +74,7 @@ export class SearchElement {
         searchForm.append(`
             <form class="_search">
                 <input id="${this.id}-input" class="_search-input" type="text" placeholder="${this.inputLabel}" tabindex="0">
-                <span class="_search-clear" type="submit"></span>
+                <span id="${this.id}-input_clear" class="_search-clear" type="submit"></span>
             </form>
         `);
         const input: JQuery<HTMLInputElement> = searchForm.find("form input[type='text']") as JQuery<HTMLInputElement>;
@@ -85,9 +85,10 @@ export class SearchElement {
             deferred.run(() => this.notifyInputChanged((event.target as HTMLInputElement).value));
         });
 
-        const clear: JQuery<HTMLInputElement> = searchForm.find("form button._search-clear") as JQuery<HTMLInputElement>;
+        const clear: JQuery<HTMLInputElement> = searchForm.find(`#${this.id}-input_clear`) as JQuery<HTMLInputElement>;
         clear.on('click', (event) => {
             event.preventDefault();
+            this.log.info("clear search");
             this.notifyInputChanged("");
         });
     }
