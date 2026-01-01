@@ -6,10 +6,11 @@ const SPECITEMS_ELEMENT_ID = "#specitems";
 
 export class KeyboardSearchHandler extends KeyboardHandler {
 
-    constructor() {
+    constructor(private readonly id:string = "search") {
         super([$(SEARCH_ID)], [
                 //new Key("1", (_) => this.focusFilters()),
                 new Key("Enter", (_) => this.focusSpecItems()),
+                new Key("Escape", (_) => this.clear()),
             ],
             new Log("KeyboardGlobalController"));
     }
@@ -24,6 +25,12 @@ export class KeyboardSearchHandler extends KeyboardHandler {
 
     //
     // private members
+
+    private clear() : boolean {
+        this.log.info("Pressed Esc");
+        $(`#${this.id}-input_clear`).trigger("click");
+        return true;
+    }
 
     private focusSpecItems(): boolean {
         return this.focus(this.specItemsElements);
