@@ -19,7 +19,6 @@
 */
 import {IElement} from "@main/view/element";
 import {SpecItem, STATUS_FIELD_NAMES, TAG_FIELD_NAMES} from "@main/model/specitems";
-import {IFilterElement} from "@main/view/filter_element";
 import {Log} from "@main/utils/log";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
@@ -52,10 +51,13 @@ const ALL_TABLE_IDS: Array<string> = Array.of(
 
 
 export interface IDetailsElement extends IElement {
+    init(): IDetailsElement;
+
+    showTab(tabName: string): void;
 } // IDetailsElement
 
 export class DetailsElementFactory {
-    public build(specItems: Array<SpecItem>, project: Project, oftState: OftStateController): IFilterElement {
+    public build(specItems: Array<SpecItem>, project: Project, oftState: OftStateController): IDetailsElement {
         return new DetailsElement(specItems, project, oftState);
     }
 } // DetailsElementFactory
@@ -66,12 +68,12 @@ export class DetailsElement implements IDetailsElement {
         private readonly project: Project,
         private readonly oftState: OftStateController) {
         this.tableElement = $(DETAILS_TABLE_ID);
-        this.copyButton = new CopyButtonElement($("#details-copy-btn"), () => this.currentSpecItemId);
+        this.copyButton = new CopyButtonElement($("#details-copy-btn"), () => this.currentSpecItemName);
     }
 
     private readonly tableElement: JQuery;
     private readonly copyButton: CopyButtonElement;
-    private currentSpecItemId: string | null = null;
+    private currentSpecItemName: string | null = null;
 
     protected log: Log = new Log("DetailsElement");
 
@@ -101,35 +103,38 @@ export class DetailsElement implements IDetailsElement {
         return this.tableElement.attr("disabled") != undefined;
     }
 
+    /**
+     * Switch to the tab with the given name.
+     */
+    public showTab(tabName: string): void {
+        const tab = $(`${DETAILS_TAB_CLASS}[data-tab='${tabName}']`);
+        // Remove active class from all tabs and contents
+        $(DETAILS_TAB_CLASS).removeClass('details-tab-active');
+        $(DETAILS_TAB_CONTENT_CLASS).removeClass('details-tab-content-active');
+
+        // Add active class to clicked tab and corresponding content
+        tab.addClass('details-tab-active');
+        $(`${DETAILS_TAB_CONTENT_CLASS}[data-tab-content="${tabName}"]`).addClass('details-tab-content-active');
+    }
+
     //
     // Private members
 
     private setupTabSwitching(): void {
-        $(DETAILS_TAB_CLASS).on('click', (event) => {
-            const clickedTab = $(event.currentTarget);
-            const targetTab = clickedTab.data('tab');
-
-            // Remove active class from all tabs and contents
-            $(DETAILS_TAB_CLASS).removeClass('details-tab-active');
-            $(DETAILS_TAB_CONTENT_CLASS).removeClass('details-tab-content-active');
-
-            // Add active class to clicked tab and corresponding content
-            clickedTab.addClass('details-tab-active');
-            $(`${DETAILS_TAB_CONTENT_CLASS}[data-tab-content="${targetTab}"]`).addClass('details-tab-content-active');
-        });
+        $(DETAILS_TAB_CLASS).on('click', (event) => this.showTab($(event.currentTarget).data('tab') as string));
     }
 
     private updateTable(specItem: SpecItem | null): void {
         if (specItem == null) {
             this.log.info("Clearing description");
             this.clearTable();
-            this.currentSpecItemId = null;
+            this.currentSpecItemName = null;
             this.copyButton.deactivate();
             return;
         }
 
         this.log.info("Updating description for", specItem!.index);
-        this.currentSpecItemId = specItem!.id;
+        this.currentSpecItemName = specItem!.name != null && specItem!.name.length > 0 ? specItem!.name : specItem.id;
         $(SPECITEM_ID_CLASS).text(this.createNavHeaderLabel(specItem!));
         this.copyButton.activate();
         $(DETAILS_STATUS_ID).text(this.createStatusValue(specItem!));
@@ -152,8 +157,8 @@ export class DetailsElement implements IDetailsElement {
 
 
     private createNavHeaderLabel(specItem: SpecItem): string {
-        return specItem.title != specItem.name ?
-            `#${specItem.index} ${specItem.title} [${specItem.id}]` :
+        return specItem.id != specItem.name ?
+            `#${specItem.index} ${specItem.name} [${specItem.id}]` :
             `#${specItem.index} [${specItem.id}]`;
     }
 

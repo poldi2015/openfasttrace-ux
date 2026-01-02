@@ -1,5 +1,6 @@
 import {Key, KeyboardHandler} from "@main/controller/keyboard_handler";
 import {Log} from "@main/utils/log";
+import {IDetailsElement} from "@main/view/details_element";
 
 const SPECITEMS_ELEMENT_ID = "#specitems";
 const SIDEBAR_LEFT_ID = "#select-type";
@@ -7,13 +8,15 @@ const SEARCH_ID = "#search-input";
 
 export class KeyboardGlobalHandler extends KeyboardHandler {
 
-    constructor() {
+    constructor(private readonly detailsElement: IDetailsElement) {
         super([], [
                 //new Key("1", (_) => this.focusFilters()),
                 new Key("2", (_) => this.focusSpecItems()),
                 new Key("f", (_) => this.search()),
                 new Key("F", (_) => this.search()),
                 new Key("/", (_) => this.search()),
+                new Key("m", (_) => this.switchDetailsTab("basic")),
+                new Key("d", (_) => this.switchDetailsTab("details")),
             ],
             new Log("KeyboardGlobalController"));
     }
@@ -42,6 +45,12 @@ export class KeyboardGlobalHandler extends KeyboardHandler {
     private search(): boolean {
         this.log.info("search");
         return this.focus(this.searchElements);
+    }
+
+    private switchDetailsTab(tab: string): boolean {
+        this.log.info("switchDetailsTab", tab);
+        this.detailsElement.showTab(tab);
+        return true;
     }
 
 } // KeyboardGlobalController

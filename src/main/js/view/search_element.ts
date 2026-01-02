@@ -65,6 +65,21 @@ export class SearchElement {
         this.oftState.removeChangeListener(this.filterOrFocusChangeListener);
     }
 
+    /**
+     * Clears the content of the search.
+     */
+    public clear(): void {
+        this.log.info("clear search");
+        this.notifyInputChanged("");
+    }
+
+    /**
+     * @return true if content is entered in the earch input.
+     */
+    public hasContent(): boolean {
+        return this.inputElement != null && this.inputElement.value.length > 0;
+    }
+
 
     //
     // private members
@@ -88,8 +103,7 @@ export class SearchElement {
         const clear: JQuery<HTMLInputElement> = searchForm.find(`#${this.id}-input_clear`) as JQuery<HTMLInputElement>;
         clear.on('click', (event) => {
             event.preventDefault();
-            this.log.info("clear search");
-            this.notifyInputChanged("");
+            this.clear();
         });
     }
 
