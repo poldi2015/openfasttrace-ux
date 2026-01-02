@@ -64,7 +64,7 @@ export abstract class KeyboardHandler {
         $(document).off('keydown', this.eventHandler);
     }
 
-    private keydownHandler(event: JQuery.Event): void {
+    protected keydownHandler(event: JQuery.Event): void {
         const activeElement = document.activeElement;
         this.log.info(`keydownHandler key:`, event.key, "activeElement:", activeElement?.id, "element", this._elements);
 
