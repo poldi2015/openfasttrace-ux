@@ -53,4 +53,10 @@ export class KeyboardGlobalHandler extends KeyboardHandler {
         return true;
     }
 
+
+    protected keydownHandler(event: JQuery.Event): void {
+        const activeElement = document.activeElement;
+        if (activeElement instanceof HTMLInputElement) return;
+        super.keydownHandler(event);
+    }
 } // KeyboardGlobalController
