@@ -125,6 +125,7 @@
   @include _specitem-badge(var(--col-specitem-badge-color-covered));
   color: #1a5a1a;
   cursor: pointer;
+  position: relative;
 
   // Dark mode text color
   :root.dark-theme & {
@@ -136,6 +137,41 @@
     transform: translateY(-2px);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15),
     0 2px 4px rgba(0, 0, 0, 0.10);
+  }
+}
+
+// Coverage count badge (small circle on top right)
+._count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background-color: #1a5a1a;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+
+  :root.dark-theme & {
+    background-color: #66ac66;
+    color: #052e16;
+  }
+
+  &._count-badge-checked {
+    background-color: #5ea15e;
+
+    :root.dark-theme & {
+      background-color: #a4daa4;
+      color: #052e16;
+    }
+
   }
 }
 
@@ -157,6 +193,48 @@
   // Dark mode text color
   :root.dark-theme & {
     color: #ffffff;
+  }
+}
+
+// Covering count badge - shows number of items this specItem covers
+._covering-count-badge {
+  float: left;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin-left: 0;
+  margin-right: 10px;
+  margin-top: -8px;
+  padding: 0 6px;
+  background-color: #ffffff;
+  border: 2px solid #1a5a1a;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+  0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  color: #1a5a1a;
+  line-height: 1;
+
+  :root.dark-theme & {
+    background-color: #1a1a1a;
+    border-color: #22c55e;
+    color: #22c55e;
+  }
+
+  // Warning state when count > 3
+  &._covering-count-badge-warning {
+    border-color: #dc2626;
+    color: #dc2626;
+
+    :root.dark-theme & {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
   }
 }
 
