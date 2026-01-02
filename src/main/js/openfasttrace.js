@@ -58,7 +58,8 @@ function _init() {
     new ExpandableElements().init();
     new FiltersElement(project.fieldModels, oftStateController).init();
 
-    new SearchElement(oftStateController).init().activate();
+    const searchElement = new SearchElement(oftStateController).init();
+    searchElement.activate();
 
     const specItemsElement = new SpecItemsElement(oftStateController);
     specItemsElement.init().activate();
@@ -73,15 +74,16 @@ function _init() {
     
     initFooter(project);
 
-    new DetailsElementFactory().build(specItems, project, oftStateController).init().activate();
+    const detailsElement = new DetailsElementFactory().build(specItems, project, oftStateController).init();
+    detailsElement.activate();
 
     oftStateController.init();
 
     // Initialize keyboard navigation for spec items (after oftStateController.init())
     new KeyboardController([
-        new KeyboardGlobalHandler(),
+        new KeyboardGlobalHandler(detailsElement),
         new KeyboardSpecItemHandler(oftStateController, specItemsController),
-        new KeyboardSearchHandler()
+        new KeyboardSearchHandler(searchElement)
     ]).init().activate();
     
     console.log("ACTIVE");
