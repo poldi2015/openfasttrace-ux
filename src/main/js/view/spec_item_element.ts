@@ -32,6 +32,7 @@ const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
 export class SpecItemElement {
     public constructor(
         readonly specItem: SpecItem,
+        protected readonly specItems: Map<number, SpecItem>,
         protected readonly oftStateController: OftStateController,
         protected readonly project: Project
     ) {
@@ -272,6 +273,13 @@ export class SpecItemElement {
     protected createCoverageTemplate(): string {
         // Determine overall acceptance status
         const isFullyCovered = this.specItem.uncovered.length === 0;
+
+        // Create covering count badge (items this specItem covers)
+        const coveringCount = this.specItem.covering ? this.specItem.covering.length : 0;
+        const coveringBadge = coveringCount > 0
+            ? `<div class="_covering-count-badge${coveringCount > 3 ? ' _covering-count-badge-warning' : ''}">${coveringCount}</div>`
+            : '';
+        
         const acceptanceBadge = isFullyCovered
             ? `<div class="_specitem-accepted">✓</div>`
             : `<div class="_specitem-rejected">✗</div>`;
@@ -285,7 +293,9 @@ export class SpecItemElement {
                     case 3: // MISSING - use red color
                         return `<div id="${this.elementId}_cov${index}" class="_specitem-missing">${type.label}</div>`;
                     case 2: // COVERED - use green color
-                        return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}</div>`;
+                        const count = this.countCoveringItemsByType(index);
+                        const countBadge = count > 0 ? `<span class="_count-badge">${count}</span>` : `<span class="_count-badge _count-badge-checked">✓</span>`;
+                        return `<div id="${this.elementId}_cov${index}" class="_specitem-covered">${type.label}${countBadge}</div>`;
                     case 1: // UNCOVERED - use red color
                         return `<div id="${this.elementId}_cov${index}" class="_specitem-uncovered">${type.label}</div>`;
                     default:
@@ -293,7 +303,20 @@ export class SpecItemElement {
                 }
             }).join('');
 
-        return acceptanceBadge + typeBadges;
+        return coveringBadge + acceptanceBadge + typeBadges;
+    }
+
+    /**
+     * Count how many items in coveredBy array have the specified type
+     */
+    protected countCoveringItemsByType(typeIndex: number): number {
+        if (!this.specItem.coveredBy || this.specItem.coveredBy.length === 0) {
+            return 0;
+        }
+
+        return this.specItem.coveredBy
+            .filter((itemIndex: number) => this.specItems.get(itemIndex)?.type == typeIndex)
+            .length;
     }
 
     protected createDraftTemplate(): string {

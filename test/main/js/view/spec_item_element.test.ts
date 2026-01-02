@@ -33,6 +33,7 @@ describe("SpecItemElement - Badge Click Functionality", () => {
     let oftStateController: OftStateController;
     let project: Project;
     let specItemElement: SpecItemElement;
+    let specItems: Map<number, SpecItem>;
 
     beforeEach(() => {
         body = $("body");
@@ -100,8 +101,17 @@ describe("SpecItemElement - Badge Click Functionality", () => {
         vi.spyOn(oftStateController, 'focusItem');
         vi.spyOn(oftStateController, 'selectItem');
 
+        // Create specItems Map
+        specItems = new Map<number, SpecItem>();
+        specItems.set(0, specItem);
+
+        // Add items that cover this specItem (referenced by coveredBy array)
+        // Item 20 has type 3 (arch), Item 21 has type 3 (arch)
+        specItems.set(20, {...specItem, index: 20, type: 3} as SpecItem);
+        specItems.set(21, {...specItem, index: 21, type: 3} as SpecItem);
+
         // Create SpecItemElement
-        specItemElement = new SpecItemElement(specItem, oftStateController, project);
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
     });
 
     afterEach(() => {
@@ -200,7 +210,7 @@ describe("SpecItemElement - Badge Click Functionality", () => {
     test("Clicking covered badge when item has no covering items uses [-1]", () => {
         // Create item with no coveredBy items
         specItem.coveredBy = [];
-        specItemElement = new SpecItemElement(specItem, oftStateController, project);
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
         specItemElement.insertToAt($("#specitems"));
         specItemElement.activate();
 
@@ -306,7 +316,7 @@ describe("SpecItemElement - Badge Click Functionality", () => {
     test("Multiple covered badges can be clicked independently", () => {
         // Add another covered type to the specItem for this test
         specItem.covered = [0, 2, 1, 2, 2]; // Add more covered types
-        specItemElement = new SpecItemElement(specItem, oftStateController, project);
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
         specItemElement.insertToAt($("#specitems"));
         specItemElement.activate();
 
@@ -338,4 +348,37 @@ describe("SpecItemElement - Badge Click Functionality", () => {
             }
         }
     });
+
+    test("Covered badge displays count badge with coveredBy length", () => {
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Find a covered badge (arch at index 3)
+        const coveredBadge = $(`#to_0_cov3`);
+        expect(coveredBadge.length).toBe(1);
+
+        // Check that it contains a count badge
+        const countBadge = coveredBadge.find('._count-badge');
+        expect(countBadge.length).toBe(1);
+
+        // The count should match the coveredBy length (2 items in our test data)
+        expect(countBadge.text()).toBe('2');
+    });
+
+    test("Covered badge shows no count badge when coveredBy is empty", () => {
+        // Modify specItem to have empty coveredBy
+        specItem.coveredBy = [];
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Find a covered badge
+        const coveredBadge = $(`#to_0_cov3`);
+        expect(coveredBadge.length).toBe(1);
+
+        // Check that there's no count badge
+        const countBadge = coveredBadge.find('._coverage-count-badge');
+        expect(countBadge.length).toBe(0);
+    });
 });
+

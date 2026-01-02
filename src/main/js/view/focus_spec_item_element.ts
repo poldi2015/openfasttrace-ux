@@ -30,11 +30,12 @@ const IS_COVERED_BY_TEXT: string = ">>>>  is covered by  >>>>";
 export class FocusSpecItemElement extends SpecItemElement {
     public constructor(
         specItem: SpecItem,
+        specItems: Map<number, SpecItem>,
         private coverType: CoverType,
         oftStateController: OftStateController,
         project: Project
     ) {
-        super(specItem, oftStateController, project);
+        super(specItem, specItems, oftStateController, project);
         this.log = new Log("FocusSpecItemElement");
         this.log.info(`new FocusSpecItemElement index ${specItem.index} coverType ${coverType}`);
         this.element.find("._specitem-cover-type").html(this.coverType == CoverType.covering ? COVERING_TEXT : IS_COVERED_BY_TEXT);

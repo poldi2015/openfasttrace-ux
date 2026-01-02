@@ -61,10 +61,13 @@ export class SpecItemsController {
         this.oftStateController.addChangeListener(this.stateChangeListener, EventType.Focus, EventType.Filters, EventType.Selection);
 
         specItems.forEach((specItem: SpecItem) => {
+            this.specItems.set(specItem.index, specItem);
+        });
+
+        specItems.forEach((specItem: SpecItem) => {
             const specItemElement: SpecItemElement = this.createSpecItemElement(specItem);
             this.insertSpecItemAt(specItemElement);
             this.specItemToElement.push([specItem, specItemElement]);
-            this.specItems.set(specItem.index, specItem);
         });
     }
 
@@ -209,6 +212,7 @@ export class SpecItemsController {
     private createSpecItemElement(specItem: SpecItem): SpecItemElement {
         return new SpecItemElement(
             specItem,
+            this.specItems,
             this.oftStateController,
             this.project
         );
@@ -219,6 +223,7 @@ export class SpecItemsController {
         this.log.info("createFocusSpecItemElement index", specItem.index, "coverType", coverType);
         return new FocusSpecItemElement(
             specItem,
+            this.specItems,
             coverType,
             this.oftStateController,
             this.project
