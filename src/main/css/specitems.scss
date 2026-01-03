@@ -41,12 +41,48 @@
 }
 
 .specitem {
-  display: block;
+  display: flex;
   cursor: default;
   border-radius: 2px;
   border-bottom: dotted var(--col-border);
   border-bottom-width: 1px;
   padding: 2px 8px 4px 2px;
+  position: relative;
+}
+
+._specitem-type-bar {
+  width: 24px;
+  min-width: 24px;
+  background: linear-gradient(135deg, var(--type-color, var(--col-specitem-badge-color-covered)) 0%, color-mix(in srgb, var(--type-color, var(--col-specitem-badge-color-covered)) 70%, black) 100%);
+  border-radius: 2px 0 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-right: 8px;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+
+  :root.dark-theme & {
+    background: linear-gradient(135deg, var(--type-color, #22c55e) 0%, color-mix(in srgb, var(--type-color, #22c55e) 80%, black) 100%);
+  }
+}
+
+._specitem-type-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  user-select: none;
+  white-space: nowrap;
+  padding: 8px 0;
+}
+
+._specitem-content {
+  flex: 1;
+  min-width: 0;
 }
 
 ._specitem-header {

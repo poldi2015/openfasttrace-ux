@@ -28,6 +28,7 @@ import {CopyButtonElement} from "@main/view/copy_button_element";
 const SELECT_CLASS: string = '_specitem-selected';
 const MOUSE_ENTER_CLASS: string = '_specitem-mouse-enter';
 const MOUSE_LEAVE_CLASS: string = '_specitem-mouse-leave';
+const DEFAULT_TYPE_COLOR: string = '#938E8EFF';
 
 export class SpecItemElement {
     public constructor(
@@ -41,12 +42,14 @@ export class SpecItemElement {
         //this.log.info("SpecItemElement.constructor", project.getTypeFieldModel());
         const typeFilterModel: IField = project.getTypeFieldModel().fields[this.specItem.type];
         this.typeLabel = typeFilterModel.label ?? typeFilterModel.name ?? typeFilterModel.id;
+        this.typeColor = typeFilterModel.color;
         this.element = this.createTemplate();
     }
 
     protected log: Log = new Log("SpecItemElement");
 
     protected readonly typeLabel: string;
+    protected readonly typeColor: string | undefined;
     protected readonly element;
     protected parentElement: JQuery | null = null;
     protected readonly elementId: string;
@@ -247,10 +250,14 @@ export class SpecItemElement {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
         const title: string = this.specItem.title != this.specItem.name ? `<b>${this.specItem.title}</b><br><br>` : '';
+        const typeColorStyle = this.typeColor ? ` style="--type-color: ${this.typeColor}"` : ` style="--type-color: ${DEFAULT_TYPE_COLOR}"`;
 
         const template: JQuery = $(`
             <div class="specitem" id="${this.elementId}">
-                <div style="position:relative">    
+                <div class="_specitem-type-bar"${typeColorStyle} title="${this.typeLabel}">
+                    <span class="_specitem-type-text">${this.typeLabel}</span>
+                </div>
+                <div class="_specitem-content">
                     <div class="_specitem-header">
                         <div class="_specitem-name">[${this.specItem.id}]</div>
                         <span class="_copy-btn-sm" title="Copy ID to clipboard">
@@ -277,7 +284,7 @@ export class SpecItemElement {
         // Create covering count badge (items this specItem covers)
         const coveringCount = this.specItem.covering ? this.specItem.covering.length : 0;
         const coveringBadge = coveringCount > 0
-            ? `<div class="_covering-count-badge${coveringCount > 3 ? ' _covering-count-badge-warning' : ''}">${coveringCount}</div>`
+            ? `<div class="_covering-count-badge${coveringCount > this.project.configuration.project.maxcovering ? ' _covering-count-badge-warning' : ''}">${coveringCount}</div>`
             : '';
         
         const acceptanceBadge = isFullyCovered
