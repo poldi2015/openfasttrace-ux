@@ -1,10 +1,7 @@
 (function (window) {
     window.metadata = {
         project: {
-            name: "project-2501-131527",
-            item_count: 500,
-            item_covered: 300,
-            item_uncovered: 200,
+            maxcovering: 3,
         },
         fields: {
             type: [
@@ -16,12 +13,15 @@
                 {
                     id: "req",
                     name: "Requirement",
+                    label: "Req",
                     tooltip: "A customer requirement.",
+                    color: "#759e75",
                 },
                 {
                     id: "arch",
                     name: "Architecture",
                     tooltip: "A requirement within an architecture document.",
+                    color: "orange",
                 },
                 {
                     id: "dsn",
@@ -41,7 +41,16 @@
                 {
                     id: "itest",
                     name: "Integration Test",
+                    label: "Int Test",
                     tooltip: "An Integration Test implementation.",
+                    color: "#ac80a9",
+                },
+                {
+                    id: "test",
+                    name: "Comp Test",
+                    label: "Comp Test",
+                    tooltip: "An Integration Test implementation.",
+                    color: "#766d9c",
                 },
                 {
                     id: "stest",

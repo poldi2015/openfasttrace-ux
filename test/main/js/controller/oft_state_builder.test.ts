@@ -92,7 +92,10 @@ const PROJECT_META_DATA: IProjectMetaData = {
 const mockMatcher = () => true;
 const MOCK_PROJECT: Project = new Project(
     PROJECT_META_DATA,
-    SAMPLE_METADATA,
+    {
+        project: {maxcovering: 3},
+        fields: SAMPLE_METADATA
+    },
 );
 
 const GOLDEN_MASTER_FILTER_WITHOUT_VALUES: Map<string, FieldFilter> = new Map(

@@ -9,6 +9,14 @@ import {
 import {FieldFilter, FieldFilterMatcher, Filter} from "@main/model/filter";
 import {Log} from "@main/utils/log";
 
+export interface IConfiguration {
+    project: IConfigurationProject,
+    fields: FieldMetaData,
+}
+
+export interface IConfigurationProject {
+    maxcovering: number,
+}
 /**
  * List of all available filters with selectable entries.
  *
@@ -127,7 +135,7 @@ export class Field implements IField {
 export class Project {
     constructor(
         public readonly project: IProjectMetaData,
-        private readonly fieldMetaData: FieldMetaData
+        public readonly configuration: IConfiguration
     ) {
         // Populate fieldModels (e.g. used for filters)
         this.addFieldModel(TYPE_FIELD_NAME, project.types, project.type_count, Project.createTypeFieldFilterMatcher());
@@ -179,7 +187,7 @@ export class Project {
                           fieldIds: Array<string>,
                           fieldCounts: Array<number>,
                           matcher: FieldFilterMatcher): void {
-        this.fieldModels.set(id, new FieldModel(id, this.createFields(fieldIds, this.fieldMetaData[id], fieldCounts), matcher));
+        this.fieldModels.set(id, new FieldModel(id, this.createFields(fieldIds, this.configuration.fields[id], fieldCounts), matcher));
     }
 
     /**

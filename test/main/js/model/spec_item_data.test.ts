@@ -22,7 +22,10 @@ describe("Tests for SpecItemMetaData", () => {
             tag_count: [],
             wronglink_count: []
         };
-        const metaData = new Project(projectData, metadata.filters);
+        const metaData = new Project(projectData, {
+            project: {maxcovering: 3},
+            fields: metadata.filters
+        });
 
         expect(metaData.project.projectName).toBe(project.projectName);
         expect(metaData.project.types).toStrictEqual(project.types);
