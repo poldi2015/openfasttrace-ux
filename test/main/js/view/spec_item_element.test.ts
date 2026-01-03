@@ -80,6 +80,10 @@ describe("SpecItemElement - Badge Click Functionality", () => {
             itemCovered: 1,
             itemUncovered: 0,
             fieldModels: new Map(),
+            configuration: {
+                project: {maxcovering: 3},
+                fields: {}
+            },
             getTypeFieldModel: vi.fn().mockReturnValue({
                 fields: [
                     {id: "0", label: "variants", name: "variants", tooltip: "", item_count: 0},

@@ -45,7 +45,7 @@ function _init() {
     const specItems = window.specitem.specitems;
     const project = new Project(
         window.specitem.project,
-        window.metadata.fields
+        window.metadata
     );
 
     const oftStateBuilder = new OftStateBuilder().fromModel(project, specItems);

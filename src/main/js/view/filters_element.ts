@@ -19,7 +19,7 @@
 */
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {FieldMetaData, FieldModel} from "@main/model/project";
+import {FieldModel} from "@main/model/project";
 
 /**
  * Populates the Filter UI with the corresponding filter elements based on the {@link FieldMetaData}.
