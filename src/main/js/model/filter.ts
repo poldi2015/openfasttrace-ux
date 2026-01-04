@@ -83,8 +83,11 @@ export class FieldFilter extends Filter {
 export class IndexFilter extends Filter {
     public static readonly FILTER_NAME: string = "%index%";
 
-    constructor(private readonly acceptedIndexes: Array<number> | null) {
+    constructor(private readonly acceptedIndexes: Array<number> | null = null, indexFilter: IndexFilter | null = null) {
         super(IndexFilter.FILTER_NAME);
+        if (indexFilter != null && indexFilter.acceptedIndexes) {
+            this.acceptedIndexes = acceptedIndexes != null ? [...indexFilter.acceptedIndexes, ...acceptedIndexes] : indexFilter.acceptedIndexes;
+        }
     }
 
     public matches(specItem: SpecItem): boolean {

@@ -23,7 +23,7 @@ import {OftStateController} from "@main/controller/oft_state_controller";
 import {Project} from "@main/model/project";
 import {Log} from "@main/utils/log";
 import {ChangeEvent, EventType} from "@main/model/change_event";
-import {Filter, isMatchingAllFilters} from "@main/model/filter";
+import {Filter, IndexFilter, isMatchingAllFilters} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 
 interface TreeNode {
@@ -59,6 +59,7 @@ export class TreeViewElement {
     private indexCounter: number = 0;
     private suppressSelectionEvent: boolean = false;
     private selectedTreeNode: JQuery | null = null;
+    private focusedIndex: number | null = null;
 
     public init(): TreeViewElement {
         // Initialize navbar first to create buttons
@@ -73,7 +74,7 @@ export class TreeViewElement {
         this.renderTree();
 
         this.oftStateController.addChangeListener((event: ChangeEvent) => this.handleSelectionChange(event), EventType.Selection);
-        this.oftStateController.addChangeListener((event: ChangeEvent) => this.handleFilterChange(event), EventType.Filters);
+        this.oftStateController.addChangeListener((event: ChangeEvent) => this.handleFilterFocusChange(event), EventType.Focus, EventType.Filters);
 
         return this;
     }
@@ -100,13 +101,13 @@ export class TreeViewElement {
      * Excludes the last token from the path. Limits depth to MAX_TREE_DEPTH levels.
      */
     private buildOrUpdateTreeModel(selectedFilters: Array<[string, Filter]> | null): void {
-        this.log.info("Building tree from", this.specItems.length, "specItems");
+        this.log.info("buildOrUpdateTreeModel", this.specItems.length, "filters", selectedFilters);
 
         this.resetTreeNodes(this.rootNodes, selectedFilters); // clear counters in case the model was already generated
 
         this.indexCounter = 0;
         this.specItems.forEach(specItem => {
-            if (selectedFilters != null && !isMatchingAllFilters(specItem, selectedFilters)) return;
+            //if (selectedFilters != null && !isMatchingAllFilters(specItem, selectedFilters)) return;
             const pathTokens = this.splitSpecItemNameIntoPath(specItem.name);
             if (pathTokens.length < 1) return;
 
@@ -142,7 +143,7 @@ export class TreeViewElement {
         level: number,
         levelNodes: Map<string, TreeNode>,
         parentPath: string,
-        selectedFilters: Array<[string, Filter]> | null
+        selectedFilters: Array<[string, Filter]> | null,
     ): void {
         if (pathTokens.length === 0 || level >= MAX_TREE_DEPTH + 1) return;
 
@@ -329,12 +330,32 @@ export class TreeViewElement {
     /**
      * Handles filter change events and updates counts
      */
-    private handleFilterChange(event: ChangeEvent): void {
+    private handleFilterFocusChange(event: ChangeEvent): void {
         event.handleFilterChange((filters, _) => {
             this.log.info("Tree filter change", filters);
-            this.buildOrUpdateTreeModel(Array.from(filters));
+            event.handleFocusChange((focus) => {
+                this.log.info("handleFilterFocusChange", focus);
+                this.focusedIndex = focus;
+                this.log.info("handleFilterFocusChange", filters);
+            });
+            this.buildOrUpdateTreeModel(this.mergeIntoIndexFilters(filters, this.focusedIndex));
             this.updateRenderedNodes(this.rootNodes);
         });
+    }
+
+    /**
+     * Merge the given index into the IndexFilter that is part of the filters or create a new IndexFilter if needed.
+     *
+     * @param filters The list of existing filters or null of not set
+     * @param index The index to add to the IndexFilter or null if none to add
+     * @private The new filters or null if both filters and index are null
+     */
+    private mergeIntoIndexFilters(filters: Map<string, Filter> | null, index: number | null): Array<[string, Filter]> | null {
+        if (index == null) return filters != null ? Array.from(filters) : null;
+        if (filters == null) filters = new Map<string, Filter>();
+        const indexFilter = filters.get(IndexFilter.FILTER_NAME) as IndexFilter ?? new IndexFilter();
+        filters.set(IndexFilter.FILTER_NAME, new IndexFilter(Array.of(index), indexFilter));
+        return Array.from(filters);
     }
 
     /**
