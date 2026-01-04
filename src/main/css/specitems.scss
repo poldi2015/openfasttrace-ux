@@ -88,7 +88,7 @@
 ._specitem-header {
   min-height: 24px;
   max-width: calc(100% - 10px);
-  padding: 8px 8px 6px 10px;
+  padding: 12px 4px 6px 10px;
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -107,7 +107,7 @@
   color: var(--col-specitem-name);
   height: auto;
   margin-left: 5px;
-  padding: 2px 4px 2px 4px;
+  padding: 0 4px 2px 4px;
 }
 
 ._specitem-status {
@@ -411,6 +411,7 @@
 ._focuspecitem-item {
   position: relative;
   display: flex;
+  padding: 2px 8px 2px 2px;
   width: 100%;
   flex: 1;
 }
