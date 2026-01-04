@@ -404,6 +404,15 @@
   border: solid 1px var(--col-specitem-focus-border);
   border-radius: 8px;
   background-color: var(--col-specitem-focus);
+  display: flex;
+  flex-direction: column;
+}
+
+._focuspecitem-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex: 1;
 }
 
 ._specitem-cover-type {
@@ -413,6 +422,7 @@
   font-size: 14px;
   padding: 5px 4px 5px 4px;
   background-color: var(--col-specitem-focus-border);
+  width: 100%;
 }
 
 ._specitem-selected._focuspecitem {
