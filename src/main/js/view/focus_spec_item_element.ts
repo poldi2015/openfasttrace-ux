@@ -109,21 +109,28 @@ export class FocusSpecItemElement extends SpecItemElement {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
         const coverType: string = this.createCoverTypeTemplate();
+        const title: string = this.specItem.title != this.specItem.name ? `<b>${this.specItem.title}</b><br><br>` : '';
+        const typeColorStyle = this.typeColor ? ` style="--type-color: ${this.typeColor}"` : '';
+
         const template: JQuery = $(`
             <div class="specitem _focuspecitem" id="${this.elementId}">
-                <div style="position:relative">    
-                    <div class="_specitem-pin _img-button-unpin">
+                <div class="_focuspecitem-item">
+                    <div class="_specitem-type-bar"${typeColorStyle} title="${this.typeLabel}">
+                        <span class="_specitem-type-text">${this.typeLabel}</span>
                     </div>
-                    <div class="_specitem-header">
-                        <div class="_specitem-name">[${this.typeLabel}:${this.specItem.title}${this.specItem.version > 1 ? ":" + this.specItem.version : ""}]</div>
-                        <span class="_copy-btn-sm" title="Copy ID to clipboard">
-                            <span class="_img-content-copy"></span>
-                        </span>
-                        ${draft}
-                        <div class="_specitem-status">${coverageTemplate}</div>                    
-                    </div>
-                    <div class="_specitem-body">
-                        ${this.specItem.content}                
+                    <div class="_specitem-content">
+                        <div class="_specitem-header">
+                            <div class="_specitem-name">[${this.specItem.id}]</div>
+                            <span class="_copy-btn-sm" title="Copy ID to clipboard">
+                                <span class="_img-content-copy"></span>
+                            </span>
+                            ${draft}
+                            <div class="_specitem-status">${coverageTemplate}</div>
+                        </div>
+                        <div class="_specitem-body">
+                            ${title}
+                            ${this.specItem.content}                
+                        </div>
                     </div>
                 </div>                
                 ${coverType}
