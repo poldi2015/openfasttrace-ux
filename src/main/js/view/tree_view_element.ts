@@ -29,7 +29,7 @@ import {NavbarElement} from "@main/view/navbar_element";
 interface TreeNode {
     index: number;
     name: string;
-    firstIndex: number;
+    firstIndex: number | null;
     children: Map<string, TreeNode>;
     level: number;
     fullPath: string;
@@ -114,7 +114,7 @@ export class TreeViewElement {
             const typeName = this.project.typeLabels[specItem.type];
             const fullPath = [typeName, ...pathTokens];
 
-            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes, '');
+            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes, '', selectedFilters);
         });
 
         this.log.info("Tree built with", this.rootNodes.size, "root nodes");
@@ -141,7 +141,8 @@ export class TreeViewElement {
         specItem: SpecItem,
         level: number,
         levelNodes: Map<string, TreeNode>,
-        parentPath: string
+        parentPath: string,
+        selectedFilters: Array<[string, Filter]> | null
     ): void {
         if (pathTokens.length === 0 || level >= MAX_TREE_DEPTH + 1) return;
 
@@ -155,21 +156,24 @@ export class TreeViewElement {
             node = {
                 index: this.indexCounter++,
                 name: token,
-                firstIndex: specItem.index,
+                firstIndex: null,
                 children: new Map(),
                 level: level,
                 fullPath: fullPath,
-                specItemCount: 1,
-                selectable: true
+                specItemCount: 0,
+                selectable: false
             };
             levelNodes.set(token, node);
-        } else {
+        }
+        if (selectedFilters == null || isMatchingAllFilters(specItem, selectedFilters)) {
+            if (node.firstIndex == null) node.firstIndex = specItem.index;
             node.specItemCount++;
+            node.selectable = true;
         }
 
         // If this is the last token in the path, add the specItem here
         if (remainingTokens.length != 0 || level >= MAX_TREE_DEPTH) {
-            this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath);
+            this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath, selectedFilters);
         }
     }
 
@@ -179,7 +183,8 @@ export class TreeViewElement {
     private resetTreeNodes(nodes: Map<string, TreeNode>, selectedFilters: Array<[string, Filter]> | null): void {
         nodes.forEach(node => {
             node.specItemCount = 0;
-            node.selectable = selectedFilters == null || isMatchingAllFilters(this.specItems[node.firstIndex], selectedFilters);
+            node.firstIndex = null;
+            node.selectable = false;
             if (node.children.size > 0) {
                 this.resetTreeNodes(node.children, selectedFilters);
             }
@@ -221,7 +226,7 @@ export class TreeViewElement {
         sortedNodes.forEach(([_, node]) => {
             const hasChildren = node.children.size > 0;
 
-            html += `<li class="tree-node" id="tn_${node.index}" data-level="${node.level}" data-itemIndex="${node.firstIndex}" data-path="${node.fullPath}">`;
+            html += `<li class="tree-node" id="tn_${node.index}" data-level="${node.level}" data-itemindex="${node.firstIndex ?? ''}" data-path="${node.fullPath}">`;
 
             // Node label with expand/collapse icon
             html += `<div class="tree-node-label">`;
@@ -261,6 +266,8 @@ export class TreeViewElement {
         Array.from(nodes.entries()).forEach(([_, node]) => {
             const treeNodeElement = this.treeViewElement.find(`#tn_${node.index}.tree-node`);
             const counterElement = treeNodeElement?.find("> .tree-node-label > .tree-node-count");
+            treeNodeElement?.attr('data-itemindex', node.firstIndex ?? '');
+            treeNodeElement?.attr('data-kram', node.firstIndex ?? '');
             counterElement?.text(`(${node.specItemCount})`);
             treeNodeElement.toggleClass('tree-node-disabled', !node.selectable || node.specItemCount === 0);
             this.updateRenderedNodes(node.children);
@@ -301,8 +308,8 @@ export class TreeViewElement {
      * Finds the first specItem index in a node by extracting it from the node's id attribute
      */
     private findFirstSpecItemInNode(treeNode: JQuery): number | null {
-        const treeItemIndex = treeNode.attr('data-itemIndex');
-        return treeItemIndex != null ? parseInt(treeItemIndex, 10) : null;
+        const treeItemIndex = treeNode.attr('data-itemindex');
+        return treeItemIndex != null && treeItemIndex != '' ? parseInt(treeItemIndex, 10) : null;
     }
 
     /**
