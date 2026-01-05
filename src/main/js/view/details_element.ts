@@ -18,7 +18,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {IElement} from "@main/view/element";
-import {SpecItem, STATUS_FIELD_NAMES, TAG_FIELD_NAMES} from "@main/model/specitems";
+import {SpecItem, STATUS_FIELD_NAMES, TAG_FIELD_NAMES, WRONG_LINK_FIELD_NAME} from "@main/model/specitems";
 import {Log} from "@main/utils/log";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {ChangeEvent, ChangeListener, EventType} from "@main/model/change_event";
@@ -31,8 +31,11 @@ const DETAILS_STATUS_ID = "#details-status";
 const DETAILS_NEEDS_ID = "#details-needs";
 const DETAILS_COVERS_ID = "#details-covers";
 const DETAILS_TAGS_ID = "#details-tags";
+const DETAILS_WRONG_VERSION_LABEL = "#details-wrong-version-label";
 const DETAILS_WRONG_VERSION_ID = "#details-wrong-version";
+const DETAILS_WRONG_ORPHAN_LABEL = "#details-wrong-orphan-label";
 const DETAILS_WRONG_ORPHAN_ID = "#details-wrong-orphan";
+const DETAILS_WRONG_UNWANTED_LABEL = "#details-wrong-unwanted-label";
 const DETAILS_WRONG_UNWANTED_ID = "#details-wrong-unwanted";
 const DETAILS_SOURCE_ID = "#details-source";
 const DETAILS_COMMENTS_ID = "#details-comments";
@@ -141,13 +144,27 @@ export class DetailsElement implements IDetailsElement {
         $(DETAILS_NEEDS_ID).text(this.createTypesValue(specItem!.needs));
         $(DETAILS_COVERS_ID).text(this.createTypesValue(specItem!.provides));
         $(DETAILS_TAGS_ID).text(this.createTagsValue(specItem!));
+        $(DETAILS_WRONG_VERSION_LABEL).text(this.createWrongLinkLabel("version"));
         $(DETAILS_WRONG_VERSION_ID).html(this.createWrongLinksValues(specItem!, "version"));
+        $(DETAILS_WRONG_ORPHAN_LABEL).text(this.createWrongLinkLabel("orphaned"));
         $(DETAILS_WRONG_ORPHAN_ID).html(this.createWrongLinksValues(specItem!, "orphaned"));
+        $(DETAILS_WRONG_UNWANTED_LABEL).text(this.createWrongLinkLabel("unwanted"));
         $(DETAILS_WRONG_UNWANTED_ID).html(this.createWrongLinksValues(specItem!, "unwanted"));
         $(DETAILS_SOURCE_ID).html(this.createSourceValue(specItem!));
         $(DETAILS_COMMENTS_ID).html(this.createCommentsValue(specItem!));
         this.replaceHyperlinkedSpecItems($(DETAILS_DEPENDENCIES_ID), specItem!.depends);
         this.attachWrongLinkCopyButtons();
+    }
+
+    /**
+     * Extract the label a a wrongLink type from the project configuration.
+     */
+    private createWrongLinkLabel(type: string): string {
+        this.log.info("createWrongLinkLabel", this.project.fieldModels.get(WRONG_LINK_FIELD_NAME)?.fields);
+        const fields = this.project.fieldModels.get(WRONG_LINK_FIELD_NAME)?.fields;
+        if (fields == null) return "1" + type;
+        const typeField = fields!!.filter((field) => field.id === type);
+        return typeField.length > 0 && typeField[0].name ? typeField[0].name : "2" + type;
     }
 
     private clearTable(): void {
