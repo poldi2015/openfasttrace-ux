@@ -60,6 +60,7 @@ export class TreeViewElement {
     private suppressSelectionEvent: boolean = false;
     private selectedTreeNode: JQuery | null = null;
     private focusedIndex: number | null = null;
+    private hideEmptyNodes: boolean = false;
 
     public init(): TreeViewElement {
         // Initialize navbar first to create buttons
@@ -69,6 +70,7 @@ export class TreeViewElement {
         this.navbarElement.setChangeListener("tree-expand-all", () => this.expandAll());
         this.navbarElement.setChangeListener("tree-collapse-all", () => this.collapseAll());
         this.navbarElement.setChangeListener("btn-tree-scroll-to-selection", () => this.scrollToSelection());
+        this.navbarElement.setChangeListener("tree-hide-empty", (_, state: boolean) => this.updateHideEmptyNodes(state));
         
         this.buildOrUpdateTreeModel(null);
         this.renderTree();
@@ -268,9 +270,13 @@ export class TreeViewElement {
             const treeNodeElement = this.treeViewElement.find(`#tn_${node.index}.tree-node`);
             const counterElement = treeNodeElement?.find("> .tree-node-label > .tree-node-count");
             treeNodeElement?.attr('data-itemindex', node.firstIndex ?? '');
-            treeNodeElement?.attr('data-kram', node.firstIndex ?? '');
             counterElement?.text(`(${node.specItemCount})`);
             treeNodeElement.toggleClass('tree-node-disabled', !node.selectable || node.specItemCount === 0);
+            if (this.hideEmptyNodes) {
+                treeNodeElement.toggle(node.selectable);
+            } else {
+                treeNodeElement.toggle(true);
+            }
             this.updateRenderedNodes(node.children);
         });
     }
@@ -487,6 +493,16 @@ export class TreeViewElement {
 
     private scrollToSelection(): void {
         this.scrollToNodeSelected(this.selectedTreeNode);
+    }
+
+    /**
+     * Hide or unhide empty nodes.
+     *
+     * @param hide true to hide all nodes that have 0 specItems
+     */
+    private updateHideEmptyNodes(hide: boolean): void {
+        this.hideEmptyNodes = hide;
+        this.updateRenderedNodes(this.rootNodes);
     }
 
 
