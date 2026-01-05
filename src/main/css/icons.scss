@@ -194,3 +194,8 @@ span.sidebar-logo {
   @extend %icon-image;
   background-image: url("~@images/material_collapse_all.svg");
 }
+
+.img-tree-hide-empty {
+  @extend %icon-image;
+  background-image: url("~@images/material_hide.svg");
+}
