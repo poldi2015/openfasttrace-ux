@@ -77,7 +77,7 @@ export class ButtonElement {
         return this._isOn;
     }
 
-    public toggle(on: boolean = this._isOn): boolean {
+    public toggle(on: boolean = !this._isOn): boolean {
         if (this.buttonType === ButtonType.PRESS) return false;
         if (this._isOn === on) return on;
         this._isOn = on;
