@@ -162,9 +162,8 @@ export class DetailsElement implements IDetailsElement {
     private createWrongLinkLabel(type: string): string {
         this.log.info("createWrongLinkLabel", this.project.fieldModels.get(WRONG_LINK_FIELD_NAME)?.fields);
         const fields = this.project.fieldModels.get(WRONG_LINK_FIELD_NAME)?.fields;
-        if (fields == null) return "1" + type;
         const typeField = fields!!.filter((field) => field.id === type);
-        return typeField.length > 0 && typeField[0].name ? typeField[0].name : "2" + type;
+        return typeField.length > 0 && typeField[0].name ? typeField[0].name : type;
     }
 
     private clearTable(): void {
