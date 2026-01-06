@@ -197,7 +197,7 @@ describe("Tests for HeaderElement", () => {
         themeButton.trigger('click');
         const stateAfterFirstClick = themeButton.hasClass("nav-btn-on");
         // State should have toggled
-        expect(stateAfterFirstClick).toBe(initialState);
+        expect(stateAfterFirstClick).toBe(!initialState);
 
         // Click to toggle back
         themeButton.trigger('click');
