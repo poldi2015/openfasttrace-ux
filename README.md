@@ -45,14 +45,21 @@ Openfasttrace UX provides a playground to try out the user interface with sample
 * &check; **Filter sidebar**: Sidebar to the left allows to filter all items by key attributes.
 * &check; **Item browser**: The central part of thr UI list all requirements and other artifacts like test cases.
   * &check; **Item state**: Badges indicate the linkagle state of each item.
+  * &check; **Statistics**: Number covewred and covering items for each entry.
+  * &check; **Item type**: Colored type markers to easy identify the item type.
   * &check; **Focus item**: An item can be pinned to show all its linked items.
 * &check; **Navigation history**: The UI records all navigation steps allowing to jump back and forward in history.
 * &check; **Search**: A interactive search allows to filter items by name or content via substrings or regular expresssions.
-* &check; **Tree sidebar**: A tree groups items by type and name allowing to quickly navigate in parts of the project.
+* &check; **Tree sidebar**: A tree groups items by type and name allowing to quickly navigate in parts of the project. Dynamic adation to the filter state.
 * &check; **Details sidebar**: A details sidebar at the bottom provides a link to the source of an item and lists all false links.
-* &check; **Keybaord navigation**: The main browser and the search can be fully controlled via keyboard.
+* &check; **Keyboard navigation**: The main browser and the search can be fully controlled via keyboard.
 * &check; **Copy to clibboard**: Copy buttons allow to quickly copy central inormation to the clipboard.
-* ...
+* &check; **Configuration**: Adapt naming of all types, setup covering.
+* &cross; **File tree**: Tree Sidebar grouping items by path.
+* &cross; **Filter by tree**: Show only items beneath a selected tree node.
+* &cross; **Endless scrolling**: Support for large models by endless scrolling functionality.
+* &cross; **Full keyboard shoretcut support**: Keyboard shortcuts for all functionality.
+* &cross; **Help**: Help window shoing all keyboard shortcusts.
 
 ## Build OFT UX
 
