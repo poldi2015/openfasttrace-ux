@@ -120,7 +120,7 @@ export class SelectElement implements ISelectElement {
      */
     public updateSelection(): void {
         this.updateDisplay();
-        this.notifyChange();
+        //this.notifyChange();
     }
 
     /**
