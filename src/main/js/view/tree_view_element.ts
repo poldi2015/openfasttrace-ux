@@ -358,10 +358,10 @@ export class TreeViewElement {
      */
     private mergeIntoIndexFilters(filters: Map<string, Filter> | null, index: number | null): Array<[string, Filter]> | null {
         if (index == null) return filters != null ? Array.from(filters) : null;
-        if (filters == null) filters = new Map<string, Filter>();
-        const indexFilter = filters.get(IndexFilter.FILTER_NAME) as IndexFilter ?? new IndexFilter();
-        filters.set(IndexFilter.FILTER_NAME, new IndexFilter(Array.of(index), indexFilter));
-        return Array.from(filters);
+        const mergedFilters = filters != null ? new Map(filters) : new Map<string, Filter>();
+        const indexFilter = mergedFilters.get(IndexFilter.FILTER_NAME) as IndexFilter ?? new IndexFilter();
+        mergedFilters.set(IndexFilter.FILTER_NAME, new IndexFilter(Array.of(index), indexFilter));
+        return Array.from(mergedFilters);
     }
 
     /**

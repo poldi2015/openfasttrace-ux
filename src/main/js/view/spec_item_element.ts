@@ -152,11 +152,11 @@ export class SpecItemElement {
                 case CoverType.covering:
                     // indexes need to have at least on entry to filter out all other indexes. -1 will never match
                     this.log.info("covering ", this.specItem.covering);
-                    return this.specItem.covering.length > 0 ? this.specItem.covering : [-1];
+                    return this.specItem.covering.length > 0 ? [...this.specItem.covering] : [-1];
                 case CoverType.coveredBy:
                     // indexes need to have at least on entry to filter out all other indexes. -1 will never match
                     this.log.info("coveredBy ", this.specItem.coveredBy);
-                    return this.specItem.coveredBy.length > 0 ? this.specItem.coveredBy : [-1];
+                    return this.specItem.coveredBy.length > 0 ? [...this.specItem.coveredBy] : [-1];
                 default:
                     // Default means any: return all items
                     this.log.info("any");

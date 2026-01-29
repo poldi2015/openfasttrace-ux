@@ -18,6 +18,7 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 import {Filter} from "@main/model/filter";
+import {copyMap} from "@main/utils/collections";
 
 export type FilterName = string;
 export type SelectedFilterIndexes = Array<number>;
@@ -40,18 +41,18 @@ export class OftState {
     public clone(): OftState {
         return new OftState(
             this._selectedIndex,
-            new Map(this._selectedFilters),
+            copyMap(this._selectedFilters),
             this._focusIndex,
-            new Map(this._unfocusedFilters),
+            copyMap(this._unfocusedFilters),
             this._coverType
         );
     }
 
     public copyFrom(other: OftState) {
         this._selectedIndex = other._selectedIndex;
-        this._selectedFilters = new Map(other._selectedFilters);
+        this._selectedFilters = copyMap(other._selectedFilters);
         this._focusIndex = other._focusIndex;
-        this._unfocusedFilters = new Map(other._unfocusedFilters);
+        this._unfocusedFilters = copyMap(other._unfocusedFilters);
         this._coverType = other._coverType;
     }
 

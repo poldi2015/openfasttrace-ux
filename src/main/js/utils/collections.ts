@@ -18,6 +18,9 @@
  <http://www.gnu.org/licenses/gpl-3.0.html>.
 */
 
+import {Filter} from "@main/model/filter";
+import {FilterName} from "@main/model/oft_state";
+
 /**
  * Add an entry to a possible undefined array.
  *
@@ -60,4 +63,13 @@ export function enumNames<T extends EnumType>(enumType: T): (T[keyof T])[] {
  */
 export function enumIds<T extends EnumType>(enumType: T): Array<number> {
     return Object.keys(enumType).filter(key => !isNaN(Number(key))).map((entry: string) => Number(entry));
+}
+
+/**
+ * Makes a shallow copy of a Map.
+ * Note: The Map is copied but the values (Filter objects) are shared references.
+ * This is intentional as Filter objects are treated as immutable.
+ */
+export function copyMap(original: Map<FilterName, Filter>): Map<FilterName, Filter> {
+    return new Map(original);
 }
