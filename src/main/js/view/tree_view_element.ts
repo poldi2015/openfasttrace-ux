@@ -60,7 +60,7 @@ export class TreeViewElement {
     private suppressSelectionEvent: boolean = false;
     private selectedTreeNode: JQuery | null = null;
     private focusedIndex: number | null = null;
-    private hideEmptyNodes: boolean = false;
+    private hideEmptyNodes: boolean = true;
 
     public init(): TreeViewElement {
         // Initialize navbar first to create buttons
