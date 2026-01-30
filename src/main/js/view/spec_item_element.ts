@@ -56,6 +56,7 @@ export class SpecItemElement {
     protected selected: boolean = false;
     private _isActive: boolean = false;
     private copyButton: CopyButtonElement | null = null;
+    private titleCopyButton: CopyButtonElement | null = null;
 
     /**
      * Inserts the specitem at a specific position into the children of the parentElement.
@@ -249,7 +250,10 @@ export class SpecItemElement {
     protected createTemplate(): JQuery {
         const coverageTemplate: string = this.createCoverageTemplate();
         const draft: string = this.createDraftTemplate();
-        const title: string = this.specItem.title != this.specItem.name ? `<b>${this.specItem.title}</b><br><br>` : '';
+        const hasTitleDifferentFromName = this.specItem.title != this.specItem.name;
+        const title: string = hasTitleDifferentFromName ? `<b>${this.specItem.title}</b>` : '';
+        const titleCopyButton: string = hasTitleDifferentFromName ? `<span class="_copy-btn-sm _copy-btn-title" title="Copy title to clipboard"><span class="_img-content-copy"></span></span>` : '';
+        const titleSection: string = hasTitleDifferentFromName ? `${title}${titleCopyButton}<br><br>` : '';
         const typeColorStyle = this.typeColor ? ` style="--type-color: ${this.typeColor}"` : ` style="--type-color: ${DEFAULT_TYPE_COLOR}"`;
 
         const template: JQuery = $(`
@@ -267,7 +271,7 @@ export class SpecItemElement {
                         <div class="_specitem-status">${coverageTemplate}</div>
                     </div>
                     <div class="_specitem-body">
-                        ${title}
+                        ${titleSection}
                         ${this.specItem.content}                
                     </div>                
                 </div>
@@ -368,10 +372,21 @@ export class SpecItemElement {
     }
 
     protected addCopyButton(template: JQuery): JQuery {
+        // Initialize ID copy button
         this.copyButton = new CopyButtonElement(
-            template.find('._copy-btn-sm'),
+            template.find('._copy-btn-sm').not('._copy-btn-title'),
             () => this.specItem.id
         ).init().activate();
+
+        // Initialize title copy button if present
+        const titleCopyButtonElement = template.find('._copy-btn-title');
+        if (titleCopyButtonElement.length > 0) {
+            this.titleCopyButton = new CopyButtonElement(
+                titleCopyButtonElement,
+                () => this.specItem.title
+            ).init().activate();
+        }
+        
         return template;
     }
 

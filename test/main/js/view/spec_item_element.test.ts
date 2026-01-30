@@ -386,3 +386,289 @@ describe("SpecItemElement - Badge Click Functionality", () => {
     });
 });
 
+describe("SpecItemElement - Title Copy Button", () => {
+    let body: JQuery<HTMLElement>;
+    let specItem: SpecItem;
+    let oftStateController: OftStateController;
+    let project: Project;
+    let specItemElement: SpecItemElement;
+    let specItems: Map<number, SpecItem>;
+
+    beforeEach(() => {
+        body = $("body");
+        body.empty();
+        body.append('<div id="specitems"></div>');
+
+        // Create mock project
+        project = {
+            projectName: "Test Project",
+            types: ["feat", "req"],
+            typedFieldNames: ["type"],
+            tags: [],
+            tagFieldNames: [],
+            statusNames: ["Accepted"],
+            statusFieldNames: ["status"],
+            itemCount: 1,
+            itemCovered: 1,
+            itemUncovered: 0,
+            fieldModels: new Map(),
+            configuration: {
+                project: {maxcovering: 3},
+                fields: {}
+            },
+            getTypeFieldModel: vi.fn().mockReturnValue({
+                fields: [
+                    {id: "0", label: "feat", name: "feat", tooltip: "", item_count: 1},
+                    {id: "1", label: "req", name: "req", tooltip: "", item_count: 0}
+                ]
+            }),
+            getFieldModel: vi.fn().mockReturnValue({
+                fields: [
+                    {id: "0", label: "Accepted", name: "Accepted", tooltip: "", item_count: 1}
+                ]
+            })
+        } as unknown as Project;
+
+        specItems = new Map<number, SpecItem>();
+        oftStateController = {
+            notifySelectionChanged: vi.fn(),
+            notifyFocus: vi.fn()
+        } as unknown as OftStateController;
+    });
+
+    afterEach(() => {
+        body.empty();
+    });
+
+    test("Title copy button is present when title differs from name", () => {
+        specItem = {
+            index: 0,
+            type: 0,
+            name: "test-item",
+            fullName: "feat:test-item:1",
+            id: "feat:test-item:1",
+            title: "Different Title",
+            tags: [],
+            version: 1,
+            content: "Test content",
+            provides: [],
+            needs: [],
+            covered: [0, 0],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: ["test"],
+            sourceFile: "test.md",
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        } as SpecItem;
+
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Check that title copy button exists
+        const titleCopyButton = $("#specitems ._copy-btn-title");
+        expect(titleCopyButton.length).toBe(1);
+        expect(titleCopyButton.attr("title")).toBe("Copy title to clipboard");
+    });
+
+    test("Title copy button is not present when title equals name", () => {
+        specItem = {
+            index: 0,
+            type: 0,
+            name: "test-item",
+            fullName: "feat:test-item:1",
+            id: "feat:test-item:1",
+            title: "test-item", // Same as name
+            tags: [],
+            version: 1,
+            content: "Test content",
+            provides: [],
+            needs: [],
+            covered: [0, 0],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: ["test"],
+            sourceFile: "test.md",
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        } as SpecItem;
+
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Check that title copy button does not exist
+        const titleCopyButton = $("#specitems ._copy-btn-title");
+        expect(titleCopyButton.length).toBe(0);
+
+        // Title text should also not be shown
+        const bodyContent = $("#specitems ._specitem-body").html();
+        expect(bodyContent).not.toContain("<b>test-item</b>");
+    });
+
+    test("Title copy button copies title to clipboard", async () => {
+        specItem = {
+            index: 0,
+            type: 0,
+            name: "test-item",
+            fullName: "feat:test-item:1",
+            id: "feat:test-item:1",
+            title: "My Custom Title",
+            tags: [],
+            version: 1,
+            content: "Test content",
+            provides: [],
+            needs: [],
+            covered: [0, 0],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: ["test"],
+            sourceFile: "test.md",
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        } as SpecItem;
+
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Mock clipboard API
+        const mockWriteText = vi.fn().mockResolvedValue(undefined);
+        Object.assign(navigator, {
+            clipboard: {
+                writeText: mockWriteText
+            }
+        });
+
+        // Click the title copy button
+        const titleCopyButton = $("#specitems ._copy-btn-title");
+        titleCopyButton.trigger("click");
+
+        // Wait a bit for async operations
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        // Check that clipboard.writeText was called with the title
+        expect(mockWriteText).toHaveBeenCalledWith("My Custom Title");
+    });
+
+    test("ID copy button still works independently of title copy button", async () => {
+        specItem = {
+            index: 0,
+            type: 0,
+            name: "test-item",
+            fullName: "feat:test-item:1",
+            id: "feat:test-item:1",
+            title: "Different Title",
+            tags: [],
+            version: 1,
+            content: "Test content",
+            provides: [],
+            needs: [],
+            covered: [0, 0],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: ["test"],
+            sourceFile: "test.md",
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        } as SpecItem;
+
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Mock clipboard API
+        const mockWriteText = vi.fn().mockResolvedValue(undefined);
+        Object.assign(navigator, {
+            clipboard: {
+                writeText: mockWriteText
+            }
+        });
+
+        // Click the ID copy button (not the title one)
+        const idCopyButton = $("#specitems ._copy-btn-sm").not("._copy-btn-title");
+        idCopyButton.trigger("click");
+
+        // Wait a bit for async operations
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        // Check that clipboard.writeText was called with the ID
+        expect(mockWriteText).toHaveBeenCalledWith("feat:test-item:1");
+    });
+
+    test("Both copy buttons can be clicked independently", async () => {
+        specItem = {
+            index: 0,
+            type: 0,
+            name: "test-item",
+            fullName: "feat:test-item:1",
+            id: "feat:test-item:1",
+            title: "My Title",
+            tags: [],
+            version: 1,
+            content: "Test content",
+            provides: [],
+            needs: [],
+            covered: [0, 0],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: ["test"],
+            sourceFile: "test.md",
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        } as SpecItem;
+
+        specItemElement = new SpecItemElement(specItem, specItems, oftStateController, project);
+        specItemElement.insertToAt($("#specitems"));
+        specItemElement.activate();
+
+        // Mock clipboard API
+        const mockWriteText = vi.fn().mockResolvedValue(undefined);
+        Object.assign(navigator, {
+            clipboard: {
+                writeText: mockWriteText
+            }
+        });
+
+        // Click ID copy button
+        const idCopyButton = $("#specitems ._copy-btn-sm").not("._copy-btn-title");
+        idCopyButton.trigger("click");
+        await new Promise(resolve => setTimeout(resolve, 10));
+        expect(mockWriteText).toHaveBeenCalledWith("feat:test-item:1");
+
+        mockWriteText.mockClear();
+
+        // Click title copy button
+        const titleCopyButton = $("#specitems ._copy-btn-title");
+        titleCopyButton.trigger("click");
+        await new Promise(resolve => setTimeout(resolve, 10));
+        expect(mockWriteText).toHaveBeenCalledWith("My Title");
+    });
+});
+
