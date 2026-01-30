@@ -69,6 +69,23 @@
     text-align: center;
     color: var(--col-text);
     transition: transform 0.2s ease;
+
+    &.tree-folder-icon {
+      width: 20px;
+      min-width: 20px;
+      height: 16px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+
+      &.folder-closed {
+        background-image: url("~@images/material_folder_closed.svg");
+      }
+
+      &.folder-open {
+        background-image: url("~@images/material_folder_open.svg");
+      }
+    }
   }
 
   .tree-expand-icon-placeholder {

@@ -26,6 +26,11 @@ import {ChangeEvent, EventType} from "@main/model/change_event";
 import {Filter, IndexFilter, isMatchingAllFilters} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
 
+enum TreeViewMode {
+    NAME = "name",
+    DIRECTORY = "directory"
+}
+
 interface TreeNode {
     index: number;
     name: string;
@@ -37,7 +42,8 @@ interface TreeNode {
     selectable: boolean;
 }
 
-const MAX_TREE_DEPTH = 3; // Type + MAX_TREE_DEPTH level
+const NAME_TREE_DEPTH = 3; // Type + NAME_TREE_DEPTH level
+const PATH_TREE_DEPTH = 4; // Type + PATH_TREE_DEPTH level
 const TREE_NAV_BAR_ID = "#tree-nav-bar";
 
 export class TreeViewElement {
@@ -55,12 +61,16 @@ export class TreeViewElement {
     private readonly treeViewElement: JQuery;
     private readonly navbarElement: NavbarElement;
 
-    private rootNodes: Map<string, TreeNode> = new Map();
+    private pathRootNodes: Map<string, TreeNode> = new Map();
+    private nameRootNodes: Map<string, TreeNode> = new Map();
     private indexCounter: number = 0;
     private suppressSelectionEvent: boolean = false;
     private selectedTreeNode: JQuery | null = null;
     private focusedIndex: number | null = null;
     private hideEmptyNodes: boolean = true;
+    private treeViewMode: TreeViewMode = TreeViewMode.NAME;
+    private currentFilters: Map<string, Filter> | null = null;
+    private currentSelectedIndex: number | null = null;
 
     public init(): TreeViewElement {
         // Initialize navbar first to create buttons
@@ -71,6 +81,7 @@ export class TreeViewElement {
         this.navbarElement.setChangeListener("tree-collapse-all", () => this.collapseAll());
         this.navbarElement.setChangeListener("btn-tree-scroll-to-selection", () => this.scrollToSelection());
         this.navbarElement.setChangeListener("tree-hide-empty", (_, state: boolean) => this.updateHideEmptyNodes(state));
+        this.navbarElement.setChangeListener("tree-mode-toggle", (_, state: boolean) => this.toggleTreeMode(state));
         
         this.buildOrUpdateTreeModel(null);
         this.renderTree();
@@ -99,28 +110,30 @@ export class TreeViewElement {
 
     /**
      * Splits a specItem name by delimiters (-, _, .) and builds a hierarchical tree structure.
-     * The type is the uppermost level, followed by name tokens.
+     * The type is the uppermost level, followed by name tokens or directory path.
      * Excludes the last token from the path. Limits depth to MAX_TREE_DEPTH levels.
      */
     private buildOrUpdateTreeModel(selectedFilters: Array<[string, Filter]> | null): void {
-        this.log.info("buildOrUpdateTreeModel", this.specItems.length, "filters", selectedFilters);
+        this.log.info("buildOrUpdateTreeModel", this.specItems.length, "filters", selectedFilters, "mode", this.treeViewMode);
 
-        this.resetTreeNodes(this.rootNodes, selectedFilters); // clear counters in case the model was already generated
+        this.resetTreeNodes(this.getRootNodes(), selectedFilters); // clear counters in case the model was already generated
 
         this.indexCounter = 0;
         this.specItems.forEach(specItem => {
             //if (selectedFilters != null && !isMatchingAllFilters(specItem, selectedFilters)) return;
-            const pathTokens = this.splitSpecItemNameIntoPath(specItem.name);
+            const pathTokens = this.treeViewMode === TreeViewMode.NAME
+                ? this.splitSpecItemNameIntoPath(specItem.name)
+                : this.splitSourceFileIntoPath(specItem.sourceFile);
             if (pathTokens.length < 1) return;
 
             // Prepend the type name as the uppermost level
             const typeName = this.project.typeLabels[specItem.type];
             const fullPath = [typeName, ...pathTokens];
 
-            this.insertIntoTree(fullPath, specItem, 0, this.rootNodes, '', selectedFilters);
+            this.insertIntoTree(fullPath, specItem, 0, this.getRootNodes(), '', selectedFilters);
         });
 
-        this.log.info("Tree built with", this.rootNodes.size, "root nodes");
+        this.log.info("Tree built with", this.getRootNodes().size, "root nodes");
     }
 
     /**
@@ -132,8 +145,30 @@ export class TreeViewElement {
      */
     private splitSpecItemNameIntoPath(specItemName: string): Array<string> {
         const allPathTokens = specItemName.split(/[-_.]+/).filter(token => token.length > 0).slice(0, -1);
-        return allPathTokens.slice(0, MAX_TREE_DEPTH);
+        return allPathTokens.slice(0, this.getTreeDepth());
 
+    }
+
+    /**
+     * Splits sourceFile path into directory path components including the filename.
+     * Returns the last MAX_TREE_DEPTH path components (deepest folders to file).
+     *
+     * The path is restricted to MAX_TREE_DEPTH tokens (excluding type).
+     *
+     * @param sourceFile The source file path
+     */
+    private splitSourceFileIntoPath(sourceFile: string): Array<string> {
+        if (!sourceFile || sourceFile.length === 0) return [];
+
+        // Normalize path separators to forward slashes
+        const normalizedPath = sourceFile.replace(/\\/g, '/');
+
+        // Split by path separator and filter out empty tokens
+        const pathComponents = normalizedPath.split('/').filter(token => token.length > 0);
+
+        // Take the last MAX_TREE_DEPTH components (including filename)
+        // File will be at the deepest level in the tree hierarchy
+        return pathComponents.slice(-this.getTreeDepth());
     }
 
     /**
@@ -147,11 +182,11 @@ export class TreeViewElement {
         parentPath: string,
         selectedFilters: Array<[string, Filter]> | null,
     ): void {
-        if (pathTokens.length === 0 || level >= MAX_TREE_DEPTH + 1) return;
+        if (pathTokens.length === 0 || level >= this.getTreeDepth() + 1) return;
 
         const token = pathTokens[0];
         const remainingTokens = pathTokens.slice(1);
-        const fullPath = parentPath ? parentPath + "-" + token : token;
+        const fullPath = parentPath ? parentPath + "/" + token : token;
 
         // Get or create node for this token
         let node = levelNodes.get(token);
@@ -175,7 +210,7 @@ export class TreeViewElement {
         }
 
         // If this is the last token in the path, add the specItem here
-        if (remainingTokens.length != 0 || level >= MAX_TREE_DEPTH) {
+        if (remainingTokens.length != 0 || level >= this.getTreeDepth()) {
             this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath, selectedFilters);
         }
     }
@@ -194,6 +229,21 @@ export class TreeViewElement {
         });
     }
 
+    /**
+     * Get the max depth of the tree based on the current view mode
+     */
+    private getTreeDepth(): number {
+        return this.treeViewMode === TreeViewMode.DIRECTORY ? PATH_TREE_DEPTH : NAME_TREE_DEPTH;
+    }
+
+    /**
+     * Get the tree root nodes based (representing the types) on the current view mode
+     */
+    private getRootNodes(): Map<string, TreeNode> {
+        return this.treeViewMode === TreeViewMode.DIRECTORY ? this.pathRootNodes : this.nameRootNodes;
+    }
+
+
 
     //
     // Render tree
@@ -204,7 +254,7 @@ export class TreeViewElement {
     private renderTree(): void {
         this.treeViewElement.empty();
 
-        const treeHtml = this.renderNodes(this.rootNodes);
+        const treeHtml = this.renderNodes(this.getRootNodes());
         this.treeViewElement.html(treeHtml);
 
         // Add click handlers
@@ -235,7 +285,11 @@ export class TreeViewElement {
             html += `<div class="tree-node-label">`;
 
             if (hasChildren) {
-                html += `<span class="tree-expand-icon">▶</span>`;
+                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                    html += `<span class="tree-expand-icon tree-folder-icon folder-closed"></span>`;
+                } else {
+                    html += `<span class="tree-expand-icon">▶</span>`;
+                }
             } else {
                 html += `<span class="tree-expand-icon-placeholder"></span>`;
             }
@@ -339,13 +393,14 @@ export class TreeViewElement {
     private handleFilterFocusChange(event: ChangeEvent): void {
         event.handleFilterChange((filters, _) => {
             this.log.info("Tree filter change", filters);
+            this.currentFilters = filters;
             event.handleFocusChange((focus) => {
                 this.log.info("handleFilterFocusChange", focus);
                 this.focusedIndex = focus;
                 this.log.info("handleFilterFocusChange", filters);
             });
             this.buildOrUpdateTreeModel(this.mergeIntoIndexFilters(filters, this.focusedIndex));
-            this.updateRenderedNodes(this.rootNodes);
+            this.updateRenderedNodes(this.getRootNodes());
         });
     }
 
@@ -374,6 +429,7 @@ export class TreeViewElement {
             return;
         }
         event.handleSelectionChange((selectedIndex) => {
+            this.currentSelectedIndex = selectedIndex;
             this.selectNode(selectedIndex);
         });
     }
@@ -402,8 +458,11 @@ export class TreeViewElement {
      * Selects the tree node that best matches the given specItem
      */
     private findMatchingNode(specItem: SpecItem): JQuery {
-        const namePath = this.splitSpecItemNameIntoPath(specItem.name).join('-');
-        const fullPath = this.project.typeIds[specItem.type] + (namePath.length > 0 ? '-' + namePath : '');
+        const pathTokens = this.treeViewMode === TreeViewMode.NAME
+            ? this.splitSpecItemNameIntoPath(specItem.name)
+            : this.splitSourceFileIntoPath(specItem.sourceFile);
+        const tokenPath = pathTokens.join('/');
+        const fullPath = this.project.typeIds[specItem.type] + (tokenPath.length > 0 ? '/' + tokenPath : '');
         return this.treeViewElement.find(`.tree-node[data-path="${fullPath}"]`);
     }
 
@@ -466,13 +525,48 @@ export class TreeViewElement {
             const expandIconNode = treeNode.children('.tree-node-label').find('.tree-expand-icon');
             if (expand) {
                 childNodes.slideDown(200);
-                expandIconNode.text('▼');
+                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                    expandIconNode.removeClass('folder-closed').addClass('folder-open');
+                } else {
+                    expandIconNode.text('▼');
+                }
             } else {
                 childNodes.slideUp(200);
-                expandIconNode.text('▶');
+                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                    expandIconNode.removeClass('folder-open').addClass('folder-closed');
+                } else {
+                    expandIconNode.text('▶');
+                }
             }
         }
 
+    }
+
+    /**
+     * Toggles between name-based and directory-based tree view modes
+     */
+    private toggleTreeMode(isDirectoryMode: boolean): void {
+        this.log.info("toggleTreeMode", isDirectoryMode);
+        this.treeViewMode = isDirectoryMode ? TreeViewMode.DIRECTORY : TreeViewMode.NAME;
+
+        // Update button icon based on mode
+        const button = $("#tree-mode-toggle");
+        if (isDirectoryMode) {
+            // In directory mode, show segments icon (to switch back to name mode)
+            button.removeClass("img-tree-mode-folder").addClass("img-tree-mode-segments");
+        } else {
+            // In name mode, show folder icon (to switch to directory mode)
+            button.removeClass("img-tree-mode-segments").addClass("img-tree-mode-folder");
+        }
+
+        // Rebuild tree with new mode
+        this.buildOrUpdateTreeModel(this.mergeIntoIndexFilters(this.currentFilters, this.focusedIndex));
+        this.renderTree();
+
+        // Restore selection if any
+        if (this.currentSelectedIndex !== null) {
+            this.selectNode(this.currentSelectedIndex);
+        }
     }
 
     /**
@@ -480,7 +574,12 @@ export class TreeViewElement {
      */
     private expandAll(): void {
         this.treeViewElement.find('.tree-children').show();
-        this.treeViewElement.find('.tree-expand-icon').text('▼');
+        if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+            this.treeViewElement.find('.tree-expand-icon.tree-folder-icon')
+                .removeClass('folder-closed').addClass('folder-open');
+        } else {
+            this.treeViewElement.find('.tree-expand-icon').text('▼');
+        }
     }
 
     /**
@@ -488,7 +587,12 @@ export class TreeViewElement {
      */
     private collapseAll(): void {
         this.treeViewElement.find('.tree-children').hide();
-        this.treeViewElement.find('.tree-expand-icon').text('▶');
+        if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+            this.treeViewElement.find('.tree-expand-icon.tree-folder-icon')
+                .removeClass('folder-open').addClass('folder-closed');
+        } else {
+            this.treeViewElement.find('.tree-expand-icon').text('▶');
+        }
     }
 
     private scrollToSelection(): void {
@@ -502,7 +606,7 @@ export class TreeViewElement {
      */
     private updateHideEmptyNodes(hide: boolean): void {
         this.hideEmptyNodes = hide;
-        this.updateRenderedNodes(this.rootNodes);
+        this.updateRenderedNodes(this.getRootNodes());
     }
 
 

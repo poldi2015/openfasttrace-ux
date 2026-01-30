@@ -279,3 +279,308 @@ describe("TreeViewElement - Type as uppermost level", () => {
         expect(treeHtml).toContain("Design"); // project.typeLabels[3] = "Design"
     });
 });
+
+describe("TreeViewElement - Directory-based tree mode", () => {
+    let treeView: TreeViewElement;
+    let oftStateController: OftStateController;
+    let project: Project;
+    let specItems: Array<SpecItem>;
+
+    beforeEach(() => {
+        // Setup DOM
+        $("body").html(`
+            <div id="tree-view"></div>
+            <div id="tree-nav-bar" class="nav-bar">
+                <span id="tree-mode-toggle" class="nav-btn nav-btn-toggler"></span>
+                <span id="tree-hide-empty" class="nav-btn nav-btn-toggler nav-btn-on"></span>
+                <span id="tree-expand-all" class="nav-btn"></span>
+                <span id="tree-collapse-all" class="nav-btn"></span>
+                <span id="btn-tree-scroll-to-selection" class="nav-btn"></span>
+            </div>
+        `);
+
+        // Create mock project
+        project = {
+            types: ["feat", "req"],
+            typeLabels: ["Feature", "Requirement"],
+            typeIds: ["feat", "req"],
+            typeNames: ["Feature", "Requirement"],
+            projectName: "Test Project",
+            typedFieldNames: ["type"],
+            tags: [],
+            tagFieldNames: [],
+            statusNames: [],
+            statusFieldNames: [],
+            itemCount: 0,
+            itemCovered: 0,
+            itemUncovered: 0,
+            fieldModels: new Map(),
+            getTypeFieldModel: vi.fn(),
+            hasField: vi.fn(),
+            getFieldModel: vi.fn()
+        } as any;
+
+        // Mock controller
+        oftStateController = {
+            selectItem: vi.fn(),
+            addChangeListener: vi.fn()
+        } as any;
+
+        // Create specItems with different source files
+        specItems = [
+            {
+                index: 0,
+                type: 0, // feat
+                name: "login-feature",
+                title: "Login Feature",
+                id: "feat:login-feature:1",
+                sourceFile: "src/auth/login.md",
+                tags: [],
+                version: 1,
+                content: "Test",
+                provides: [],
+                needs: [],
+                covered: [],
+                uncovered: [],
+                covering: [],
+                coveredBy: [],
+                depends: [],
+                status: 0,
+                path: [],
+                sourceLine: 1,
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
+            },
+            {
+                index: 1,
+                type: 0, // feat
+                name: "logout-feature",
+                title: "Logout Feature",
+                id: "feat:logout-feature:1",
+                sourceFile: "src/auth/logout.md",
+                tags: [],
+                version: 1,
+                content: "Test",
+                provides: [],
+                needs: [],
+                covered: [],
+                uncovered: [],
+                covering: [],
+                coveredBy: [],
+                depends: [],
+                status: 0,
+                path: [],
+                sourceLine: 1,
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
+            },
+            {
+                index: 2,
+                type: 1, // req
+                name: "security-requirement",
+                title: "Security Requirement",
+                id: "req:security-requirement:1",
+                sourceFile: "docs/requirements/security.md",
+                tags: [],
+                version: 1,
+                content: "Test",
+                provides: [],
+                needs: [],
+                covered: [],
+                uncovered: [],
+                covering: [],
+                coveredBy: [],
+                depends: [],
+                status: 0,
+                path: [],
+                sourceLine: 1,
+                comments: "",
+                wrongLinkTypes: [],
+                wrongLinkTargets: []
+            }
+        ];
+    });
+
+    test("Directory tree mode creates nodes based on source file paths", () => {
+        // Arrange
+        treeView = new TreeViewElement(specItems, oftStateController, project);
+        treeView.init();
+        treeView.activate();
+
+        // Act - Toggle to directory mode
+        const toggleButton = $("#tree-mode-toggle");
+        toggleButton.trigger("click");
+
+        // Assert - Check that directory-based tree includes filenames at lowest level
+        const treeHtml = $("#tree-view").html();
+
+        // Should have type nodes
+        expect(treeHtml).toContain("Feature");
+        expect(treeHtml).toContain("Requirement");
+
+        // Should have directory nodes and filenames (files at deepest level)
+        expect(treeHtml).toContain("login.md"); // filename at lowest level
+        expect(treeHtml).toContain("logout.md"); // filename at lowest level
+        expect(treeHtml).toContain("auth"); // parent folder
+        expect(treeHtml).toContain("src"); // grandparent folder
+        expect(treeHtml).toContain("security.md"); // filename at lowest level
+        expect(treeHtml).toContain("requirements"); // parent folder
+        expect(treeHtml).toContain("docs"); // grandparent folder
+    });
+
+    test("Directory tree respects MAX_TREE_DEPTH limit", () => {
+        // Arrange - Create specItem with deep directory path
+        const deepPathItem = {
+            index: 3,
+            type: 0,
+            name: "deep-feature",
+            title: "Deep Feature",
+            id: "feat:deep-feature:1",
+            sourceFile: "level1/level2/level3/level4/level5/deep.md",
+            tags: [],
+            version: 1,
+            content: "Test",
+            provides: [],
+            needs: [],
+            covered: [],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: [],
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        };
+
+        treeView = new TreeViewElement([deepPathItem], oftStateController, project);
+        treeView.init();
+        treeView.activate();
+
+        // Act - Toggle to directory mode
+        const toggleButton = $("#tree-mode-toggle");
+        toggleButton.trigger("click");
+
+        // Assert - Should only have MAX_TREE_DEPTH (3) path components including filename
+        const treeHtml = $("#tree-view").html();
+        // Last 3 components in normal order: level4 -> level5 -> deep.md
+        expect(treeHtml).toContain("deep.md");
+        expect(treeHtml).toContain("level5");
+        expect(treeHtml).toContain("level4");
+        // level1, level2, level3 should not appear as they're not in the last MAX_TREE_DEPTH
+    });
+
+    test("Directory tree handles empty source file paths", () => {
+        // Arrange - Create specItem with empty sourceFile
+        const emptySourceItem = {
+            index: 4,
+            type: 0,
+            name: "no-source-feature",
+            title: "No Source Feature",
+            id: "feat:no-source-feature:1",
+            sourceFile: "",
+            tags: [],
+            version: 1,
+            content: "Test",
+            provides: [],
+            needs: [],
+            covered: [],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: [],
+            sourceLine: 0,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        };
+
+        treeView = new TreeViewElement([emptySourceItem], oftStateController, project);
+        treeView.init();
+        treeView.activate();
+
+        // Act - Toggle to directory mode
+        const toggleButton = $("#tree-mode-toggle");
+        toggleButton.trigger("click");
+
+        // Assert - Should only show type node, no directory nodes
+        const treeHtml = $("#tree-view").html();
+        expect(treeHtml).toContain("Feature");
+    });
+
+    test("Can toggle between name-based and directory-based modes", () => {
+        // Arrange
+        treeView = new TreeViewElement(specItems, oftStateController, project);
+        treeView.init();
+        treeView.activate();
+
+        // Initial state - name-based tree
+        let treeHtml = $("#tree-view").html();
+        expect(treeHtml).toContain("login"); // from name "login-feature"
+
+        // Act - Toggle to directory mode
+        const toggleButton = $("#tree-mode-toggle");
+        toggleButton.trigger("click");
+
+        // Assert - directory-based tree with files at lowest level
+        treeHtml = $("#tree-view").html();
+        expect(treeHtml).toContain("login.md"); // filename at lowest level
+        expect(treeHtml).toContain("auth"); // parent folder
+        expect(treeHtml).toContain("src"); // grandparent folder
+
+        // Act - Toggle back to name mode
+        toggleButton.trigger("click");
+
+        // Assert - back to name-based tree
+        treeHtml = $("#tree-view").html();
+        expect(treeHtml).toContain("login");
+    });
+
+    test("Directory tree handles Windows-style path separators", () => {
+        // Arrange - Create specItem with Windows-style path
+        const windowsPathItem = {
+            index: 5,
+            type: 0,
+            name: "windows-feature",
+            title: "Windows Feature",
+            id: "feat:windows-feature:1",
+            sourceFile: "src\\components\\windows.md",
+            tags: [],
+            version: 1,
+            content: "Test",
+            provides: [],
+            needs: [],
+            covered: [],
+            uncovered: [],
+            covering: [],
+            coveredBy: [],
+            depends: [],
+            status: 0,
+            path: [],
+            sourceLine: 1,
+            comments: "",
+            wrongLinkTypes: [],
+            wrongLinkTargets: []
+        };
+
+        treeView = new TreeViewElement([windowsPathItem], oftStateController, project);
+        treeView.init();
+        treeView.activate();
+
+        // Act - Toggle to directory mode
+        const toggleButton = $("#tree-mode-toggle");
+        toggleButton.trigger("click");
+
+        // Assert - Should normalize backslashes and show file at lowest level
+        const treeHtml = $("#tree-view").html();
+        expect(treeHtml).toContain("windows.md"); // filename at lowest level
+        expect(treeHtml).toContain("components"); // parent folder
+        expect(treeHtml).toContain("src"); // grandparent folder
+    });
+});

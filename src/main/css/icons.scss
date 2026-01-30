@@ -57,7 +57,10 @@
   ._img-button-pin,
   ._img-button-unpin,
   #img-help,
-  #btn-theme-toggle {
+  #btn-theme-toggle,
+  .img-tree-mode-folder,
+  .img-tree-mode-segments,
+  .tree-folder-icon {
     filter: invert(1) brightness(0.9);
   }
   
@@ -97,6 +100,14 @@ span.sidebar-logo {
 
 #img-logo-tree {
   background-image: url("~@images/material_account_tree.svg");
+}
+
+.img-tree-mode-folder {
+  background-image: url("~@images/material_folder.svg");
+}
+
+.img-tree-mode-segments {
+  background-image: url("~@images/material_segments.svg");
 }
 
 .img-sidebar-close {
@@ -198,4 +209,14 @@ span.sidebar-logo {
 .img-tree-hide-empty {
   @extend %icon-image;
   background-image: url("~@images/material_hide.svg");
+}
+
+.img-tree-mode-folder {
+  @extend %icon-image;
+  background-image: url("~@images/material_folder.svg");
+}
+
+.img-tree-mode-segments {
+  @extend %icon-image;
+  background-image: url("~@images/material_segments.svg");
 }
