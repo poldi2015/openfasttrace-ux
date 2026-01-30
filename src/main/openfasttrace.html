@@ -93,10 +93,11 @@
                     </span>
 
                     <span id="content-nav-bar" class="nav-bar">
-                        <span id="search"></span>&nbsp;&nbsp;
-                        <span id="btn-history-back" class="nav-btn"></span>
-                        <span id="btn-history-forward" class="nav-btn"></span>
-                        <span id="btn-content-scroll-to-selection" class="btn-scroll-to-selection nav-btn"></span>
+                        <span id="search" title="Filter by id or content. Substring or Regex search (/)"></span>&nbsp;&nbsp;
+                        <span id="btn-history-back" class="nav-btn" title="Switch to previous selection (left)"></span>
+                        <span id="btn-history-forward" class="nav-btn" title="Switch to next selection (right)"></span>
+                        <span id="btn-content-scroll-to-selection" class="btn-scroll-to-selection nav-btn"
+                              title="Scroll to selection (s)"></span>
                         <!--<span id="img-expand" class="nav-btn"></span>-->
                     </span>
                 </div>
@@ -136,8 +137,10 @@
                         </span>
                     </span>
                     <span class="details-tabs">
-                        <span class="details-tab details-tab-active" data-tab="basic">Main</span>
-                        <span class="details-tab" data-tab="details">Details</span>
+                        <span class="details-tab details-tab-active" data-tab="basic"
+                              title="Select SpecItem main data (m)">Main</span>
+                        <span class="details-tab" data-tab="details"
+                              title="Select SpecItem additional data (d)">Details</span>
                     </span>
                 </div>
                 <div id="details">
