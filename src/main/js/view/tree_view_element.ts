@@ -68,7 +68,7 @@ export class TreeViewElement {
     private selectedTreeNode: JQuery | null = null;
     private focusedIndex: number | null = null;
     private hideEmptyNodes: boolean = true;
-    private treeViewMode: TreeViewMode = TreeViewMode.NAME;
+    private treeViewMode: TreeViewMode = TreeViewMode.DIRECTORY;
     private currentFilters: Map<string, Filter> | null = null;
     private currentSelectedIndex: number | null = null;
 
@@ -82,6 +82,9 @@ export class TreeViewElement {
         this.navbarElement.setChangeListener("btn-tree-scroll-to-selection", () => this.scrollToSelection());
         this.navbarElement.setChangeListener("tree-hide-empty", (_, state: boolean) => this.updateHideEmptyNodes(state));
         this.navbarElement.setChangeListener("tree-mode-toggle", (_, state: boolean) => this.toggleTreeMode(state));
+
+        this.navbarElement.getButton("tree-mode-toggle")?.toggle(this.treeViewMode == TreeViewMode.DIRECTORY);
+        this.setToggleModeButtonIcon();
         
         this.buildOrUpdateTreeModel(null);
         this.renderTree();
@@ -282,7 +285,7 @@ export class TreeViewElement {
             html += `<li class="tree-node" id="tn_${node.index}" data-level="${node.level}" data-itemindex="${node.firstIndex ?? ''}" data-path="${node.fullPath}">`;
 
             // Node label with expand/collapse icon
-            html += `<div class="tree-node-label">`;
+            html += `<div class="tree-node-label" title="${this.escapeHtml(node.name)}">`;
 
             if (hasChildren) {
                 if (this.treeViewMode === TreeViewMode.DIRECTORY) {
@@ -550,14 +553,7 @@ export class TreeViewElement {
         this.treeViewMode = isDirectoryMode ? TreeViewMode.DIRECTORY : TreeViewMode.NAME;
 
         // Update button icon based on mode
-        const button = $("#tree-mode-toggle");
-        if (isDirectoryMode) {
-            // In directory mode, show segments icon (to switch back to name mode)
-            button.removeClass("img-tree-mode-folder").addClass("img-tree-mode-segments");
-        } else {
-            // In name mode, show folder icon (to switch to directory mode)
-            button.removeClass("img-tree-mode-segments").addClass("img-tree-mode-folder");
-        }
+        this.setToggleModeButtonIcon();
 
         // Rebuild tree with new mode
         this.buildOrUpdateTreeModel(this.mergeIntoIndexFilters(this.currentFilters, this.focusedIndex));
@@ -566,6 +562,17 @@ export class TreeViewElement {
         // Restore selection if any
         if (this.currentSelectedIndex !== null) {
             this.selectNode(this.currentSelectedIndex);
+        }
+    }
+
+    private setToggleModeButtonIcon(): void {
+        const button = $("#tree-mode-toggle");
+        if (this.treeViewMode == TreeViewMode.DIRECTORY) {
+            // In directory mode, show segments icon (to switch back to name mode)
+            button.removeClass("img-tree-mode-folder").addClass("img-tree-mode-segments");
+        } else {
+            // In name mode, show folder icon (to switch to directory mode)
+            button.removeClass("img-tree-mode-segments").addClass("img-tree-mode-folder");
         }
     }
 

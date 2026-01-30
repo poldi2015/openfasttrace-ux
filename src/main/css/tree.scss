@@ -21,8 +21,8 @@
 #tree-view {
   overflow: auto;
   max-height: 100%;
-  min-width: 200px;
-  max-width: 260px;
+  min-width: 280px;
+  max-width: 360px;
   word-wrap: break-word;
   overflow-wrap: break-word;
   
@@ -113,7 +113,7 @@
   }
 
   .tree-children {
-    margin-left: 20px; // Indent by icon width (16px) + margin (4px)
+    margin-left: 10px; // Indent by icon width (16px) + margin (4px)
   }
 
   .tree-items {
@@ -163,7 +163,7 @@
     padding-left: 8px; // Same base padding
 
     .tree-node-name {
-      max-width: 180px; // Level 1: indented 20px more via .tree-children
+      max-width: 260px; // Level 1: indented 20px more via .tree-children
     }
   }
 
@@ -171,7 +171,7 @@
     padding-left: 8px; // Same base padding
 
     .tree-node-name {
-      max-width: 160px; // Level 2: indented 40px more via .tree-children
+      max-width: 210px; // Level 2: indented 40px more via .tree-children
     }
   }
 
@@ -179,7 +179,7 @@
     padding-left: 8px; // Same base padding
 
     .tree-node-name {
-      max-width: 140px; // Level 3: indented 60px more via .tree-children
+      max-width: 190px; // Level 3: indented 60px more via .tree-children
     }
   }
 
@@ -187,7 +187,7 @@
     padding-left: 8px; // Same base padding
 
     .tree-node-name {
-      max-width: 120px; // Level 4: indented 80px more via .tree-children
+      max-width: 170px; // Level 4: indented 80px more via .tree-children
     }
   }
 }
