@@ -79,24 +79,9 @@
   transform: scale(0.98);
 }
 
-.nav-btn-on {
-  background-color: var(--col-nav-active);
-  border-radius: 6px;
-}
-
-// Theme toggle button: clean hover effect
-:root.light-theme #btn-theme-toggle.nav-btn-on,
-:root:not(.dark-theme) #btn-theme-toggle.nav-btn-on {
-  background-color: transparent;
-}
-
 :root.light-theme #btn-theme-toggle:hover,
 :root:not(.dark-theme) #btn-theme-toggle:hover {
   background-color: var(--col-nav-hover);
-}
-
-:root.dark-theme #btn-theme-toggle.nav-btn-on {
-  background-color: transparent;
 }
 
 :root.dark-theme #btn-theme-toggle:hover {

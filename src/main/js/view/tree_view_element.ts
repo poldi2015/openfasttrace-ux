@@ -85,7 +85,7 @@ export class TreeViewElement {
 
         this.navbarElement.getButton("tree-mode-toggle")?.toggle(this.treeViewMode == TreeViewMode.DIRECTORY);
         this.setToggleModeButtonIcon();
-        
+
         this.buildOrUpdateTreeModel(null);
         this.renderTree();
 
@@ -127,7 +127,6 @@ export class TreeViewElement {
             const pathTokens = this.treeViewMode === TreeViewMode.NAME
                 ? this.splitSpecItemNameIntoPath(specItem.name)
                 : this.splitSourceFileIntoPath(specItem.sourceFile);
-            if (pathTokens.length < 1) return;
 
             // Prepend the type name as the uppermost level
             const typeName = this.project.typeLabels[specItem.type];
@@ -172,6 +171,10 @@ export class TreeViewElement {
         // Take the last MAX_TREE_DEPTH components (including filename)
         // File will be at the deepest level in the tree hierarchy
         return pathComponents.slice(-this.getTreeDepth());
+    }
+
+    private updatePrefixPaths(pathTokens: Array<string>, prefixPaths: Map<Array<String>, number>) {
+
     }
 
     /**
@@ -247,7 +250,6 @@ export class TreeViewElement {
     }
 
 
-
     //
     // Render tree
 
@@ -288,7 +290,8 @@ export class TreeViewElement {
             html += `<div class="tree-node-label" title="${this.escapeHtml(node.name)}">`;
 
             if (hasChildren) {
-                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                // Type nodes (level 0) always use arrows, not folder icons
+                if (this.treeViewMode === TreeViewMode.DIRECTORY && node.level > 0) {
                     html += `<span class="tree-expand-icon tree-folder-icon folder-closed"></span>`;
                 } else {
                     html += `<span class="tree-expand-icon">▶</span>`;
@@ -526,16 +529,18 @@ export class TreeViewElement {
         const childNodes = treeNode.children('.tree-children');
         if (childNodes.length > 0) {
             const expandIconNode = treeNode.children('.tree-node-label').find('.tree-expand-icon');
+            const isFolderIcon = expandIconNode.hasClass('tree-folder-icon');
+
             if (expand) {
                 childNodes.slideDown(200);
-                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                if (isFolderIcon) {
                     expandIconNode.removeClass('folder-closed').addClass('folder-open');
                 } else {
                     expandIconNode.text('▼');
                 }
             } else {
                 childNodes.slideUp(200);
-                if (this.treeViewMode === TreeViewMode.DIRECTORY) {
+                if (isFolderIcon) {
                     expandIconNode.removeClass('folder-open').addClass('folder-closed');
                 } else {
                     expandIconNode.text('▶');

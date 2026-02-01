@@ -1,4 +1,5 @@
 /*
+/*
   OpenFastTrace UX
 
  Copyright (C) 2024-2025 itsallcode.org, Bernd Haberstumpf
@@ -7,12 +8,12 @@
  it under the terms of the GNU General Public License as
  published by the Free Software Foundation, either version 3 of the
  License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public
  License along with this program.  If not, see
  <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -25,7 +26,7 @@
   max-width: 360px;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  
+
   .tree-list {
     list-style: none;
     margin: 0;
@@ -147,6 +148,10 @@
   .tree-node[data-level="0"] > .tree-node-label {
     padding-left: 8px;
 
+    .tree-expand-icon {
+      color: #2563eb; // Light mode: bright blue
+    }
+
     // Style for type nodes (level 0) - light blue in light mode
     .tree-node-name {
       color: #2563eb; // Light mode: bright blue
@@ -199,4 +204,9 @@ body.dark-mode #tree-view {
       color: #60a5fa; // Dark mode: lighter blue for better contrast
     }
   }
+}
+
+#tree-hide-empty.nav-btn-on {
+  background-color: var(--col-nav-active);
+  border-radius: 6px;
 }
