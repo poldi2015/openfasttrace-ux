@@ -25,6 +25,7 @@ import {Log} from "@main/utils/log";
 import {ChangeEvent, EventType} from "@main/model/change_event";
 import {Filter, IndexFilter, isMatchingAllFilters} from "@main/model/filter";
 import {NavbarElement} from "@main/view/navbar_element";
+import {range} from "@main/utils/collections";
 
 enum TreeViewMode {
     NAME = "name",
@@ -71,6 +72,10 @@ export class TreeViewElement {
     private treeViewMode: TreeViewMode = TreeViewMode.DIRECTORY;
     private currentFilters: Map<string, Filter> | null = null;
     private currentSelectedIndex: number | null = null;
+
+    private files = new Set<string>();
+    private prefixPathCounts: Map<string, number> = new Map();
+    private pathToPrefixPaths: Map<string, Array<Array<string>>> = new Map();
 
     public init(): TreeViewElement {
         // Initialize navbar first to create buttons
@@ -119,6 +124,7 @@ export class TreeViewElement {
     private buildOrUpdateTreeModel(selectedFilters: Array<[string, Filter]> | null): void {
         this.log.info("buildOrUpdateTreeModel", this.specItems.length, "filters", selectedFilters, "mode", this.treeViewMode);
 
+        this.initializePrefixPaths();
         this.resetTreeNodes(this.getRootNodes(), selectedFilters); // clear counters in case the model was already generated
 
         this.indexCounter = 0;
@@ -126,7 +132,7 @@ export class TreeViewElement {
             //if (selectedFilters != null && !isMatchingAllFilters(specItem, selectedFilters)) return;
             const pathTokens = this.treeViewMode === TreeViewMode.NAME
                 ? this.splitSpecItemNameIntoPath(specItem.name)
-                : this.splitSourceFileIntoPath(specItem.sourceFile);
+                : this.calculateNodePathTokens(specItem.sourceFile);
 
             // Prepend the type name as the uppermost level
             const typeName = this.project.typeLabels[specItem.type];
@@ -151,31 +157,95 @@ export class TreeViewElement {
 
     }
 
+
+    //
+    // Path tokens
+
     /**
-     * Splits sourceFile path into directory path components including the filename.
-     * Returns the last MAX_TREE_DEPTH path components (deepest folders to file).
+     * Calculates the path tokens for a given path by removing the best matching prefix path.
      *
-     * The path is restricted to MAX_TREE_DEPTH tokens (excluding type).
-     *
-     * @param sourceFile The source file path
+     * @param path The full path
+     * @return The tokens that form the nodes within the tree
      */
-    private splitSourceFileIntoPath(sourceFile: string): Array<string> {
-        if (!sourceFile || sourceFile.length === 0) return [];
+    private calculateNodePathTokens(path: string): Array<string> {
+        const tokenPath = this.splitPathIntoTokens(path);
 
-        // Normalize path separators to forward slashes
-        const normalizedPath = sourceFile.replace(/\\/g, '/');
+        const prefixPaths = this.pathToPrefixPaths.get(path);
+        if (prefixPaths == null) return tokenPath;
+        const prefixPathCounts = prefixPaths.map((path) => this.prefixPathCounts.get(this.asPath(path))).map((count) => count ?? 0);
+        const bestIndex = prefixPathCounts.indexOf(Math.max(...prefixPathCounts));
+        const bestPrefixPath = prefixPaths[bestIndex];
 
-        // Split by path separator and filter out empty tokens
-        const pathComponents = normalizedPath.split('/').filter(token => token.length > 0);
-
-        // Take the last MAX_TREE_DEPTH components (including filename)
-        // File will be at the deepest level in the tree hierarchy
-        return pathComponents.slice(-this.getTreeDepth());
+        return tokenPath.slice(bestPrefixPath.length);
     }
 
-    private updatePrefixPaths(pathTokens: Array<string>, prefixPaths: Map<Array<String>, number>) {
+    //
+    // Populates prefix path caches
 
+    /**
+     * Generates path prefix caches for calculation path prefix token candidates and their number of matching specitems.
+     *
+     * These indexes are used to calculate the best matching file path node tree.
+     */
+    private initializePrefixPaths() {
+        if (this.prefixPathCounts.size > 0) return;
+        this.specItems.forEach((specItem) => this.updatePrefixPaths(specItem.sourceFile));
     }
+
+    /**
+     * Updates the path prefix caches with prefix path candicates for a specific node.
+     *
+     * @param path The node to consider in the path prefix caches
+     */
+    private updatePrefixPaths(path: string) {
+        if (this.files.has(path)) return;
+        this.files.add(path);
+
+        const tokenPath = this.splitPathIntoTokens(path);
+        const prefixPathTokens = this.calculatePrefixPathsCandidates(tokenPath);
+        prefixPathTokens.forEach((prefixPathTokens) => {
+            const prefixPath = this.asPath(prefixPathTokens)
+            const count = this.prefixPathCounts.get(prefixPath) ?? 0;
+            this.prefixPathCounts.set(prefixPath, count + 1);
+        });
+        this.pathToPrefixPaths.set(path, prefixPathTokens);
+    }
+
+
+    /**
+     * Calculates all candidate path prefixes for one tokenized path.
+     *
+     * @param pathTokens all tokens of a path
+     * @return array of all valid prefix paths
+     */
+    private calculatePrefixPathsCandidates(pathTokens: Array<string>): Array<Array<string>> {
+        const maxEnd = pathTokens.length - 1;
+        const maxLen = PATH_TREE_DEPTH;
+        const minEnd = maxEnd <= 0 ? 0 : pathTokens.length <= maxLen ? 0 : pathTokens.length - maxLen;
+        return range(minEnd, maxEnd).map((end) => pathTokens.slice(0, end));
+    }
+
+    /**
+     * Splits path into tokens by first normalizing the pathg (remove duplicates slashes).
+     *
+     * @param path The path
+     * @return path tokens
+     */
+    private splitPathIntoTokens(path: string): Array<string> {
+        if (!path || path.length === 0) return [];
+        const normalizedPath = path.replace(/\\/g, '/');
+        return normalizedPath.split('/').filter(token => token.length > 0);
+    }
+
+    /**
+     * Calculates a normalized path based on its path tokens.
+     *
+     * @param tokens The tokens of the path
+     */
+    private asPath(tokens: Array<string>): string {
+        return tokens.join("/");
+    }
+
 
     /**
      * Recursively inserts a specItem into the tree structure
@@ -188,7 +258,7 @@ export class TreeViewElement {
         parentPath: string,
         selectedFilters: Array<[string, Filter]> | null,
     ): void {
-        if (pathTokens.length === 0 || level >= this.getTreeDepth() + 1) return;
+        if (pathTokens.length === 0) return;
 
         const token = pathTokens[0];
         const remainingTokens = pathTokens.slice(1);
@@ -216,7 +286,7 @@ export class TreeViewElement {
         }
 
         // If this is the last token in the path, add the specItem here
-        if (remainingTokens.length != 0 || level >= this.getTreeDepth()) {
+        if (remainingTokens.length != 0) {
             this.insertIntoTree(remainingTokens, specItem, level + 1, node.children, fullPath, selectedFilters);
         }
     }
@@ -466,9 +536,10 @@ export class TreeViewElement {
     private findMatchingNode(specItem: SpecItem): JQuery {
         const pathTokens = this.treeViewMode === TreeViewMode.NAME
             ? this.splitSpecItemNameIntoPath(specItem.name)
-            : this.splitSourceFileIntoPath(specItem.sourceFile);
-        const tokenPath = pathTokens.join('/');
-        const fullPath = this.project.typeIds[specItem.type] + (tokenPath.length > 0 ? '/' + tokenPath : '');
+            : this.calculateNodePathTokens(specItem.sourceFile);
+        const tokenPath = this.asPath(pathTokens);
+        const fullPath = this.project.typeLabels[specItem.type] + (tokenPath.length > 0 ? '/' + tokenPath : '');
+        this.log.info("findMatchingNode", fullPath);
         return this.treeViewElement.find(`.tree-node[data-path="${fullPath}"]`);
     }
 
