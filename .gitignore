@@ -18,4 +18,7 @@ yarn-error.log*
 .DS_Store
 /coverage
 
-_*
+src/main/resources/js/*.js
+[A-Z]*.md
+
+/_*
