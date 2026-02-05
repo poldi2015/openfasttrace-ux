@@ -69,7 +69,7 @@ export class TreeViewElement {
     private selectedTreeNode: JQuery | null = null;
     private focusedIndex: number | null = null;
     private hideEmptyNodes: boolean = true;
-    private treeViewMode: TreeViewMode = TreeViewMode.DIRECTORY;
+    private treeViewMode: TreeViewMode = TreeViewMode.NAME;
     private currentFilters: Map<string, Filter> | null = null;
     private currentSelectedIndex: number | null = null;
 
@@ -171,11 +171,12 @@ export class TreeViewElement {
         const tokenPath = this.splitPathIntoTokens(path);
 
         const prefixPaths = this.pathToPrefixPaths.get(path);
-        if (prefixPaths == null) return tokenPath;
+        if (prefixPaths == null || prefixPaths.length === 0) return tokenPath;
         const prefixPathCounts = prefixPaths.map((path) => this.prefixPathCounts.get(this.asPath(path))).map((count) => count ?? 0);
         const bestIndex = prefixPathCounts.indexOf(Math.max(...prefixPathCounts));
         const bestPrefixPath = prefixPaths[bestIndex];
 
+        if (bestPrefixPath == null) return tokenPath;
         return tokenPath.slice(bestPrefixPath.length);
     }
 

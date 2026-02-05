@@ -39,8 +39,8 @@ const GOLDEN_SAMPLE_FILTER_MODEL = `
     <div class="_expandable-header">
         <span>Type</span>
         <div class="nav-bar _filter-nav-bar">
-            <a id="type-btn-all" class="nav-btn _img-filter-all" href="#" tabindex="-1"></a>
-            <a id="type-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#" tabindex="-1"></a>
+            <a id="type-btn-all" class="nav-btn _img-filter-all" href="#" tabindex="-1" title="Select all"></a>
+            <a id="type-btn-off" class="nav-btn nav-btn-activator _img-filter-off nav-btn-on" href="#" tabindex="-1" title="Disable filter"></a>
         </div>
     </div>
         <div class="_expandable-content visible">
