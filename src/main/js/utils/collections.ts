@@ -73,3 +73,10 @@ export function enumIds<T extends EnumType>(enumType: T): Array<number> {
 export function copyMap(original: Map<FilterName, Filter>): Map<FilterName, Filter> {
     return new Map(original);
 }
+
+/**
+ * Privates an array of numbers from start to end (inclusive).
+ */
+export function range(start: number, end: number): Array<number> {
+    return Array.from({length: (end - start + 1)}, (_, i) => i + start);
+}

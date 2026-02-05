@@ -22,3 +22,7 @@ src/main/resources/js/*.js
 [A-Z]*.md
 
 /_*
+**/_*.svg
+**/_*.png
+**/_*.ts?
+**/_*.js?
