@@ -23,7 +23,6 @@ import {IElement} from "@main/view/element";
 import {SpecItem} from "@main/model/specitems";
 import {Project} from "@main/model/project";
 import {OftStateController} from "@main/controller/oft_state_controller";
-import {IFilterElement} from "@main/view/filter_element";
 import {DetailsElement} from "@main/view/details_element";
 
 /**
@@ -45,7 +44,7 @@ export interface ISelectElement extends IElement {
 } // IDetailsElement
 
 export class SelectElementFactory {
-    public build(specItems: Array<SpecItem>, project: Project, oftState: OftStateController): IFilterElement {
+    public build(specItems: Array<SpecItem>, project: Project, oftState: OftStateController): ISelectElement {
         return new DetailsElement(specItems, project, oftState);
     }
 } // SelectElement

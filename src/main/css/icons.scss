@@ -117,6 +117,11 @@ span.sidebar-logo {
 //
 // Filters
 
+.img-filter-reset {
+  background-image: url("~@images/material_filter_off.svg");
+}
+
+
 ._img-filter-all {
   background-image: url("~@images/material_select_all.svg");
 }

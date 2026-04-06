@@ -20,6 +20,10 @@
 import {FilterElementFactory, IFilterElement} from "./filter_element";
 import {OftStateController} from "@main/controller/oft_state_controller";
 import {FieldModel} from "@main/model/project";
+import {NavbarElement} from "@main/view/navbar_element";
+
+const BUTTON_RESET_FILTERS_ID = "btn-reset-filters";
+const NAV_BAR_ID = "#sidebar-nav-bar";
 
 /**
  * Populates the Filter UI with the corresponding filter elements based on the {@link FieldMetaData}.
@@ -29,7 +33,11 @@ export class FiltersElement {
         private readonly filterModels: Map<String, FieldModel>,
         private readonly oftState: OftStateController,
         private readonly filterElementFactory: FilterElementFactory = new FilterElementFactory()) {
+        this.navbarElement = new NavbarElement($(NAV_BAR_ID))
     }
+
+    private readonly navbarElement: NavbarElement;
+    private filterElements = new Array<IFilterElement>();
 
     /**
      * Initialize all filter widget marked with class .filter.
@@ -39,6 +47,19 @@ export class FiltersElement {
             let id: string = element?.id ?? "";
             const filterElement: IFilterElement = this.filterElementFactory.build(id ? id : "", element, this.filterModels.get(id)!!, this.oftState);
             filterElement.init().activate();
+            this.filterElements.push(filterElement);
+        });
+        this.navbarElement.init();
+        this.navbarElement.setChangeListener(BUTTON_RESET_FILTERS_ID, () => this.onResetFilters());
+        this.navbarElement.activate();
+    }
+
+    //
+    // private members
+
+    private onResetFilters(): void {
+        this.filterElements.forEach((filterElement: IFilterElement) => {
+            filterElement.selectOff();
         });
     }
 

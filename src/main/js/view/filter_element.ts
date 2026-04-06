@@ -34,6 +34,9 @@ import {IEntry, SelectElement} from "@main/view/select_element";
  * FilterElements are instantiated by {@link FiltersElement} based on the HTML model.
  */
 export interface IFilterElement extends IElement {
+    selectAll(): void;
+
+    selectOff(): void;
 }
 
 export class FilterElementFactory {
@@ -172,14 +175,14 @@ export class FilterElement implements IFilterElement {
     /**
      * Select or deselect all options within a element.
      */
-    private selectAll(): void {
+    public selectAll(): void {
         this.selectElement.selectAll();
     }
 
     /**
      * Sets all items unselected and shows the items of disabled.
      */
-    private selectOff(): void {
+    public selectOff(): void {
         this.log.info("selectOff", this.id);
         this.selectElement.selectNone();
     }
