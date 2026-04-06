@@ -47,6 +47,30 @@ export interface SpecItem {
     comments: string,
     wrongLinkTypes: Array<number>,
     wrongLinkTargets: Array<string>,
+
+    // Generated elements
+    isShallowCovered: boolean,
+}
+
+export function initSpecItems(specItems: Array<SpecItem>): Map<number, SpecItem> {
+    const indexedSpecItems: Map<number, SpecItem> = new Map(specItems.map((specItem: SpecItem) => [specItem.index, specItem]));
+    specItems.forEach((specItem: SpecItem) => {
+        initShallowCoverage(indexedSpecItems, specItem);
+    });
+    return indexedSpecItems;
+}
+
+/**
+ * Initializes {@link SpecItem.isShallowCovered} for the given specItem.
+ *
+ * @param specItems The list of all specItewms by id
+ * @param specItem The specItem to investigate
+ * @private
+ */
+function initShallowCoverage(specItems: Map<number, SpecItem>, specItem: SpecItem): void {
+    specItem.isShallowCovered = specItem.needs.length == 0 || specItem.coveredBy.filter((coveringIndex) =>
+        specItem.needs.includes(specItems.get(coveringIndex)?.type ?? -1)
+    ).length > 0;
 }
 
 export const TYPE_FIELD_NAME: string = "type";

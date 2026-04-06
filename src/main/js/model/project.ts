@@ -62,6 +62,10 @@ export interface IProjectMetaData {
     status_count: Array<number>,
     tag_count: Array<number>,
     wronglink_count: Array<number>,
+
+    // Generated elements
+    shallow_covered: number,
+    shallow_uncovered: number,
 } // IProjectData
 
 
@@ -154,8 +158,12 @@ export class Field implements IField {
 export class Project {
     constructor(
         public readonly project: IProjectMetaData,
-        public readonly configuration: IConfiguration
+        public readonly configuration: IConfiguration,
+        public readonly specItems: Array<SpecItem>
     ) {
+        // Initialize calculated fields of project
+        this.initProjectModel(project, specItems);
+
         // Populate fieldModels (e.g. used for filters)
         this.addFieldModel(TYPE_FIELD_NAME, project.types, project.type_count, Project.createTypeFieldFilterMatcher());
         this.addFieldModel(COVERAGE_FIELD_NAME, Project.COVERAGE_FIELDS, this.getCoverageFieldCounters(project), this.createCoverageFieldFilterMatcher());
@@ -188,12 +196,29 @@ export class Project {
         return this.fieldModels.has(name) ? this.fieldModels.get(name)!! : new FieldModel(name, [], () => false);
     }
 
+    /**
+     * Fill in fields in {@link project} that are not covered by the model created by OpenFastTrace.
+     *
+     * @param project The project to update
+     * @param specItems List of all SpecITems
+     * @private
+     */
+    private initProjectModel(project: IProjectMetaData, specItems: Array<SpecItem>) {
+        project.shallow_covered = specItems.filter((specItem) => specItem.isShallowCovered).length;
+        project.shallow_uncovered = specItems.length - project.shallow_covered;
+
+    }
+
     private createCoverageFieldFilterMatcher() {
         return (specItem: SpecItem, fieldIndexes: Array<number>) =>
             // field = 0 matches specItems that are fully covered
             (fieldIndexes.includes(0) && specItem.uncovered.length === 0) ||
             // field = 1 matches specItems that are not fully covere
-            (fieldIndexes.includes(1) && specItem.uncovered.length != 0);
+            (fieldIndexes.includes(1) && specItem.uncovered.length != 0) ||
+            // field = 2 matches specItems that are not shallow covere
+            (fieldIndexes.includes(2) && specItem.isShallowCovered) ||
+            // field = 3 matches specItems that are not shallow covere
+            (fieldIndexes.includes(3) && !specItem.isShallowCovered);
     }
 
 
@@ -259,10 +284,10 @@ export class Project {
         return (specItem, fieldIndexes) => fieldIndexes.some(index => specItem.tags.includes(index));
     }
 
-    private static readonly COVERAGE_FIELDS = ["covered", "uncovered"];
+    private static readonly COVERAGE_FIELDS = ["covered", "uncovered", "shallow covered", "shallow uncovered"];
 
     private getCoverageFieldCounters(project: IProjectMetaData): Array<number> {
-        return [project.item_covered, project.item_uncovered];
+        return [project.item_covered, project.item_uncovered, project.shallow_covered, project.shallow_uncovered];
     }
 
     /**

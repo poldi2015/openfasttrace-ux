@@ -25,7 +25,8 @@ import {Log} from "@main/utils/log";
 const CONTENT_NAV_BAR_ID = "#content-nav-bar";
 const CONTENT_SPEC_ITEM_COUNT = "#specitem-count";
 const CONTENT_SPEC_ITEM_FOCUS_COUNT = "#specitem-count-focused";
-const CONTENT_SPEC_ITEM_COVERAGE_PERCENTAGE = "#specitem-coverage-percentage";
+const CONTENT_SPEC_ITEM_FULL_COVERAGE_PERCENTAGE = "#specitem-full-coverage-percentage";
+const CONTENT_SPEC_ITEM_SHALLOW_COVERAGE_PERCENTAGE = "#specitem-shallow-coverage-percentage";
 
 export class SpecItemsElement implements IElement {
     constructor(private oftState: OftStateController) {
@@ -36,7 +37,8 @@ export class SpecItemsElement implements IElement {
     private readonly navbarElement: NavbarElement;
     private readonly specItemCountElement: JQuery = $(CONTENT_SPEC_ITEM_COUNT);
     private readonly specItemFocusCountElement: JQuery = $(CONTENT_SPEC_ITEM_FOCUS_COUNT);
-    private readonly specItemCoveragePercentageElement: JQuery = $(CONTENT_SPEC_ITEM_COVERAGE_PERCENTAGE);
+    private readonly specItemFullCoveragePercentageElement: JQuery = $(CONTENT_SPEC_ITEM_FULL_COVERAGE_PERCENTAGE);
+    private readonly specItemShallowCoveragePercentageElement: JQuery = $(CONTENT_SPEC_ITEM_SHALLOW_COVERAGE_PERCENTAGE);
 
     private log: Log = new Log("SpecItemsElement");
 
@@ -67,9 +69,14 @@ export class SpecItemsElement implements IElement {
     }
 
     // New: update only the coverage percentage visualization
-    public updateCoveragePercentage(coveragePercentage: number = 0): void {
-        this.log.info("updateShownItems coverage:", coveragePercentage);
-        this.specItemCoveragePercentageElement.text(`${coveragePercentage}%`);
+    public updateFullCoveragePercentage(coveragePercentage: number = 0): void {
+        this.log.info("updateShownItems full coverage:", coveragePercentage);
+        this.specItemFullCoveragePercentageElement.text(`${coveragePercentage}%`);
+    }
+
+    public updateShallowCoveragePercentage(coveragePercentage: number = 0): void {
+        this.log.info("updateShownItems shallow coverage:", coveragePercentage);
+        this.specItemShallowCoveragePercentageElement.text(`${coveragePercentage}%`);
     }
 
     // New: update visibility of the focused-count indicator

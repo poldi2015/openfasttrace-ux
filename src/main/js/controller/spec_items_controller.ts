@@ -91,7 +91,7 @@ export class SpecItemsController {
      */
     public selectNextSpecItem(): boolean {
         if (!this.isActive()) return false;
-        
+
         const currentIndex = this.selectedIndex;
         const visibleItems = this.getVisibleSpecItemIndices();
         if (visibleItems.length === 0) return false;
@@ -121,7 +121,7 @@ export class SpecItemsController {
      */
     public selectPreviousSpecItem(): boolean {
         if (!this.isActive()) return false;
-        
+
         const currentIndex = this.selectedIndex;
         // Can't go previous if we're already at the focus item (which is the first visible item)
         if (currentIndex != null && currentIndex == this.focusIndex) return false;
@@ -370,20 +370,37 @@ export class SpecItemsController {
             }
         });
         this.specItemsElement.updateNumberOfItems(specItemElements.length);
-        this.specItemsElement.updateCoveragePercentage(this.calculateCoveragePercentage(specItemElements));
+        this.specItemsElement.updateFullCoveragePercentage(this.calculateFullCoveragePercentage(specItemElements));
+        this.specItemsElement.updateShallowCoveragePercentage(this.calculateShallowCoveragePercentage(specItemElements));
         this.specItemsElement.setFocusVisibility(this.focusSpecItemElement != null);
     }
 
     /**
-     * Calculate the coverage percentage of the given spec items.
+     * Calculate the deep coverage percentage of the given spec items.
      *
      * @param specItemElements The items
      * @return coverage percentage 0-100
      * @private
      */
-    private calculateCoveragePercentage(specItemElements: Array<SpecItemElement>): number {
+    private calculateFullCoveragePercentage(specItemElements: Array<SpecItemElement>): number {
         const coveredNumberOfSpecItems = specItemElements.filter((specItemElement: SpecItemElement) =>
             specItemElement.specItem.uncovered.length === 0
+        ).length;
+        return specItemElements.length > 0
+            ? Math.round((coveredNumberOfSpecItems / specItemElements.length) * 100)
+            : 0;
+    }
+
+    /**
+     * Calculate the shallow coverage percentage of the given spec items.
+     *
+     * @param specItemElements The items
+     * @return coverage percentage 0-100
+     * @private
+     */
+    private calculateShallowCoveragePercentage(specItemElements: Array<SpecItemElement>): number {
+        const coveredNumberOfSpecItems = specItemElements.filter((specItemElement: SpecItemElement) =>
+            specItemElement.specItem.isShallowCovered
         ).length;
         return specItemElements.length > 0
             ? Math.round((coveredNumberOfSpecItems / specItemElements.length) * 100)

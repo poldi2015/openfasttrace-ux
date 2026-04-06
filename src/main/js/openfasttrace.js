@@ -35,6 +35,7 @@ import {KeyboardController} from "@main/controller/keyboard_controller";
 import {KeyboardSpecItemHandler} from "@main/controller/keyboard_specitems_handler";
 import {KeyboardGlobalHandler} from "@main/controller/keyboard_global_handler";
 import {KeyboardSearchHandler} from "@main/controller/keyboard_search_handler";
+import {initSpecItems} from "@main/model/specitems";
 
 function _init() {
     console.log("START");
@@ -43,9 +44,11 @@ function _init() {
     const themeController = new ThemeController().init();
     
     const specItems = window.specitem.specitems;
+    initSpecItems(specItems);
     const project = new Project(
         window.specitem.project,
-        window.metadata
+        window.metadata,
+        specItems
     );
 
     const oftStateBuilder = new OftStateBuilder().fromModel(project, specItems);
